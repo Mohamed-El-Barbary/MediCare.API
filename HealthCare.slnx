@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/ApplicationCoreLayer/">
+    <Project Path="Health.Domain/Health.Domain.csproj" />
+    <Project Path="Health.Services.Abstraction/Health.Services.Abstraction.csproj" />
+    <Project Path="Health.Services/Health.Services.csproj" />
+  </Folder>
+  <Folder Name="/InfrastractureLayer/">
+    <Project Path="Health.Persistence/Health.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/PresentationLayer/">
+    <Project Path="Health.Presentation/Health.Presentation.csproj" />
+    <Project Path="Health.Web/Health.Web.csproj" />
+  </Folder>
+  <Project Path="Health.Shared/Health.Shared.csproj" />
+</Solution>
