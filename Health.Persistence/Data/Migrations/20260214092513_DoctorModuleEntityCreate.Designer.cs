@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Health.Persistence.Data.Migrations
 {
     [DbContext(typeof(HealthCareDbContext))]
-    [Migration("20260214023655_DoctorModuleEntityCreate")]
+    [Migration("20260214092513_DoctorModuleEntityCreate")]
     partial class DoctorModuleEntityCreate
     {
         /// <inheritdoc />
@@ -159,7 +159,7 @@ namespace Health.Persistence.Data.Migrations
                     b.HasOne("Health.Domain.Entities.DoctorModule.DoctorProfile", "DoctorProfile")
                         .WithMany("DoctorGeneratedSlots")
                         .HasForeignKey("DoctorProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Health.Domain.Entities.DoctorModule.DoctorSchedule", "DoctorSchedule")

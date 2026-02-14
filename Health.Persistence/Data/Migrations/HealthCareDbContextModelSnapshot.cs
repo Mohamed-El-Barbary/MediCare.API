@@ -156,7 +156,7 @@ namespace Health.Persistence.Data.Migrations
                     b.HasOne("Health.Domain.Entities.DoctorModule.DoctorProfile", "DoctorProfile")
                         .WithMany("DoctorGeneratedSlots")
                         .HasForeignKey("DoctorProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Health.Domain.Entities.DoctorModule.DoctorSchedule", "DoctorSchedule")

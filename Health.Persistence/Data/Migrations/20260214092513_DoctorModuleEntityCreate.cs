@@ -82,8 +82,7 @@ namespace Health.Persistence.Data.Migrations
                         name: "FK_DoctorGeneratedSlots_DoctorProfiles_DoctorProfileId",
                         column: x => x.DoctorProfileId,
                         principalTable: "DoctorProfiles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DoctorGeneratedSlots_DoctorSchedules_DoctorScheduleId",
                         column: x => x.DoctorScheduleId,

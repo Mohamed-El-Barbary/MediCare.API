@@ -28,11 +28,13 @@ namespace Health.Persistence.Data.Configurations
 
             builder.HasOne(s => s.DoctorSchedule)
                    .WithMany(ds => ds.DoctorGeneratedSlots)
-                   .HasForeignKey(s => s.DoctorScheduleId);
+                   .HasForeignKey(s => s.DoctorScheduleId)
+                   .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(s => s.DoctorProfile)
                    .WithMany(d => d.DoctorGeneratedSlots) 
-                   .HasForeignKey(s => s.DoctorProfileId);
+                   .HasForeignKey(s => s.DoctorProfileId)
+                   .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
