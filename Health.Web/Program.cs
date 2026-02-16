@@ -1,5 +1,6 @@
 
 using Health.Persistence.Data.DbContexts;
+using Health.Web.CustomMiddlewares;
 using Microsoft.EntityFrameworkCore;
 
 namespace Health.Web
@@ -26,6 +27,8 @@ namespace Health.Web
             #endregion
             var app = builder.Build();
 
+            app.UseMiddleware<ExceptionHandlerMiddleWare>();
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -33,6 +36,7 @@ namespace Health.Web
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseAuthorization();
 
