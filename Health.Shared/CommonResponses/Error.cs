@@ -47,7 +47,7 @@ namespace Health.Shared.CommonResponses
         public static Error InvalidCredentials(
             string Code = "General.InvalidCredentials",
             string Description = "The Provided Credentials Are Invalid")
-            => new Error(code: Code, description: Description, ErrorType.InvalidCredentials);
+            => new Error(code: Code, description: Description, ErrorTypes.InvalidCredentials);
 
 
     }
