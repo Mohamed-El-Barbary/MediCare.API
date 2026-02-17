@@ -1,5 +1,8 @@
 
 using Health.Persistence.Data.DbContexts;
+using Health.Web.CustomMiddlewares;
+using Health.Web.Factories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Health.Web
@@ -23,8 +26,15 @@ namespace Health.Web
             });
 
 
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = ApiResponseFactory.GenerateApiValidationResponse;
+            });
+
             #endregion
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionHandlerMiddleWare>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -33,6 +43,7 @@ namespace Health.Web
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseAuthorization();
 
