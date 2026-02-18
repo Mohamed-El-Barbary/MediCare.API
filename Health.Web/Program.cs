@@ -4,6 +4,9 @@ using Health.Domain.Entities.IdentityModule;
 using Health.Persistence.Data.DbContexts;
 using Health.Persistence.IdentityData.DataSeed;
 using Health.Persistence.IdentityData.DbContexts;
+using Health.Persistence.Repositories;
+using Health.Services.Abstraction;
+using Health.Services.ServicesImplementation;
 using Health.Web.CustomMiddlewares;
 using Health.Web.Extensions;
 using Health.Web.Factories;
@@ -45,6 +48,8 @@ namespace Health.Web
             });
 
             builder.Services.AddKeyedScoped<IDataInitializer, IdentityDataInitializer>("Identity");
+            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             #endregion
             var app = builder.Build();
