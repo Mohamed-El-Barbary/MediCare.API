@@ -10,8 +10,9 @@ namespace Health.Domain.Contracts
 
         Task<IEnumerable<TEntity>> GetAllAsync();
 
-
-        Task<TEntity?> GetById(int id);
+        Task<IEnumerable<TEntity>> GetAllAsync(ISpecifications<TEntity , Tkey> specifications);
+        Task<TEntity?> GetByIdAsync(Tkey id);
+        Task<TEntity?> GetByIdAsync(ISpecifications<TEntity, Tkey> specifications);
 
         Task AddAsync(TEntity entity);
 

@@ -11,7 +11,7 @@ namespace Health.Domain.Entities.DoctorModule
 
         public Gender Gender { get; set; }
 
-         public DateTime JoinDate { get; set; } = DateTime.UtcNow;
+        public DateTime JoinDate { get; set; } = DateTime.UtcNow;
 
         public Address Address { get; set; } = default!;
 
