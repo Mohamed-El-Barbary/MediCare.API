@@ -31,9 +31,25 @@ namespace Health.Persistence.Repositories
             return await _healthCareDbContext.Set<TEntity>().ToListAsync();
         }
 
-        public async Task<TEntity?> GetById(int id)
+        public async Task<IEnumerable<TEntity>> GetAllAsync(ISpecifications<TEntity, Tkey> specifications)
+        {
+            var Query = SpecificationEvaluator.CreateQuery(_healthCareDbContext.Set<TEntity>(), specifications);
+
+
+            return await Query.ToListAsync();
+            
+        }
+
+        public async Task<TEntity?> GetByIdAsync(Tkey id)
         {
             return await _healthCareDbContext.Set<TEntity>().FindAsync(id);
+        }
+
+        public async Task<TEntity?> GetByIdAsync(ISpecifications<TEntity, Tkey> specifications)
+        {
+            var Query = SpecificationEvaluator.CreateQuery(_healthCareDbContext.Set<TEntity>() , specifications);
+            
+            return await Query.FirstOrDefaultAsync();
         }
 
         public void Update(TEntity entity)
