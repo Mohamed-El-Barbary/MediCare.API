@@ -45,6 +45,7 @@ namespace Health.Persistence.Repositories
             return await _healthCareDbContext.Set<TEntity>().FindAsync(id);
         }
 
+
         public async Task<TEntity?> GetByIdAsync(ISpecifications<TEntity, Tkey> specifications)
         {
             var Query = SpecificationEvaluator.CreateQuery(_healthCareDbContext.Set<TEntity>() , specifications);
