@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Health.Domain.Entities.DoctorModule;
 using Health.Services.Aggregates;
 using Health.Shared.DTOs.DoctorDTOs;
 using System;
@@ -19,10 +20,12 @@ namespace Health.Services.MappingProfiles.DoctorMapping
                      .ForMember(d => d.Specialization, O => O.MapFrom(s => s.DoctorProfile.Specialization))
                      .ForMember(d => d.YearsOfExperience, o => o.MapFrom(s => s.DoctorProfile.YearsOfExperience))
                      .ForMember(d => d.Bio, O => O.MapFrom(s => s.DoctorProfile.Bio))
-                     .ForMember(Dest => Dest.DoctorScheduleDTO, opt => opt.MapFrom(s => s.DoctorProfile.DoctorSchedule))
-                     .ForMember(Dest => Dest.GeneratedSlotsDTO, opt => opt.MapFrom(s => s.DoctorProfile.DoctorGeneratedSlots))
+                     .ForMember(d => d.Rating , O=>O.MapFrom(s => s.DoctorProfile.Rating))
+                     .ForMember(d => d.PhoneNumber , O=>O.MapFrom(s => s.ApplicationUser.PhoneNumber))
                      .ForMember(d => d.DoctorPictureUrl, O => O.MapFrom<DoctorPictureUrlResolver>());
 
+            CreateMap<DoctorSchedule, DoctorScheduleDTO>();
+            CreateMap<DoctorGeneratedSlots, GeneratedSlotsDTO>();
         }
     }
 }

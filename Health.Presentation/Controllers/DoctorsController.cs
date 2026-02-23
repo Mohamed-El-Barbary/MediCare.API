@@ -17,10 +17,19 @@ namespace Health.Presentation.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<DoctorDTO>>> GetAllDoctors()
+        {
+            var result = await _doctorService.GetAllDoctorsAsync();
+
+            return HandleResult<IEnumerable<DoctorDTO>>(result);
+        }
+
+
         // Get Doctors By Id
         [HttpGet("{id}")]
         // GET: baseUrl/api/Doctors/2
-        public async Task<ActionResult<DoctorDTO>> GetProductById(int id)
+        public async Task<ActionResult<DoctorDTO>> GetDoctorById(int id)
         {
 
             var result = await _doctorService.GetDoctorByIdAsync(id);

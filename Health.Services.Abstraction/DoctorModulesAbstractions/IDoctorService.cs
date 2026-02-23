@@ -8,6 +8,8 @@ namespace Health.Services.Abstraction.DoctorModulesAbstractions
 {
     public interface IDoctorService
     {
+
+        Task<Result<IEnumerable<DoctorDTO>>> GetAllDoctorsAsync();
         Task<Result<DoctorDTO>> GetDoctorByIdAsync(int id);
 
     }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Execution;
 using Health.Domain.Contracts;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.IdentityModule;
@@ -26,6 +27,40 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             _userManager = userManager;
             _mapper = mapper;
         }
+
+        public async Task<Result<IEnumerable<DoctorDTO>>> GetAllDoctorsAsync()
+        {
+            var spec = new DoctorWithScheduleAndGeneratedSlots(); 
+
+            var doctorProfiles = await _unitOfWork
+                .GetRepository<DoctorProfile, int>()
+                .GetAllAsync(spec);
+
+            if (doctorProfiles is null || !doctorProfiles.Any())
+                return  Error.NotFound("Doctor.NotFound", "Doctor Is Not Found");
+
+            var doctorDTOs = new List<DoctorDTO>();
+
+            var users = _userManager.Users.ToList();
+            var userDict = users.ToDictionary(u => u.Id);
+
+            foreach (var doctorProfile in doctorProfiles)
+            {
+                if (!userDict.TryGetValue(doctorProfile.UserId, out var userDoctor))
+                     return Error.NotFound("Doctor.NotFound", "There Is doctor Is Not Found");
+
+                var aggregate = new DoctorAggregate
+                {
+                    ApplicationUser = userDoctor,
+                    DoctorProfile = doctorProfile,
+                };
+
+                doctorDTOs.Add(_mapper.Map<DoctorAggregate, DoctorDTO>(aggregate));
+            }
+
+            return doctorDTOs;
+        }
+
 
         public async Task<Result<DoctorDTO>> GetDoctorByIdAsync(int id)
         {

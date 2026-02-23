@@ -13,9 +13,9 @@ namespace Health.Shared.DTOs.DoctorDTOs
         public int YearsOfExperience { get; init; }
         public string Bio { get; init; } = default!;
         public string DoctorPictureUrl { get; init; } = default!;
-
-        public List<DoctorScheduleDTO>? DoctorScheduleDTO { get; set; }
-
-        public List<GeneratedSlotsDTO>? GeneratedSlotsDTO { get; set; }
+        public decimal Rating { get; set; }
+        public string PhoneNumber { get; set; } = default!;
+        public DoctorScheduleDTO? DoctorScheduleDTO { get; set; }
+        public GeneratedSlotsDTO? GeneratedSlotsDTO { get; set; }
     }
 }
