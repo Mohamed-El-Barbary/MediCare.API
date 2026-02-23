@@ -21,6 +21,13 @@ namespace Health.Persistence.Repositories
             await _healthCareDbContext.AddAsync(entity);
         }
 
+        public async Task<int> CountAsync(ISpecifications<TEntity, Tkey> specifications)
+        {
+
+            var Query = SpecificationEvaluator.CreateQuery(_healthCareDbContext.Set<TEntity>(), specifications);
+            return await Query.CountAsync();
+        }
+
         public void Delete(int id)
         {
             _healthCareDbContext.Remove(id);

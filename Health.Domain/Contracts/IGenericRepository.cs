@@ -20,5 +20,7 @@ namespace Health.Domain.Contracts
 
         void Delete(int id);
 
+        Task<int> CountAsync(ISpecifications<TEntity, Tkey> specifications);
+
     }
 }

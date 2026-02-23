@@ -1,4 +1,5 @@
-﻿using Health.Shared.CommonResponses;
+﻿using Health.Shared;
+using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.DoctorDTOs;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace Health.Services.Abstraction.DoctorModulesAbstractions
     public interface IDoctorService
     {
 
-        Task<Result<IEnumerable<DoctorDTO>>> GetAllDoctorsAsync();
+        Task<PaginatedResult<DoctorDTO>> GetAllDoctorsAsync(DoctorSpecParams QueryParams);
         Task<Result<DoctorDTO>> GetDoctorByIdAsync(int id);
 
     }
