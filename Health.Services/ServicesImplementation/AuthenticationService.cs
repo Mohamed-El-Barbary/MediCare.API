@@ -69,11 +69,11 @@ namespace Health.Services.ServicesImplementation
             }
 
 
-            // 4️⃣ Assign Doctor Role
+            // 4️ Assign Doctor Role
             const string role = "Doctor";
             await _userManager.AddToRoleAsync(user, role);
 
-            // 5️⃣ Create DoctorProfile
+            // 5️ Create DoctorProfile
             var doctorProfile = new DoctorProfile
             {
                 UserId = user.Id,

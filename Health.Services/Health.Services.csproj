@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Health.Domain\Health.Domain.csproj" />
     <ProjectReference Include="..\Health.Services.Abstraction\Health.Services.Abstraction.csproj" />
   </ItemGroup>
