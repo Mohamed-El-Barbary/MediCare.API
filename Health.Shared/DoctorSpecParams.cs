@@ -10,7 +10,9 @@ namespace Health.Shared
         public string? ClinicLocation { get; set; }
         public int? MinExperience { get; set; }
         public int? MaxExperience { get; set; }
-        public double? MinRating { get; set; }
+        public decimal? MinRating { get; set; }
+        public decimal?  MinPrice { get; set; }
+        public decimal?  MaxPrice { get; set; }
         public string? Search { get; set; }
         public DoctorSortingOptions Sort { get; set; }
 

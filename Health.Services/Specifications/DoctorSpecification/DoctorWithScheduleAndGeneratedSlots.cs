@@ -26,6 +26,12 @@ namespace Health.Services.Specifications.DoctorSpecification
                 case DoctorSortingOptions.MinExperience:
                     AddOrderBy(d => d.YearsOfExperience);
                     break;
+                case DoctorSortingOptions.PriceAsc:
+                    AddOrderBy(d => d.PriceConsultation);
+                    break;
+                case DoctorSortingOptions.PriceDesc:
+                    AddOrderByDesc(d => d.PriceConsultation);
+                    break;
                 default:
                     AddOrderBy(d => d.Id);
                     break;

@@ -9,6 +9,7 @@ namespace Health.Domain.Entities.DoctorModule
     {
         public string UserId { get; set; } = default!;
         public string DisplayName { get; set; } = default!;
+        public string PhoneClinc { get; set; } = default!;
         public decimal PriceConsultation { get; set; }
         public Gender Gender { get; set; }
         public DateTime JoinDate { get; set; } = DateTime.UtcNow;

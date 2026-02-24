@@ -14,7 +14,15 @@ namespace Health.Services.Specifications.DoctorSpecification
         {
             return d =>
                           (string.IsNullOrEmpty(queryParams.Specialization) || d.Specialization == queryParams.Specialization)
-                       && (string.IsNullOrEmpty(queryParams.ClinicLocation) || d.ClinicLocation == queryParams.ClinicLocation);
+                       && (string.IsNullOrEmpty(queryParams.ClinicLocation) || d.ClinicLocation == queryParams.ClinicLocation)
+                       && (string.IsNullOrEmpty(queryParams.Search) || d.DisplayName.ToLower().Contains(queryParams.Search.ToLower()))
+                       &&  (!(queryParams.MinPrice.HasValue && queryParams.MaxPrice.HasValue) 
+                            ||
+                           (
+                             d.PriceConsultation >= queryParams.MinPrice.Value 
+                              &&  
+                             d.PriceConsultation <= queryParams.MaxPrice.Value)
+                           );
 
         }
     }

@@ -30,9 +30,19 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             _mapper = mapper;
         }
 
-        public Task<PaginatedResult<DoctorDTO>> GetAllDoctorsAsync(DoctorSpecParams QueryParams)
+        public async Task<PaginatedResult<DoctorDTO>> GetAllDoctorsAsync(DoctorSpecParams queryParams)
         {
-            throw new NotImplementedException();
+            var DoctorElement = _unitOfWork.GetRepository<DoctorProfile, int>();
+
+            var spec = new DoctorWithScheduleAndGeneratedSlots(queryParams);
+            var Doctors = await DoctorElement.GetAllAsync(spec);
+            var DataToResult = _mapper.Map<IEnumerable<DoctorDTO>>(Doctors);
+            var CountOfResultData = DataToResult.Count();
+
+            var CountSpec = new DoctorWithCountSpecification(queryParams);
+            var CountOverAll = await DoctorElement.CountAsync(CountSpec);
+
+            return new PaginatedResult<DoctorDTO>(queryParams.PageIndex, CountOfResultData, CountOverAll, DataToResult);
         }
 
         public async Task<Result<DoctorDTO>> GetDoctorByIdAsync(int id)

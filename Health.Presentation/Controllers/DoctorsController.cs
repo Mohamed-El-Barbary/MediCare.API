@@ -18,6 +18,13 @@ namespace Health.Presentation.Controllers
             _doctorService = doctorService;
         }
 
+        [HttpGet]
+        public async Task<ActionResult<PaginatedResult<DoctorDTO>>> GetAllDoctors([FromQuery] DoctorSpecParams specParams)
+        {
+            var result = await _doctorService.GetAllDoctorsAsync(specParams);
+
+            return Ok(result);
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<DoctorDTO>> GetDoctorById(int id)

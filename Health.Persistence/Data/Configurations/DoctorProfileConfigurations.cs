@@ -38,6 +38,11 @@ namespace Health.Persistence.Data.Configurations
                    .WithOne(d => d.DoctorProfile)
                    .HasForeignKey(d => d.DoctorProfileId);
 
+            builder.Property(d => d.PhoneClinc)
+                   .HasMaxLength(11);
+           
+
+
             builder.OwnsOne(d => d.Address, a =>
             {
                 a.Property(p => p.Street).HasMaxLength(200);
