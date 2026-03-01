@@ -4,6 +4,7 @@ using Health.Persistence.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Health.Persistence.Data.Migrations
 {
     [DbContext(typeof(HealthCareDbContext))]
-    partial class HealthCareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260223102530_MakeDisplayNameNonNullable")]
+    partial class MakeDisplayNameNonNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,7 +57,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("DoctorGeneratedSlots", (string)null);
+                    b.ToTable("DoctorGeneratedSlots");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorProfile", b =>
@@ -96,9 +99,6 @@ namespace Health.Persistence.Data.Migrations
                     b.Property<DateTime>("JoinDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PhoneClinc")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal>("PriceConsultation")
                         .HasColumnType("decimal(18,2)");
 
@@ -128,7 +128,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DoctorProfiles", (string)null);
+                    b.ToTable("DoctorProfiles");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorSchedule", b =>
@@ -158,7 +158,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("DoctorSchedules", (string)null);
+                    b.ToTable("DoctorSchedules");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorGeneratedSlots", b =>
@@ -204,7 +204,7 @@ namespace Health.Persistence.Data.Migrations
 
                             b1.HasKey("DoctorProfileId");
 
-                            b1.ToTable("DoctorProfiles", (string)null);
+                            b1.ToTable("DoctorProfiles");
 
                             b1.WithOwner()
                                 .HasForeignKey("DoctorProfileId");

@@ -21,8 +21,4 @@
     <ProjectReference Include="..\Health.Presentation\Health.Presentation.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
-
 </Project>
