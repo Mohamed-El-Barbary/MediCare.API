@@ -9,5 +9,6 @@ namespace Health.Domain.Entities.IdentityModule
     {
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
     }
 }

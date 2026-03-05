@@ -30,6 +30,21 @@ namespace Health.Presentation.Controllers
                 return HandleProblem(result.Errors);
         }
 
+        protected void SetRefreshTokenCookie(string refreshToken, DateTime expires)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
+                Expires = expires,
+                IsEssential = true
+            };
+
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+        }
+
         private ActionResult HandleProblem(IReadOnlyList<Error> errors)
         {
             // If No Errors Are Provided , Return 500 Error
