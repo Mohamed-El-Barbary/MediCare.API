@@ -19,6 +19,10 @@ namespace Health.Persistence.IdentityData.DbContexts
         {
             base.OnModelCreating(builder);
             builder.Entity<ApplicationUser>().ToTable("Users");
+            builder.Entity<ApplicationUser>().OwnsMany(x => x.RefreshTokens, a =>
+            {
+                a.HasIndex(t => t.Token).IsUnique();
+            });
             builder.Entity<IdentityRole>().ToTable("Roles");
             builder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
         }
