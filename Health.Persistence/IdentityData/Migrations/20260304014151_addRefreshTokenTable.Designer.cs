@@ -4,16 +4,19 @@ using Health.Persistence.IdentityData.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Health.Persistence.IdentityData.Migrations
+namespace Health.Persistence.identityData.Migrations
 {
     [DbContext(typeof(HealthCareIdentityDbContext))]
-    partial class HealthCareIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260304014151_addRefreshTokenTable")]
+    partial class addRefreshTokenTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
