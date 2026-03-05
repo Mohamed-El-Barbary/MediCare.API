@@ -8,7 +8,7 @@ namespace Health.Services.Abstraction
 {
     public interface IAuthenticationService
     {
-        Task<Result<UserDTO>> RegisterAsync(RegisterDoctorDTO registerDTO);
+        Task<Result<UserDTO>> RegisterDoctorAsync(RegisterDoctorDTO registerDTO);
         Task<Result<UserDTO>> RefreshTokenAsync(string refreshToken);
     }
 }
