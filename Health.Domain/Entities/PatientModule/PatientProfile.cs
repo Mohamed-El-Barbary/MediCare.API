@@ -11,6 +11,7 @@ namespace Health.Domain.Entities.PatientModule
         public string DisplayName { get; set; } = null!;
         public Gender Gender { get; set; }
         public DateTime DateOfBirth { get; set; }
+        public DateTime JoinDate { get; set; } = DateTime.UtcNow;
         public Address Address { get; set; } = null!;
 
         public ICollection<PatientChronicDisease> PatientChronicDiseases = [];

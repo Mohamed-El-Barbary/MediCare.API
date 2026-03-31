@@ -30,6 +30,32 @@ namespace Health.Presentation.Controllers
             return Ok(result.Value);
         }
 
+        [HttpPost("register-patient")]
+        public async Task<ActionResult<UserDTO>> RegisterPatient(RegisterPatientDTO registerPatient)
+        {
+            var result = await _authenticationService.RegisterPatientAsync(registerPatient);
+
+            if (!result.IsSuccess)
+                return HandleResult(result);
+
+            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.RefreshTokenExpiresOn);
+
+            return Ok(result.Value);
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
+        {
+            var result = await _authenticationService.LoginAsync(loginDTO);
+
+            if (!result.IsSuccess)
+                return HandleResult(result);
+
+            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.RefreshTokenExpiresOn);
+
+            return Ok(result.Value);
+        }
+
         [HttpPost("refresh-token")]
         public async Task<ActionResult<UserDTO>> RefreshToken()
         {

@@ -25,6 +25,9 @@ namespace Health.Persistence.Data.Configurations.PatientConfigurations
             builder.Property(p => p.DateOfBirth)
                    .IsRequired();
 
+            builder.Property(p => p.JoinDate)
+                .HasDefaultValueSql("GETDATE()");
+
             // Owned Entity: Address
             builder.OwnsOne(p => p.Address, a =>
             {

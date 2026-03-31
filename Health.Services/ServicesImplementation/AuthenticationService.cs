@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Health.Domain.Contracts;
+using Health.Domain.Entities;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.IdentityModule;
+using Health.Domain.Entities.PatientModule;
 using Health.Services.Abstraction;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.IdentityDTOs;
@@ -91,6 +93,61 @@ namespace Health.Services.ServicesImplementation
             return new UserDTO(user.Id, user.Email!, doctorProfile.DisplayName, "Doctor", accessToken, refreshToken.Token, refreshToken.ExpiresOn);
         }
 
+        public async Task<Result<UserDTO>> RegisterPatientAsync(RegisterPatientDTO patientDTO)
+        {
+
+            var validationError = await ValidateEmailAndPhoneAsync(patientDTO.Email, patientDTO.PhoneNumber);
+
+            if (validationError != null)
+                return validationError;
+
+            var user = _mapper.Map<ApplicationUser>(patientDTO);
+
+            var identityResult = await _userManager.CreateAsync(user, patientDTO.Password);
+            if (!identityResult.Succeeded)
+                return identityResult.Errors.Select(e => Error.Validation(e.Code, e.Description)).ToList();
+
+            await _userManager.AddToRoleAsync(user, "Patient");
+
+            var patientProfile = _mapper.Map<PatientProfile>(patientDTO);
+            patientProfile.UserId = user.Id;
+
+            try
+            {
+                await _unitOfWork.GetRepository<PatientProfile, int>().AddAsync(patientProfile);
+                await _unitOfWork.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                await _userManager.DeleteAsync(user);
+                return Error.Failure("PatientProfile.CreateFailed", ex.Message);
+            }
+
+            var refreshToken = await GenerateRefreshTokenAsync(user);
+            var accessToken = await CreateTokenAsync(user);
+
+            return new UserDTO(user.Id, user.Email!, patientProfile.DisplayName, "Patient", accessToken, refreshToken.Token, refreshToken.ExpiresOn);
+        }
+
+        public async Task<Result<UserDTO>> LoginAsync(LoginDTO loginDTO)
+        {
+            var user = await _userManager.FindByEmailAsync(loginDTO.Email);
+            if (user == null)
+                return Error.InvalidCredentials("User.InvalidEmail");
+
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginDTO.Password);
+            if (!isPasswordValid)
+                return Error.InvalidCredentials("User.InvalidPassword");
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.First();
+
+            var refreshToken = await GenerateRefreshTokenAsync(user);
+            var accessToken = await CreateTokenAsync(user);
+
+            return new UserDTO(user.Id, user.Email!, $"{user.FirstName} {user.LastName} ", role, accessToken, refreshToken.Token, refreshToken.ExpiresOn);
+        }
+
         public async Task<Result<UserDTO>> RefreshTokenAsync(string refreshToken)
         {
             var user = await _userManager.Users.Include(x => x.RefreshTokens)
@@ -117,6 +174,7 @@ namespace Health.Services.ServicesImplementation
         }
 
         #region HelperMethod
+
         private async Task<Error?> ValidateEmailAndPhoneAsync(string email, string phoneNumber)
         {
             var existingEmail = await _userManager.FindByEmailAsync(email);
