@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.IdentityModule;
+using Health.Domain.Entities.IdentityModule.Enums;
 using Health.Domain.Entities.PatientModule;
+using Health.Shared.DTOs.Enums;
 using Health.Shared.DTOs.IdentityDTOs;
 using System;
 using System.Collections.Generic;
@@ -37,6 +39,8 @@ namespace Health.Services.MappingProfiles.IdentityMapping
                                ChronicDiseaseId = id
                            })));
             CreateMap<AddressDTO, Address>();
+
+            CreateMap<OtpPurpose, OtpPurposeDTO>().ReverseMap();
         }
 
     }
