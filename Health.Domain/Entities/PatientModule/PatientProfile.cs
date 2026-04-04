@@ -13,7 +13,6 @@ namespace Health.Domain.Entities.PatientModule
         public DateTime DateOfBirth { get; set; }
         public DateTime JoinDate { get; set; } = DateTime.UtcNow;
         public Address Address { get; set; } = null!;
-
-        public ICollection<PatientChronicDisease> PatientChronicDiseases = [];
+        public ICollection<PatientChronicDisease> PatientChronicDiseases { get; set; } = new List<PatientChronicDisease>();
     }
 }
