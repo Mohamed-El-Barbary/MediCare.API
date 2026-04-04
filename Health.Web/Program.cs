@@ -7,12 +7,14 @@ using Health.Persistence.IdentityData.DataSeed;
 using Health.Persistence.IdentityData.DbContexts;
 using Health.Persistence.Repositories;
 using Health.Presentation.Controllers;
-using Health.Services.Abstraction;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
+using Health.Services.Abstraction.IdentityModule;
+using Health.Services.Abstraction.IdentityModuleAbstraction;
 using Health.Services.MappingProfiles;
 using Health.Services.MappingProfiles.DoctorMapping;
 using Health.Services.ServicesImplementation;
 using Health.Services.ServicesImplementation.DoctorModuleServices;
+using Health.Services.ServicesImplementation.IdentityModule;
 using Health.Web.CustomMiddlewares;
 using Health.Web.Extensions;
 using Health.Web.Factories;
@@ -22,6 +24,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
@@ -50,7 +53,13 @@ namespace Health.Web
             });
             builder.Services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<HealthCareIdentityDbContext>();
+                .AddEntityFrameworkStores<HealthCareIdentityDbContext>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                return ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")!);
+            });
 
             builder.Services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -64,6 +73,9 @@ namespace Health.Web
             builder.Services.AddAutoMapper(typeof(ServiceAssemblyReference).Assembly);
             builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
             builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+            builder.Services.AddScoped<IOtpRepository, OtpRepository>();
+            builder.Services.AddScoped<IOtpService, OtpService>();
+            builder.Services.AddTransient<IEmailService, EmailService>();
 
             builder.Services.AddAuthentication(options =>
             {
