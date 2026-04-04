@@ -54,7 +54,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("DoctorGeneratedSlots");
+                    b.ToTable("DoctorGeneratedSlots", (string)null);
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorProfile", b =>
@@ -130,7 +130,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DoctorProfiles");
+                    b.ToTable("DoctorProfiles", (string)null);
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorSchedule", b =>
@@ -160,7 +160,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("DoctorSchedules");
+                    b.ToTable("DoctorSchedules", (string)null);
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.PatientModule.ChronicDisease", b =>
@@ -178,7 +178,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ChronicDisease");
+                    b.ToTable("ChronicDisease", (string)null);
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.PatientModule.PatientChronicDisease", b =>
@@ -201,7 +201,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasIndex("ChronicDiseaseId");
 
-                    b.ToTable("PatientChronicDisease");
+                    b.ToTable("PatientChronicDisease", (string)null);
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.PatientModule.PatientProfile", b =>
@@ -234,7 +234,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PatientProfile");
+                    b.ToTable("PatientProfile", (string)null);
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorGeneratedSlots", b =>
@@ -280,7 +280,7 @@ namespace Health.Persistence.Data.Migrations
 
                             b1.HasKey("DoctorProfileId");
 
-                            b1.ToTable("DoctorProfiles");
+                            b1.ToTable("DoctorProfiles", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("DoctorProfileId");
@@ -344,7 +344,7 @@ namespace Health.Persistence.Data.Migrations
 
                             b1.HasKey("PatientProfileId");
 
-                            b1.ToTable("PatientProfile");
+                            b1.ToTable("PatientProfile", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PatientProfileId");
