@@ -11,5 +11,9 @@
     <Project Path="Health.Presentation/Health.Presentation.csproj" />
     <Project Path="Health.Web/Health.Web.csproj" />
   </Folder>
+  <Folder Name="/UiLayer/" />
+  <Folder Name="/UiLayer/AdminDashboard/">
+    <Project Path="AdminDashboard/AdminDashboard.csproj" Id="206fffbd-3416-4395-b1c1-c13d2f2f4fbd" />
+  </Folder>
   <Project Path="Health.Shared/Health.Shared.csproj" />
 </Solution>
