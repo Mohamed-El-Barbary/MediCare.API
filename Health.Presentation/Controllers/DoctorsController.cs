@@ -42,5 +42,15 @@ namespace Health.Presentation.Controllers
             return HandleResult(result);
         }
 
+        // GET  /api/doctors/{id}/schedule
+
+        [HttpGet("{id}/schedule")]
+        public async Task<ActionResult<IEnumerable<DoctorScheduleDTO>>> GetAllDoctorScedule(int id)
+        {
+            var result = await _doctorService.GetAllDoctorScheduleAsync(id);
+
+            return HandleResult(result);
+        }
+
     }
 }

@@ -5,6 +5,7 @@ using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.IdentityModule;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Services.Aggregates;
+using Health.Services.Specifications.DoctorSceduleSpecification;
 using Health.Services.Specifications.DoctorSpecification;
 using Health.Shared;
 using Health.Shared.CommonResponses;
@@ -109,6 +110,24 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result.Ok();
         }
 
+
+
+        // GET  /api/doctors/{id}/schedule
+        public async Task<Result<IEnumerable<DoctorScheduleDTO>>> GetAllDoctorScheduleAsync(int doctorId)
+        {
+            var DoctorScudleElement = _unitOfWork.GetRepository<DoctorSchedule, int>();
+            var spec = new DoctorSceduleByDoctorProfileIdSpec(doctorId);
+            var schedules = await DoctorScudleElement.GetAllAsync(spec);
+
+            if (!schedules.Any())
+            {
+                return Error.NotFound("DoctorScedule.NotFound", $"DoctorSecdule With Id:{doctorId} Is Not Found");
+            }
+
+            var schedulesDTO = _mapper.Map<IEnumerable<DoctorScheduleDTO>>(schedules);
+
+            return Result<IEnumerable<DoctorScheduleDTO>>.Ok(schedulesDTO);
+        }
 
     }
 }
