@@ -42,35 +42,26 @@ namespace Health.Presentation.Controllers
             return HandleResult(result , "Doctor schedule has been established successfully.");
         }
 
-        // GET  /api/doctors/{id}/schedule
-
         [HttpGet("{id}/schedule")]
         public async Task<ActionResult<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScedule(int id)
         {
             var result = await _doctorService.GetAllDoctorScheduleAsync(id);
-
             return HandleResult(result);
         }
 
-
-        // DELETE /api/schedule/{scheduleId}
         [HttpDelete("{scheduleId}")]
         public async Task<ActionResult> DeleteSpacificSchdeuleFroDoctorProfile([FromRoute] int scheduleId , [FromQuery] int doctorProfileId)
         {
             var result = await _doctorService.DeleteScheduleAsync(scheduleId, doctorProfileId);
             return HandleResult(result , "Schedule deleted successfully");
-
         }
 
 
-        // PUT /api/doctors/{doctorProfileId}/schedule/{scheduleId}
         [HttpPut("{doctorProfileId}/schedule/{scheduleId}")]
         public async Task<IActionResult> UpdateSchedule([FromRoute] int doctorProfileId,[FromRoute] int scheduleId,[FromBody] DoctorScheduleDTO dto)
         {
-
             var result = await _doctorService.UpdateScheduleAsync(doctorProfileId, scheduleId, dto);
             return HandleResult(result , "Schedule Updated Successfully");
-
         }
 
 
