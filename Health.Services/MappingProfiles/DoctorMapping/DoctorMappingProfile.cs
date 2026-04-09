@@ -20,7 +20,7 @@ namespace Health.Services.MappingProfiles.DoctorMapping
            .ForMember(dest => dest.DoctorProfileId,
                       opt => opt.Ignore());
 
-            CreateMap<DoctorSchedule, DoctorScheduleDTO>();
+            CreateMap<DoctorSchedule, DoctorSceduleToReturn>();
         }
     }
 }

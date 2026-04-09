@@ -39,8 +39,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
               POST /api/doctors/{id}/generate-slots
               POST /api/doctors/{id}/schedule
               PUT  /api/doctors/{id}/schedule
-              GET  /api/doctors/{id}/schedule
-              DELETE /api/schedule/{scheduleId}
+              
          */
          //  POST /api/doctors/{id}/schedule
 
@@ -111,9 +110,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         }
 
 
-
-        // GET  /api/doctors/{id}/schedule
-        public async Task<Result<IEnumerable<DoctorScheduleDTO>>> GetAllDoctorScheduleAsync(int doctorId)
+        public async Task<Result<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScheduleAsync(int doctorId)
         {
             var DoctorScudleElement = _unitOfWork.GetRepository<DoctorSchedule, int>();
             var spec = new DoctorSceduleByDoctorProfileIdSpec(doctorId);
@@ -124,10 +121,18 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                 return Error.NotFound("DoctorScedule.NotFound", $"DoctorSecdule With Id:{doctorId} Is Not Found");
             }
 
-            var schedulesDTO = _mapper.Map<IEnumerable<DoctorScheduleDTO>>(schedules);
+            var schedulesDTO = _mapper.Map<IEnumerable<DoctorSceduleToReturn>>(schedules);
 
-            return Result<IEnumerable<DoctorScheduleDTO>>.Ok(schedulesDTO);
+            return Result<IEnumerable<DoctorSceduleToReturn>>.Ok(schedulesDTO);
         }
+
+
+        // DELETE /api/schedule/{scheduleId}
+        
+
+
+
+
 
     }
 }

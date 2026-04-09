@@ -13,6 +13,6 @@ namespace Health.Services.Abstraction.DoctorModulesAbstractions
         Task<Result> AddScheduleAsync(int doctorId , DoctorScheduleDTO DoctorScheduleDTOs);
         Task<PaginatedResult<DoctorDTO>> GetAllDoctorsAsync(DoctorSpecParams QueryParams);
         Task<Result<DoctorDTO>> GetDoctorByIdAsync(int id);
-        Task<Result<IEnumerable<DoctorScheduleDTO>>> GetAllDoctorScheduleAsync(int doctorId);
+        Task<Result<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScheduleAsync(int doctorId);
     }
 }
