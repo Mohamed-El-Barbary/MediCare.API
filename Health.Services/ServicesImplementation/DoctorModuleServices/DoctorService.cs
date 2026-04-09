@@ -32,16 +32,6 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             _doctorScheduleRepository = doctorScheduleRepository;
         }
 
-     
-
-          /*
-              //GET /api/doctors/{id}/slots
-              //POST /api/doctors/{id}/generate-slots
-             
-              PUT  /api/doctors/{id}/schedule
-              
-         */
-        
 
         public async Task<PaginatedResult<DoctorDTO>> GetAllDoctorsAsync(DoctorSpecParams queryParams)
         {
