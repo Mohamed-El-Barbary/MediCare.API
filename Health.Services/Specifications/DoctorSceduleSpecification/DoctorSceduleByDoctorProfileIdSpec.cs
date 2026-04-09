@@ -7,7 +7,9 @@ namespace Health.Services.Specifications.DoctorSceduleSpecification
 {
     public class DoctorSceduleByDoctorProfileIdSpec : BaseSpecification<DoctorSchedule , int> 
     {
-        public DoctorSceduleByDoctorProfileIdSpec(int id) : base(s => s.DoctorProfileId == id)
+        public DoctorSceduleByDoctorProfileIdSpec(int id, int? excludeScheduleId = null)
+       : base(s => s.DoctorProfileId == id
+                   && (!excludeScheduleId.HasValue || s.Id != excludeScheduleId.Value))
         {
         }
     }
