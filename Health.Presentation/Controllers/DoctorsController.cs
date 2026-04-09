@@ -39,7 +39,7 @@ namespace Health.Presentation.Controllers
         {
             var result = await _doctorService.AddScheduleAsync(id, dto);
 
-            return HandleResult(result);
+            return HandleResult(result , "Doctor schedule has been established successfully.");
         }
 
         // GET  /api/doctors/{id}/schedule
@@ -52,5 +52,14 @@ namespace Health.Presentation.Controllers
             return HandleResult(result);
         }
 
+
+        // DELETE /api/schedule/{scheduleId}
+        [HttpDelete("{scheduleId}")]
+        public async Task<ActionResult> DeleteSpacificSchdeuleFroDoctorProfile([FromRoute] int scheduleId , [FromQuery] int doctorProfileId)
+        {
+            var result = await _doctorService.DeleteScheduleAsync(scheduleId, doctorProfileId);
+            return HandleResult(result , "Schedule deleted successfully");
+
+        }
     }
 }

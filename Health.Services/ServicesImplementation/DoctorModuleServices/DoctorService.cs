@@ -35,13 +35,13 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
      
 
           /*
-              GET /api/doctors/{id}/slots
-              POST /api/doctors/{id}/generate-slots
-              POST /api/doctors/{id}/schedule
+              //GET /api/doctors/{id}/slots
+              //POST /api/doctors/{id}/generate-slots
+             
               PUT  /api/doctors/{id}/schedule
               
          */
-         //  POST /api/doctors/{id}/schedule
+        
 
         public async Task<PaginatedResult<DoctorDTO>> GetAllDoctorsAsync(DoctorSpecParams queryParams)
         {
@@ -126,9 +126,29 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result<IEnumerable<DoctorSceduleToReturn>>.Ok(schedulesDTO);
         }
 
+        public async Task<Result> DeleteScheduleAsync(int scheduleId, int doctorProfileId)
+        {
+            var scheduleRepo = _unitOfWork.GetRepository<DoctorSchedule, int>();
 
-        // DELETE /api/schedule/{scheduleId}
-        
+            var schedule = await scheduleRepo.GetByIdAsync(scheduleId);
+
+            if (schedule == null)
+                return Result.Fail(Error.NotFound("Schedule.NotFound", "Schedule not found"));
+
+            if (schedule.DoctorProfileId != doctorProfileId)
+                return Result.Fail(Error.Failure("Scedule.NotAllowed" , "You are not allowed to delete this schedule"));
+
+
+            scheduleRepo.Delete(schedule);
+
+            await _unitOfWork.SaveChanges();
+
+            return Result.Ok();
+        }
+
+
+       
+
 
 
 

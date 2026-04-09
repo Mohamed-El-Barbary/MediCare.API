@@ -12,7 +12,7 @@ namespace Health.Presentation.Controllers
     {
 
         // Handle Result Without Value 
-        protected ActionResult HandleResult(Result result, string successMessage = "Doctor schedule has been established successfully.")
+        protected ActionResult HandleResult(Result result, string? successMessage = default)
         {
 
             if (result.IsSuccess)

@@ -34,9 +34,9 @@ namespace Health.Persistence.Repositories
             return await Query.CountAsync();
         }
 
-        public void Delete(int id)
+        public void Delete(TEntity entity)
         {
-            _healthCareDbContext.Remove(id);
+            _healthCareDbContext.Remove(entity);
         }
 
         public async Task<IEnumerable<TEntity>> GetAllAsync()
