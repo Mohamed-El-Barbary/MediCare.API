@@ -137,7 +137,36 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         }
 
 
-       
+        public async Task<Result> UpdateScheduleAsync(int doctorProfileId, int scheduleId, DoctorScheduleDTO dto)
+        {
+            var scheduleRepo = _unitOfWork.GetRepository<DoctorSchedule, int>();
+
+           
+            var scheduleToUpdate = await scheduleRepo.GetByIdAsync(scheduleId);
+
+            if (scheduleToUpdate == null || scheduleToUpdate.DoctorProfileId != doctorProfileId)
+                return Result.Fail(Error.NotFound("Schedule not found or does not belong to this doctor"));
+
+            
+            var spec = new DoctorSceduleByDoctorProfileIdSpec(doctorProfileId, scheduleId);
+            var schedules = await scheduleRepo.GetAllAsync(spec);
+
+            
+            var exists = schedules.Any(s => s.DayOfWeek == dto.DayOfWeek);
+            if (exists)
+                return Result.Fail(Error.Failure("This doctor already has a schedule for this day"));
+
+            
+            scheduleToUpdate.DayOfWeek = dto.DayOfWeek;
+            scheduleToUpdate.StartTime = dto.StartTime;
+            scheduleToUpdate.EndTime = dto.EndTime;
+            scheduleToUpdate.SlotDurationMinutes = dto.SlotDurationMinutes;
+
+            scheduleRepo.Update(scheduleToUpdate);
+            await _unitOfWork.SaveChanges();
+
+            return Result.Ok();
+        }
 
 
 

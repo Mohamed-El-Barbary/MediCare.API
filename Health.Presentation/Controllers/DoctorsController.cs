@@ -61,5 +61,18 @@ namespace Health.Presentation.Controllers
             return HandleResult(result , "Schedule deleted successfully");
 
         }
+
+
+        // PUT /api/doctors/{doctorProfileId}/schedule/{scheduleId}
+        [HttpPut("{doctorProfileId}/schedule/{scheduleId}")]
+        public async Task<IActionResult> UpdateSchedule([FromRoute] int doctorProfileId,[FromRoute] int scheduleId,[FromBody] DoctorScheduleDTO dto)
+        {
+
+            var result = await _doctorService.UpdateScheduleAsync(doctorProfileId, scheduleId, dto);
+            return HandleResult(result , "Schedule Updated Successfully");
+
+        }
+
+
     }
 }

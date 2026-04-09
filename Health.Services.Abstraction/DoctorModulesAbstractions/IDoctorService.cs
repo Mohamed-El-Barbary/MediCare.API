@@ -15,5 +15,7 @@ namespace Health.Services.Abstraction.DoctorModulesAbstractions
         Task<Result<DoctorDTO>> GetDoctorByIdAsync(int id);
         Task<Result<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScheduleAsync(int doctorId);
         Task<Result> DeleteScheduleAsync(int scheduleId, int doctorProfileId);
+
+        Task<Result> UpdateScheduleAsync(int doctorProfileId, int scheduleId, DoctorScheduleDTO dto);
     }
 }
