@@ -1,9 +1,11 @@
 ﻿using Health.Domain.Contracts;
 using Health.Domain.Entities;
+using Health.Domain.Entities.DoctorModule;
 using Health.Persistence.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Health.Persistence.Repositories
@@ -19,6 +21,10 @@ namespace Health.Persistence.Repositories
         public async Task AddAsync(TEntity entity)
         {
             await _healthCareDbContext.AddAsync(entity);
+        }
+        public async Task AddRangeAsync(IEnumerable<TEntity> entitys)
+        {
+            await _healthCareDbContext.AddRangeAsync(entitys);
         }
 
         public async Task<int> CountAsync(ISpecifications<TEntity, Tkey> specifications)

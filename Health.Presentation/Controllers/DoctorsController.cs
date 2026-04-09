@@ -34,5 +34,13 @@ namespace Health.Presentation.Controllers
             return HandleResult<DoctorDTO>(result);
         }
 
+        [HttpPost("{id}/schedule")]
+        public async Task<IActionResult> AddSchedule(int id, [FromBody] DoctorScheduleDTO dto)
+        {
+            var result = await _doctorService.AddScheduleAsync(id, dto);
+
+            return HandleResult(result);
+        }
+
     }
 }
