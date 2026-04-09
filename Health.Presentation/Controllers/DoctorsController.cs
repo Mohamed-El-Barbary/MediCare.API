@@ -34,5 +34,36 @@ namespace Health.Presentation.Controllers
             return HandleResult<DoctorDTO>(result);
         }
 
+        [HttpPost("{id}/schedule")]
+        public async Task<IActionResult> AddSchedule(int id, [FromBody] DoctorScheduleDTO dto)
+        {
+            var result = await _doctorService.AddScheduleAsync(id, dto);
+
+            return HandleResult(result , "Doctor schedule has been established successfully.");
+        }
+
+        [HttpGet("{id}/schedule")]
+        public async Task<ActionResult<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScedule(int id)
+        {
+            var result = await _doctorService.GetAllDoctorScheduleAsync(id);
+            return HandleResult(result);
+        }
+
+        [HttpDelete("{scheduleId}")]
+        public async Task<ActionResult> DeleteSpacificSchdeuleFroDoctorProfile([FromRoute] int scheduleId , [FromQuery] int doctorProfileId)
+        {
+            var result = await _doctorService.DeleteScheduleAsync(scheduleId, doctorProfileId);
+            return HandleResult(result , "Schedule deleted successfully");
+        }
+
+
+        [HttpPut("{doctorProfileId}/schedule/{scheduleId}")]
+        public async Task<IActionResult> UpdateSchedule([FromRoute] int doctorProfileId,[FromRoute] int scheduleId,[FromBody] DoctorScheduleDTO dto)
+        {
+            var result = await _doctorService.UpdateScheduleAsync(doctorProfileId, scheduleId, dto);
+            return HandleResult(result , "Schedule Updated Successfully");
+        }
+
+
     }
 }
