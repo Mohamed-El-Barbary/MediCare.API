@@ -169,7 +169,8 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         }
 
 
-
+        //GET /api/doctors/{id}/slots
+        //POST /api/doctors/{id}/generate-slots
 
 
 

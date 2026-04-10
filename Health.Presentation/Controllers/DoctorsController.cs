@@ -64,6 +64,5 @@ namespace Health.Presentation.Controllers
             return HandleResult(result , "Schedule Updated Successfully");
         }
 
-
     }
 }

@@ -20,7 +20,7 @@ namespace Health.Domain.Entities.DoctorModule
 
         public TimeSpan EndTime { get; set; }
 
-        public bool IsBooked { get; set; } = false;
+        public SlotStatus Status { get; set; } = SlotStatus.Available;
 
     }
 }
