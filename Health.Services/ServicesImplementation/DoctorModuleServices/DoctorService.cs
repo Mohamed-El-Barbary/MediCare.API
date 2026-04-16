@@ -24,12 +24,14 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IDoctorScheduleRepository _doctorScheduleRepository;
+        private readonly IDoctorGenerateSlotsRepository _slotRepo;
 
-        public DoctorService(IUnitOfWork unitOfWork, IMapper mapper , IDoctorScheduleRepository doctorScheduleRepository)
+        public DoctorService(IUnitOfWork unitOfWork, IMapper mapper , IDoctorScheduleRepository doctorScheduleRepository , IDoctorGenerateSlotsRepository SlotRepo)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _doctorScheduleRepository = doctorScheduleRepository;
+            _slotRepo = SlotRepo;
         }
 
 
@@ -171,6 +173,86 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
 
         //GET /api/doctors/{id}/slots
         //POST /api/doctors/{id}/generate-slots
+        public async Task<Result> GenerateSlotsBySchedule(int scheduleId, GeneratedSlotsRequestDto generatedSlotsRequestDto)
+        {
+
+            if (generatedSlotsRequestDto.StartDate > generatedSlotsRequestDto.EndDate)
+                return Result.Fail(Error.InvalidCredentials("Result.InvalidCredential", "StartDate must be <= EndDate"));
+
+            // Get Scheule
+            var schedule = await _unitOfWork.GetRepository<DoctorSchedule , int>().GetByIdAsync(scheduleId);
+            if (schedule is null)
+                return Result.Fail(Error.NotFound("Schedule.Notfound", $"Schedule With {scheduleId} Is Not Found For This Doctor"));
+
+            //validation
+            if (schedule.StartTime >= schedule.EndTime)
+                return Result.Fail(Error.Failure("Generate Is Failure", "Invalid Schedule Time"));
+
+            if(schedule.SlotDurationMinutes <= 0)
+                return Result.Fail(Error.Failure("Generate Is Failure", "Invalid Slot Duration"));
+
+            // doctorId From Doctor Schedule
+            var doctorId = schedule.DoctorProfileId;
+
+            var duration = TimeSpan.FromMinutes(schedule.SlotDurationMinutes);
+
+            var existingSlots = await _slotRepo
+                                    .GetByDoctorAndDateRange
+                                    (
+                                      doctorId, 
+                                      generatedSlotsRequestDto.StartDate, 
+                                      generatedSlotsRequestDto.EndDate
+                                    );
+
+            var existingSet = existingSlots
+                                .Select(s => (s.SlotDate.Date, s.StartTime))
+                                .ToHashSet();
+
+            var newSlots = new List<DoctorGeneratedSlots>();
+
+            // Generate Slots
+            for (var date = generatedSlotsRequestDto.StartDate.Date; date <= generatedSlotsRequestDto.EndDate.Date; date = date.AddDays(1))
+            {
+                // check day Match
+                if(date.DayOfWeek != schedule.DayOfWeek)
+                    continue;
+
+                var current = schedule.StartTime;
+
+                while (current + duration <= schedule.EndTime)
+                {
+                    if (!existingSet.Contains((date, current)))
+                    {
+                        newSlots.Add(new DoctorGeneratedSlots
+                        {
+                            DoctorProfileId = doctorId,       
+                            DoctorScheduleId = schedule.Id,
+                            SlotDate = date,
+                            StartTime = current,
+                            EndTime = current.Add(duration),
+                            Status = SlotStatus.Available
+                        });
+                    }
+
+                    current = current.Add(duration);
+                }
+
+            }
+          
+            if (newSlots.Any())
+            {
+                await _unitOfWork.GetRepository<DoctorGeneratedSlots , int>().AddRangeAsync(newSlots);
+            }
+
+            bool result = await _unitOfWork.SaveChanges() > 0;
+
+            if(!result)
+                return Result.Fail(Error.Failure("Something Wrong Happen When Adding Slots")); 
+            
+            
+            return Result.Ok();
+        }
+
 
 
 

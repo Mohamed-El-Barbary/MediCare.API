@@ -21,6 +21,7 @@ namespace Health.Services.MappingProfiles.DoctorMapping
                       opt => opt.Ignore());
 
             CreateMap<DoctorSchedule, DoctorSceduleToReturn>();
+
         }
     }
 }

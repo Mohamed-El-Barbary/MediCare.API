@@ -17,5 +17,7 @@ namespace Health.Services.Abstraction.DoctorModulesAbstractions
         Task<Result> DeleteScheduleAsync(int scheduleId, int doctorProfileId);
 
         Task<Result> UpdateScheduleAsync(int doctorProfileId, int scheduleId, DoctorScheduleDTO dto);
+
+        Task<Result> GenerateSlotsBySchedule(int scheduleId , GeneratedSlotsRequestDto generatedSlotsRequestDto);
     }
 }

@@ -64,5 +64,12 @@ namespace Health.Presentation.Controllers
             return HandleResult(result , "Schedule Updated Successfully");
         }
 
+        [HttpPost("{scheduleId}/generate-slots")]
+        public async Task<IActionResult> GenerateSlots(int scheduleId , GeneratedSlotsRequestDto requestDTO)
+        {
+            var result = await _doctorService.GenerateSlotsBySchedule(scheduleId, requestDTO);
+
+            return HandleResult(result, "Doctor Slots has been established successfully.");
+        }
     }
 }

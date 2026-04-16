@@ -6,6 +6,7 @@ using Health.Persistence.Data.DbContexts;
 using Health.Persistence.IdentityData.DataSeed;
 using Health.Persistence.IdentityData.DbContexts;
 using Health.Persistence.Repositories;
+using Health.Persistence.Repositories.DoctorRepos;
 using Health.Presentation.Controllers;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Services.Abstraction.IdentityModule;
@@ -77,6 +78,7 @@ namespace Health.Web
             builder.Services.AddScoped<IOtpRepository, OtpRepository>();
             builder.Services.AddScoped<IOtpService, OtpService>();
             builder.Services.AddTransient<IEmailService, EmailService>();
+            builder.Services.AddScoped<IDoctorGenerateSlotsRepository , SlotRepository>();
 
             builder.Services.AddAuthentication(options =>
             {
