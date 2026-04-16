@@ -4,6 +4,7 @@ using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.DoctorDTOs;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -62,6 +63,22 @@ namespace Health.Presentation.Controllers
         {
             var result = await _doctorService.UpdateScheduleAsync(doctorProfileId, scheduleId, dto);
             return HandleResult(result , "Schedule Updated Successfully");
+        }
+
+        [HttpPost("{scheduleId}/generate-slots")]
+        public async Task<IActionResult> GenerateSlots(int scheduleId , GeneratedSlotsRequestDto requestDTO)
+        {
+            var result = await _doctorService.GenerateSlotsBySchedule(scheduleId, requestDTO);
+
+            return HandleResult(result, "Doctor Slots has been established successfully.");
+        }
+
+        [HttpGet("{doctorId}/generate-slots")]
+        public async Task<ActionResult<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(int doctorId, DateTime? Date)
+        {
+            var result = await _doctorService.GetDoctorSlots(doctorId, Date);
+
+            return HandleResult(result);
         }
 
 

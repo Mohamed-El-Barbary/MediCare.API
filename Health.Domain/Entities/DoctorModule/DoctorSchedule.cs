@@ -16,8 +16,6 @@ namespace Health.Domain.Entities.DoctorModule
 
         public int DoctorProfileId { get; set; }
         public DoctorProfile DoctorProfile { get; set; } = default!;
-
-
         public ICollection<DoctorGeneratedSlots> DoctorGeneratedSlots { get; set; } = new List<DoctorGeneratedSlots>();
     }
 

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace Health.Persistence.Repositories
+namespace Health.Persistence.Repositories.DoctorRepos
 {
     public class DoctorScheduleRepository : IDoctorScheduleRepository
     {

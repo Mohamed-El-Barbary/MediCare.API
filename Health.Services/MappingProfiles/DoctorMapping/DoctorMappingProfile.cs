@@ -2,6 +2,7 @@
 using Health.Domain.Entities.DoctorModule;
 using Health.Services.Aggregates;
 using Health.Shared.DTOs.DoctorDTOs;
+using Health.Shared.DTOs.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,6 +22,7 @@ namespace Health.Services.MappingProfiles.DoctorMapping
                       opt => opt.Ignore());
 
             CreateMap<DoctorSchedule, DoctorSceduleToReturn>();
+
         }
     }
 }
