@@ -5,17 +5,20 @@ using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.IdentityModule;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Services.Aggregates;
+using Health.Services.Specifications.DoctorGeneratedSlotsSpecification;
 using Health.Services.Specifications.DoctorSceduleSpecification;
 using Health.Services.Specifications.DoctorSpecification;
 using Health.Shared;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.DoctorDTOs;
+using Health.Shared.DTOs.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace Health.Services.ServicesImplementation.DoctorModuleServices
 {
@@ -171,8 +174,6 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         }
 
 
-        //GET /api/doctors/{id}/slots
-        //POST /api/doctors/{id}/generate-slots
         public async Task<Result> GenerateSlotsBySchedule(int scheduleId, GeneratedSlotsRequestDto generatedSlotsRequestDto)
         {
 
@@ -253,8 +254,19 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result.Ok();
         }
 
+        public async Task<Result<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(int doctorId, DateTime? date)
+        {
+            var spec = new DoctorSlotsSpec(doctorId, date);
+            var Slots = await _unitOfWork.GetRepository<DoctorGeneratedSlots , int>().GetAllAsync(spec);
 
-
-
+            return Slots.Select(s => new GeneratedSlotsDTO
+            {
+                Id = s.Id,
+                SlotDate = s.SlotDate,
+                StartTime = s.StartTime,
+                EndTime = s.EndTime,
+                Status = (EnumSlotStatusDTO)s.Status
+            }).ToList();
+        }
     }
 }
