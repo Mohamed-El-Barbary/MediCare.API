@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Health.Persistence.Data.Configurations
+namespace Health.Persistence.Data.Configurations.DoctorModuleConfigurations
 {
     public class DoctorScheduleConfigurations : IEntityTypeConfiguration<DoctorSchedule>
     {

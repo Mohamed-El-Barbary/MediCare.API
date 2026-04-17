@@ -9,6 +9,7 @@ namespace Health.Shared.DTOs.Enums
         Available = 0,
         Booked = 1,
         Cancelled = 2,
-        Pending = 3
+        Pending = 3,
+        expired
     }
 }
