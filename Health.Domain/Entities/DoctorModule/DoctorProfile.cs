@@ -27,7 +27,6 @@ namespace Health.Domain.Entities.DoctorModule
         public string? ApprovedBy { get; set; }
         public ICollection<DoctorSchedule> DoctorSchedule { get; set; } = new List<DoctorSchedule>();
         public ICollection<DoctorGeneratedSlots> DoctorGeneratedSlots { get; set; } = new List<DoctorGeneratedSlots>();
-
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     }
 }
