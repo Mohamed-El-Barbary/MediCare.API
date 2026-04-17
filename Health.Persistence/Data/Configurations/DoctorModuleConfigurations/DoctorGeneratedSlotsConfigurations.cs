@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using System.Text;
 
-namespace Health.Persistence.Data.Configurations
+namespace Health.Persistence.Data.Configurations.DoctorModuleConfigurations
 {
     public class DoctorGeneratedSlotsConfigurations : IEntityTypeConfiguration<DoctorGeneratedSlots>
     {

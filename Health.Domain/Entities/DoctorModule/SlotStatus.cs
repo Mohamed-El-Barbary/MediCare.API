@@ -9,6 +9,7 @@ namespace Health.Domain.Entities.DoctorModule
         Available = 0,
         Booked = 1,
         Cancelled = 2,
-        Pending = 3
+        Pending = 3,
+        expired
     }
 }
