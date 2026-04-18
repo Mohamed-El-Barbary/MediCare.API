@@ -8,12 +8,14 @@ using Health.Persistence.IdentityData.DbContexts;
 using Health.Persistence.Repositories;
 using Health.Persistence.Repositories.DoctorRepos;
 using Health.Presentation.Controllers;
+using Health.Services.Abstraction.AppointmentInterface;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Services.Abstraction.IdentityModule;
 using Health.Services.Abstraction.IdentityModuleAbstraction;
 using Health.Services.MappingProfiles;
 using Health.Services.MappingProfiles.DoctorMapping;
 using Health.Services.ServicesImplementation;
+using Health.Services.ServicesImplementation.AppointmentService;
 using Health.Services.ServicesImplementation.DoctorModuleServices;
 using Health.Services.ServicesImplementation.IdentityModule;
 using Health.Web.CustomMiddlewares;
@@ -77,6 +79,7 @@ namespace Health.Web
             builder.Services.AddScoped<IAttachmentService, AttachmentService>();
             builder.Services.AddScoped<IOtpRepository, OtpRepository>();
             builder.Services.AddScoped<IOtpService, OtpService>();
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
             builder.Services.AddTransient<IEmailService, EmailService>();
             builder.Services.AddScoped<IDoctorGenerateSlotsRepository , SlotRepository>();
 
