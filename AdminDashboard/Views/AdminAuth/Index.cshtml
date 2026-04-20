@@ -1,0 +1,95 @@
+﻿@model LoginVM
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Healthcare Admin Dashboard</title>
+
+    <link rel="stylesheet" href="~/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="~/vendors/ti-icons/css/themify-icons.css">
+    <link rel="stylesheet" href="~/vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="~/vendors/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="shortcut icon" href="~/images/favicon.png" />
+</head>
+<body>
+
+    <div class="container-scroller">
+        <div class="container-fluid page-body-wrapper full-page-wrapper">
+
+            <div class="content-wrapper d-flex align-items-center auth">
+                <div class="row flex-grow">
+                    <div class="col-lg-4 mx-auto">
+
+                        <div class="auth-form-light text-left p-5">
+
+                            <!-- Logo -->
+                            <div class="brand-logo text-center mb-3">
+                                <i class="mdi mdi-hospital-building mdi-48px text-primary"></i>
+                                <div class="logo-title mt-2">
+                                    Healthcare Admin
+                                </div>
+                                <small class="text-muted">Dashboard Login</small>
+                            </div>
+
+                            <h6 class="font-weight-light mb-2">
+                                Sign in to continue.
+                            </h6>
+
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                            <!-- LOGIN FORM -->
+                            <form asp-controller="AdminAuth"
+                                  asp-action="LoginAdmin"
+                                  method="post"
+                                  class="pt-3">
+
+                                <!-- EMAIL -->
+                                <div class="form-group">
+                                    <input asp-for="Email"
+                                           type="email"
+                                           class="form-control form-control-lg"
+                                           placeholder="Email" />
+
+                                    <span class="text-danger small" asp-validation-for="Email"></span>
+                                </div>
+
+                                <!-- PASSWORD -->
+                                <div class="form-group">
+                                    <input asp-for="Password"
+                                           type="password"
+                                           class="form-control form-control-lg"
+                                           placeholder="Password" />
+
+                                    <span class="text-danger small" asp-validation-for="Password"></span>
+                                </div>
+
+                                <!-- SUBMIT -->
+                                <div class="mt-3 d-grid gap-2">
+                                    <button type="submit"
+                                            class="btn btn-gradient-primary btn-lg font-weight-medium auth-form-btn">
+                                        SIGN IN
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="~/vendors/js/vendor.bundle.base.js"></script>
+    <script src="~/js/off-canvas.js"></script>
+    <script src="~/js/misc.js"></script>
+    <script src="~/js/settings.js"></script>
+    <script src="~/js/todolist.js"></script>
+    <script src="~/js/jquery.cookie.js"></script>
+
+</body>
+</html>
