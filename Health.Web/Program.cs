@@ -27,6 +27,7 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace Health.Web
@@ -96,8 +97,8 @@ namespace Health.Web
                     ValidAudience = builder.Configuration["JWTOptions:Audience"],
                     IssuerSigningKey =
                         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTOptions:SecretKey"]!)),
-                    RoleClaimType = "role",
-                    NameClaimType = JwtRegisteredClaimNames.Name
+                    RoleClaimType = ClaimTypes.Role,
+                    NameClaimType = ClaimTypes.Name
                 };
             });
 
