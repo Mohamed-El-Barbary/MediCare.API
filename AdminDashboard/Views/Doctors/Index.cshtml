@@ -1,0 +1,320 @@
+﻿@model DoctorDashboardDTO
+@{
+    ViewData["Title"] = "Doctors";
+    var routeValues = new Dictionary<string, string?>
+    {
+        ["MinPrice"] = Model.QueryParams.MinPrice?.ToString(),
+        ["MaxPrice"] = Model.QueryParams.MaxPrice?.ToString(),
+        ["MinRating"] = Model.QueryParams.MinRating?.ToString(),
+        ["Specialization"] = Model.QueryParams.Specialization,
+        ["VerificationStatus"] = Model.QueryParams.VerificationStatus.ToString(),
+        ["MinExperience"] = Model.QueryParams.MinExperience?.ToString(),
+        ["MaxExperience"] = Model.QueryParams.MaxExperience?.ToString(),
+        ["Sort"] = Model.QueryParams.Sort.ToString(),
+        ["PageSize"] = Model.QueryParams.PageSize.ToString()
+    };
+    var returnUrl = Url.Action("Index", new
+    {
+        PageIndex = Model.DoctorsData!.PageIndex,
+        Model.QueryParams.MinPrice,
+        Model.QueryParams.MaxPrice,
+        Model.QueryParams.MinRating,
+        Model.QueryParams.Specialization,
+        Model.QueryParams.VerificationStatus,
+        Model.QueryParams.MinExperience,
+        Model.QueryParams.MaxExperience,
+        Model.QueryParams.Sort,
+        Model.QueryParams.PageSize
+    });
+}
+
+<div class="content-wrapper">
+    <!-- Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success auto-alert">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger auto-alert">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h3 class="page-title">
+            <span class="page-title-icon bg-gradient-primary text-white me-2">
+                <i class="mdi mdi-stethoscope"></i>
+            </span>
+            Doctors Dashboard
+        </h3>
+        <nav aria-label="breadcrumb">
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../index.html">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">All Doctors</li>
+            </ul>
+        </nav>
+    </div>
+
+    @if (Model != null && Model.DoctorsData!.Data.Any())
+    {
+        <!-- Top Cards -->
+        <div class="row">
+            <div class="col-md-3 stretch-card grid-margin">
+                <div class="card bg-gradient-success card-img-holder text-white">
+                    <div class="card-body">
+                        <img src="~/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
+                        <h4 class="font-weight-normal mb-3">Total Doctors <i class="mdi mdi-account-multiple float-end"></i></h4>
+                        <h2 class="mb-5">@Model.Analytics!.TotalDoctors</h2>
+                        <h6 class="card-text">+12 this month</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 stretch-card grid-margin">
+                <div class="card bg-gradient-info card-img-holder text-white">
+                    <div class="card-body">
+                        <img src="~/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
+                        <h4 class="font-weight-normal mb-3">Active <i class="mdi mdi-check-circle-outline float-end"></i></h4>
+                        <h2 class="mb-5">@Model.Analytics.ActiveDoctors</h2>
+                        <h6 class="card-text">+5% this month</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 stretch-card grid-margin">
+                <div class="card bg-gradient-warning card-img-holder text-white">
+                    <div class="card-body">
+                        <img src="~/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
+                        <h4 class="font-weight-normal mb-3">Pending Review <i class="mdi mdi-alert-circle-outline float-end"></i></h4>
+                        <h2 class="mb-5">@Model.Analytics.PendingDoctors</h2>
+                        <h6 class="card-text">Needs attention</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 stretch-card grid-margin">
+                <div class="card bg-gradient-danger card-img-holder text-white">
+                    <div class="card-body">
+                        <img src="~/images/dashboard/circle.svg" class="card-img-absolute" alt="circle-image" />
+                        <h4 class="font-weight-normal mb-3">Avg. Rating <i class="mdi mdi-star-outline float-end"></i></h4>
+                        <h2 class="mb-5">@((Math.Floor(Model.Analytics.DoctorsAvgRating * 10) / 10).ToString("0.0"))</h2>
+                        <h6 class="card-text">Excellent</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Form -->
+        <form asp-action="Index" method="get">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row g-2">
+
+                                <!-- Status -->
+                                <div class="col-md">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" asp-for="QueryParams.VerificationStatus">
+                                        <option value="">All</option>
+                                        <option value="Approved">Approved</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Rejected">Rejected</option>
+                                        <option value="Suspended">Suspended</option>
+                                    </select>
+                                </div>
+
+                                <!-- Specialization -->
+                                <div class="col-md">
+                                    <label class="form-label">Specialization</label>
+                                    <select class="form-select" asp-for="QueryParams.Specialization">
+                                        <option value="">All</option>
+                                        <option value="Cardiology">Cardiology</option>
+                                        <option value="Pediatrics">Pediatrics</option>
+                                        <option value="Dermatology">Dermatology</option>
+                                        <option value="Neurology">Neurology</option>
+                                    </select>
+                                </div>
+
+                                <!-- Experience -->
+                                <div class="col-md">
+                                    <label class="form-label">Experience (Years)</label>
+                                    <div class="d-flex gap-1">
+                                        <input type="number" class="form-control" placeholder="Min" asp-for="QueryParams.MinExperience" value="@Model.QueryParams.MinExperience" />
+                                        <input type="number" class="form-control" placeholder="Max" asp-for="QueryParams.MaxExperience" value="@Model.QueryParams.MaxExperience" />
+                                    </div>
+                                </div>
+
+                                <!-- Price Range -->
+                                <div class="col-md">
+                                    <label class="form-label">Salary Range</label>
+                                    <div class="d-flex gap-1">
+                                        <input type="number" class="form-control" placeholder="Min" asp-for="QueryParams.MinPrice" />
+                                        <input type="number" class="form-control" placeholder="Max" asp-for="QueryParams.MaxPrice" />
+                                    </div>
+                                </div>
+
+                                <!-- Min Rating -->
+                                <div class="col-md">
+                                    <label class="form-label">Min Rating</label>
+                                    <input type="number" class="form-control" min="0" max="5" step="0.1"
+                                           placeholder="0 - 5" asp-for="QueryParams.MinRating" value="@Model.QueryParams.MinRating" />
+                                </div>
+
+                                <!-- Sorting Dropdown -->
+                                <div class="col-md">
+                                    <label class="form-label">Sort By</label>
+                                    <select class="form-select" asp-for="QueryParams.Sort">
+                                        <option value="Rating">Rating</option>
+                                        <option value="PriceAsc">Price ↑</option>
+                                        <option value="PriceDesc">Price ↓</option>
+                                        <option value="MinExperience">Experience Min</option>
+                                        <option value="MaxExperience">Experience Max</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <!-- Buttons -->
+                            <div class="d-flex justify-content-end mt-3 gap-2">
+                                <button class="btn btn-gradient-primary">
+                                    <i class="mdi mdi-magnify"></i> Apply
+                                </button>
+                                <a class="btn btn-light" asp-action="Index">Reset</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Doctors Table -->
+        <div class="row">
+            <div class="col-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">All Doctors</h4>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Doctor</th>
+                                        <th>Specialization</th>
+                                        <th>Exp.</th>
+                                        <th>Rating</th>
+                                        <th>Salary</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var doctor in Model.DoctorsData.Data)
+                                    {
+                                        <tr>
+                                            <td><img src="@doctor.DoctorPictureUrl" class="me-2 rounded-circle" width="40" alt="Doctor"> @doctor.DisplayName</td>
+                                            <td>@doctor.Specialization</td>
+                                            <td>@doctor.YearsOfExperience</td>
+                                            <td>@doctor.Rating</td>
+                                            <td>@doctor.PriceConsultation</td>
+                                            <td><span class="badge bg-warning text-dark">@doctor.VerificationStatus</span></td>
+                                            <td>@doctor.JoinDate.ToShortDateString()</td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <a class="btn btn-sm btn-outline-primary" asp-controller="Doctors" asp-action="DoctorDetails" asp-route-id="@doctor.Id">
+                                                        <i class="mdi mdi-eye-outline"></i>
+                                                    </a>
+                                                    <div class="dropdown" style="position:static">
+                                                        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="dropdown">
+                                                            <i class="mdi mdi-dots-vertical"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end status-dropdown">
+                                                            <li>
+                                                                <a class="status-item approve-btn dropdown-item"
+                                                                   asp-action="ApproveDoctor"
+                                                                   asp-controller="Doctors"
+                                                                   asp-route-id="@doctor.Id"
+                                                                   asp-route-returnUrl="@returnUrl">
+                                                                    <i class="mdi mdi-check"></i> Approve
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="status-item reject-btn dropdown-item"
+                                                                   asp-action="RejectDoctor"
+                                                                   asp-controller="Doctors"
+                                                                   asp-route-id="@doctor.Id"
+                                                                   asp-route-returnUrl="@returnUrl">
+                                                                    <i class="mdi mdi-check"></i> Reject
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="status-item revoke-btn dropdown-item"
+                                                                   asp-action="RevokeDoctor"
+                                                                   asp-controller="Doctors"
+                                                                   asp-route-id="@doctor.Id"
+                                                                   asp-route-returnUrl="@returnUrl">
+                                                                    <i class="mdi mdi-check"></i> Revoke
+                                                                </a>
+                                                            </li>
+                                                            <li><button class="status-item delete-btn dropdown-item">Delete</button></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <ul class="pagination">
+
+                                <!-- Previous -->
+                                <li class="page-item @(Model.DoctorsData.PageIndex == 1 ? "disabled" : "")">
+                                    <a class="page-link"
+                                       asp-all-route-data="routeValues"
+                                       asp-route-PageIndex="@(Model.DoctorsData.PageIndex - 1)">
+                                        Previous
+                                    </a>
+                                </li>
+
+                                <!-- Pages -->
+                                @for (int i = 1; i <= Math.Ceiling((double)Model.DoctorsData.CountOfAllProduct / Model.QueryParams.PageSize); i++)
+                                {
+                                    <li class="page-item @(i == Model.DoctorsData.PageIndex ? "active" : "")">
+                                        <a class="page-link"
+                                           asp-all-route-data="routeValues"
+                                           asp-route-PageIndex="@i">
+                                            @i
+                                        </a>
+                                    </li>
+                                }
+
+                                <!-- Next -->
+                                <li class="page-item @(Model.DoctorsData.PageIndex == Math.Ceiling((double)Model.DoctorsData.CountOfAllProduct / Model.QueryParams.PageSize) ? "disabled" : "")">
+                                    <a class="page-link"
+                                       asp-all-route-data="routeValues"
+                                       asp-route-PageIndex="@(Model.DoctorsData.PageIndex + 1)">
+                                        Next
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <h1>No Doctors Found</h1>
+    }
+</div>
+@section Scripts
+{
+    <partial name="_AlertsScripts" />
+}

@@ -1,0 +1,228 @@
+﻿@model GetDoctorDetailsDTO
+@{
+
+    var returnUrl = Url.Action("DoctorDetails", "Doctors", new { id = Model.Id });
+}
+<div class="content-wrapper">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success auto-alert">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger auto-alert">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h3 class="page-title">
+            <span class="page-title-icon bg-gradient-primary text-white me-2">
+                <i class="mdi mdi-account-details"></i>
+            </span>
+            Doctor Details
+        </h3>
+    </div>
+
+    <div class="row">
+
+        <!-- Left: Profile Card -->
+        <div class="col-md-4 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body text-center">
+
+                    <img src="~/images/faces/face1.jpg" class="rounded-circle mb-3 shadow" width="120" />
+
+                    <h4 class="mb-1">@Model.FullName</h4>
+                    <p class="text-muted">@Model.Specialization</p>
+
+                    <span class="badge @(Model.Status == "Approved" ? "badge-success" 
+                                                                                                                                                                          : Model.Status == "Pending" ? "badge-warning" : "badge-danger")">
+                        @Model.Status
+                    </span>
+
+                    <!-- Approved Info -->
+                    @if (Model.Status == "Approved")
+                    {
+                        <div class="mt-2">
+                            <small class="text-muted">Approved By:</small>
+                            <div>@(string.IsNullOrEmpty(Model.ApprovedByName) ? "—" : Model.ApprovedByName)</div>
+
+                            <small class="text-muted mt-2 d-block">Approved At:</small>
+                            <div>
+                                @(Model.ApprovedAt.HasValue
+                                                            ? Model.ApprovedAt.Value.ToString("dd MMM yyyy hh:mm tt")
+                                                            : "—")
+                            </div>
+                        </div>
+                    }
+
+                    <hr />
+
+                    <!-- Actions -->
+                    <div class="d-grid gap-2 mt-3">
+
+                        <a class="btn btn-success"
+                           asp-action="ApproveDoctor"
+                           asp-controller="Doctors"
+                           asp-route-id="@Model.Id"
+                           asp-route-returnUrl="@returnUrl">
+                            <i class="mdi mdi-check"></i> Approve
+                        </a>
+
+                        <a class="btn btn-warning" 
+                           asp-action="RejectDoctor"
+                           asp-controller="Doctors"
+                           asp-route-id="@Model.Id"
+                           asp-route-returnUrl="@returnUrl">
+                            <i class="mdi mdi-close"></i> Reject
+                        </a>
+
+                        <a class="btn btn-info"
+                           asp-action="RevokeDoctor"
+                           asp-controller="Doctors"
+                           asp-route-id="@Model.Id"
+                           asp-route-returnUrl="@returnUrl">
+                            <i class="mdi mdi-undo"></i> Revoke
+                        </a>
+
+                        <button class="btn btn-danger">
+                            <i class="mdi mdi-delete"></i> Delete
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- Right: Details -->
+        <div class="col-md-8 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="card-title mb-4">Doctor Information</h4>
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Full Name</label>
+                            <h6>@Model.FullName</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Email</label>
+                            <h6>@Model.Email</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Phone Number</label>
+                            <h6>@Model.PhoneNumber</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Phone (Clinic)</label>
+                            <h6>@Model.PhoneClinc</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Gender</label>
+                            <h6>@Model.Gender</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Specialization</label>
+                            <h6>@Model.Specialization</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Experience</label>
+                            <h6>@Model.ExperienceYears Years</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Consultation Price</label>
+                            <h6>@Model.PriceConsultation.ToString("0.00") EGP</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Rating</label>
+                            <h6>⭐ @Model.Rating</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Clinic Location</label>
+                            <h6>@Model.ClinicLocation</h6>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted">Join Date</label>
+                            <h6>@Model.JoinDate.ToString("dd MMM yyyy")</h6>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label class="text-muted">Address</label>
+                            <p>@Model.Address</p>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label class="text-muted">Bio</label>
+                            <p>@Model.Bio</p>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="text-muted">Syndicate Card</label><br />
+                            <img src="@Model.SyndicateCardUrl"
+                                 class="img-fluid rounded shadow mt-2"
+                                 style="max-width:250px;" />
+                        </div>
+
+                    </div>
+                    <!-- 🔥 Schedule -->
+                    <div class="mt-5">
+                        <h5 class="mb-3">Schedule</h5>
+
+                        @* @if (Model.Schedule != null && Model.Schedule.Any()) *@
+                        @* { *@
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @* @foreach (var slot in Model.Schedule) *@
+                                    @* { *@
+                                    <tr>
+                                        <td>.Day</td>
+                                        <td>From</td>
+                                        <td>To</td>
+                                    </tr>
+                                    @* } *@
+                                </tbody>
+                            </table>
+                        </div>
+                        @* } *@
+                        @* else *@
+                        @* { *@
+                        <p class="text-muted">No schedule available</p>
+                        @* } *@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_AlertsScripts" />
+}
