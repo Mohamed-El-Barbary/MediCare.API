@@ -1,0 +1,15 @@
+﻿<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const deleteModal = document.getElementById('deleteModal');
+        const deleteInput = document.getElementById('deleteId');
+
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-id');
+
+            deleteInput.value = id;
+        });
+
+    });
+</script>
