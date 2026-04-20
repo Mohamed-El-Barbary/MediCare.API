@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
 
 namespace Health.Presentation.Controllers
@@ -89,7 +90,7 @@ namespace Health.Presentation.Controllers
 
             private string GetUserId()
             {
-                var userId = User.FindFirst("userId")?.Value;
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 if (string.IsNullOrEmpty(userId))
                     throw new UnauthorizedAccessException("Invalid token");
