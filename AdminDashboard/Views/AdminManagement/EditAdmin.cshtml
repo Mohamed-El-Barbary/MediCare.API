@@ -1,0 +1,201 @@
+﻿@model EditAdminVM
+
+<div class="content-wrapper">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- HEADER -->
+    <div class="page-header mb-4">
+        <h3 class="page-title">
+            <span class="page-title-icon bg-gradient-primary text-white me-2">
+                <i class="mdi mdi-account-edit"></i>
+            </span>
+            Edit Admin
+        </h3>
+
+        <nav aria-label="breadcrumb">
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item"><a asp-controller="AdminManagement" asp-action="Index">Admins</a></li>
+                <li class="breadcrumb-item active">Edit</li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- MAIN FORM CARD -->
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+
+                    <h4 class="mb-1">Update Admin Information</h4>
+                    <p class="text-muted mb-4">Manage personal data and system roles</p>
+
+                    <form asp-controller="AdminManagement"
+                          asp-action="EditAdmin"
+                          asp-route-id="@Model.Admin.Id"
+                          method="post">
+
+                        <input type="hidden" asp-for="@Model.Admin.Id" />
+
+                        <!-- PERSONAL INFO -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="mdi mdi-account me-1"></i> Personal Info
+                            </h6>
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label">First Name</label>
+                                    <input class="form-control" asp-for="@Model.Admin.FirstName" />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Last Name</label>
+                                    <input class="form-control" asp-for="@Model.Admin.LastName" />
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- CONTACT INFO -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="mdi mdi-contact-mail me-1"></i> Contact Info
+                            </h6>
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" asp-for="@Model.Admin.Email" />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone</label>
+                                    <input class="form-control" asp-for="@Model.Admin.Phone" />
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ROLES SECTION -->
+                        <div class="card border-0 bg-light p-3 mb-4">
+
+                            <h6 class="text-primary mb-3">
+                                <i class="mdi mdi-shield-account me-1"></i> Role Management
+                            </h6>
+
+                            <div class="row g-4">
+
+                                <!-- ASSIGNED ROLES -->
+                                <div class="col-md-6">
+
+                                    <h6 class="text-success">Assigned Roles</h6>
+
+                                    <div class="border rounded p-3 bg-white">
+
+                                        @if (Model.AssignedRoles != null && Model.AssignedRoles.Any())
+                                        {
+                                            foreach (var role in Model.AssignedRoles)
+                                            {
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                                    <span class="badge bg-success">@role</span>
+
+                                                    <form asp-action="RemoveRoleFromUser" method="post">
+                                                        <input type="hidden" name="id" value="@Model.Admin.Id" />
+                                                        <input type="hidden" name="roleName" value="@role" />
+
+                                                        <button class="btn btn-sm btn-outline-danger">
+                                                            Remove
+                                                        </button>
+                                                    </form>
+
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No roles assigned</span>
+                                        }
+
+                                    </div>
+                                </div>
+
+                                <!-- AVAILABLE ROLES -->
+                                <div class="col-md-6">
+
+                                    <h6 class="text-primary">Available Roles</h6>
+
+                                    <div class="border rounded p-3 bg-white">
+
+                                        @if (Model.AllRoles != null && Model.AllRoles.Any())
+                                        {
+                                            foreach (var role in Model.AllRoles)
+                                            {
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                                    <span class="badge bg-light text-dark">@role</span>
+
+                                                    <form asp-action="AssignRoleToUser" method="post">
+                                                        <input type="hidden" name="id" value="@Model.Admin.Id" />
+                                                        <input type="hidden" name="roleName" value="@role" />
+
+                                                        <button class="btn btn-sm btn-gradient-primary">
+                                                            Assign
+                                                        </button>
+                                                    </form>
+
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No available roles</span>
+                                        }
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- ACTIONS -->
+                        <div class="d-flex justify-content-end gap-2">
+
+                            <a asp-action="Index" class="btn btn-light">
+                                Cancel
+                            </a>
+
+                            <button type="submit" class="btn btn-gradient-primary">
+                                <i class="mdi mdi-content-save"></i>
+                                Save Changes
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

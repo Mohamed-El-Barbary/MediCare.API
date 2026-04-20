@@ -1,0 +1,160 @@
+﻿<div class="content-wrapper">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h3 class="page-title">
+            <span class="page-title-icon bg-gradient-primary text-white me-2">
+                <i class="mdi mdi-shield-account"></i>
+            </span>
+            Roles Management
+        </h3>
+
+        <nav aria-label="breadcrumb">
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../index.html">Dashboard</a></li>
+                <li class="breadcrumb-item active">Roles</li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="row">
+
+        <!-- Left: Roles List -->
+        <div class="col-md-7 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="card-title">System Roles</h4>
+                    <p class="card-description">Manage all system roles and their users</p>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+
+                            <thead>
+                                <tr>
+                                    <th>Role Name</th>
+                                    <th>Users Count</th>
+                                    <th>Description</th>
+                                    <th>Created At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <!-- Super Admin -->
+                                <tr>
+                                    <td>
+                                        <label class="badge badge-gradient-danger">Super Admin</label>
+                                    </td>
+                                    <td>2</td>
+                                    <td>Full system access</td>
+                                    <td>Jan 01, 2025</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info">Edit</button>
+                                        <button class="btn btn-sm btn-danger">Delete</button>
+                                    </td>
+                                </tr>
+
+                                <!-- Admin -->
+                                <tr>
+                                    <td>
+                                        <label class="badge badge-gradient-success">Admin</label>
+                                    </td>
+                                    <td>10</td>
+                                    <td>Manage doctors & patients</td>
+                                    <td>Jan 05, 2025</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info">Edit</button>
+                                        <button class="btn btn-sm btn-danger">Delete</button>
+                                    </td>
+                                </tr>
+
+                                <!-- Moderator -->
+                                <tr>
+                                    <td>
+                                        <label class="badge badge-gradient-warning">Moderator</label>
+                                    </td>
+                                    <td>5</td>
+                                    <td>Limited access for review</td>
+                                    <td>Feb 10, 2025</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info">Edit</button>
+                                        <button class="btn btn-sm btn-danger">Delete</button>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Add / Edit Role -->
+        <div class="col-md-5 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="card-title">Add New Role</h4>
+
+                    <form>
+
+                        <!-- Role Name -->
+                        <div class="form-group">
+                            <label>Role Name</label>
+                            <input type="text" class="form-control" placeholder="Enter role name">
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea class="form-control" rows="3" placeholder="Role description"></textarea>
+                        </div>
+
+                        <!-- Permissions Section -->
+                        <div class="form-group">
+                            <label>Permissions</label>
+
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="p1">
+                                <label class="form-check-label" for="p1">Manage Doctors</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="p2">
+                                <label class="form-check-label" for="p2">Manage Patients</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="p3">
+                                <label class="form-check-label" for="p3">Manage Appointments</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="p4">
+                                <label class="form-check-label" for="p4">Manage Payments</label>
+                            </div>
+
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-gradient-primary me-2">
+                                Save Role
+                            </button>
+                            <button type="reset" class="btn btn-light">
+                                Reset
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
