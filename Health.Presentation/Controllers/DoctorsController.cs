@@ -2,6 +2,7 @@
 using Health.Shared;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.DoctorDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections;
@@ -35,10 +36,12 @@ namespace Health.Presentation.Controllers
             return HandleResult<DoctorDTO>(result);
         }
 
-        [HttpPost("{id}/schedule")]
-        public async Task<IActionResult> AddSchedule(int id, [FromBody] DoctorScheduleDTO dto)
+        [Authorize(Roles = "Doctor")]
+        [HttpPost("schedule")]
+        public async Task<IActionResult> AddSchedule([FromBody] DoctorScheduleDTO dto)
         {
-            var result = await _doctorService.AddScheduleAsync(id, dto);
+            var userId = GetUserId();
+            var result = await _doctorService.AddScheduleAsync(userId, dto);
 
             return HandleResult(result , "Doctor schedule has been established successfully.");
         }
@@ -80,6 +83,22 @@ namespace Health.Presentation.Controllers
 
             return HandleResult(result);
         }
+
+
+        #region HelperMethod
+
+            private string GetUserId()
+            {
+                var userId = User.FindFirst("userId")?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                    throw new UnauthorizedAccessException("Invalid token");
+
+                return userId;
+            }
+    
+
+        #endregion
 
 
     }

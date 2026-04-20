@@ -66,10 +66,11 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         }
 
 
-        public async Task<Result> AddScheduleAsync(int doctorId, DoctorScheduleDTO dto)
+        public async Task<Result> AddScheduleAsync(string userDoctorId, DoctorScheduleDTO dto)
         {
+            var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
             // 1 Check doctor exists
-            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorSpec);
 
             if (doctor == null)
                 return Result.Fail(Error.NotFound("Doctor Is Not Found"));
@@ -80,6 +81,8 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
 
             if (dto.SlotDurationMinutes <= 0)
                 return  Result.Fail(Error.InvalidCredentials("Invalid slot duration"));
+
+            var doctorId = doctor.Id;
 
             // Check dublicate Day
             var exists = await _doctorScheduleRepository
@@ -268,5 +271,6 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                 Status = (EnumSlotStatusDTO)s.Status
             }).ToList();
         }
+    
     }
 }
