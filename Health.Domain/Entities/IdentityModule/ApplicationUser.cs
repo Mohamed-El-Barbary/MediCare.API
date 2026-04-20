@@ -9,6 +9,7 @@ namespace Health.Domain.Entities.IdentityModule
     {
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
     }
 }
