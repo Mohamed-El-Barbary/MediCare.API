@@ -65,7 +65,6 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return _mapper.Map<DoctorProfile ,DoctorDTO>(doctor);
         }
 
-
         public async Task<Result> AddScheduleAsync(string userDoctorId, DoctorScheduleDTO dto)
         {
             var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
@@ -107,9 +106,17 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result.Ok();
         }
 
-
-        public async Task<Result<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScheduleAsync(int doctorId)
+        public async Task<Result<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScheduleAsync(string userDoctorId)
         {
+            // Get Doctor ID
+            var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorSpec);
+
+            if (doctor == null)
+                return Result<IEnumerable<DoctorSceduleToReturn>>.Fail(Error.NotFound("Doctor Is Not Found"));
+
+            int doctorId = doctor.Id;
+
             var DoctorScudleElement = _unitOfWork.GetRepository<DoctorSchedule, int>();
             var spec = new DoctorSceduleByDoctorProfileIdSpec(doctorId);
             var schedules = await DoctorScudleElement.GetAllAsync(spec);
@@ -124,8 +131,17 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result<IEnumerable<DoctorSceduleToReturn>>.Ok(schedulesDTO);
         }
 
-        public async Task<Result> DeleteScheduleAsync(int scheduleId, int doctorProfileId)
+        public async Task<Result> DeleteScheduleAsync(int scheduleId, string userDoctorId)
         {
+            // Get Doctor Id [identity]
+            var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorSpec);
+
+            if (doctor == null)
+                return Result.Fail(Error.NotFound("Doctor Is Not Found"));
+
+            int doctorProfileId = doctor.Id;
+
             var scheduleRepo = _unitOfWork.GetRepository<DoctorSchedule, int>();
 
             var schedule = await scheduleRepo.GetByIdAsync(scheduleId);
@@ -144,12 +160,19 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result.Ok();
         }
 
-
-        public async Task<Result> UpdateScheduleAsync(int doctorProfileId, int scheduleId, DoctorScheduleDTO dto)
+        public async Task<Result> UpdateScheduleAsync(string userDoctorId, int scheduleId, DoctorScheduleDTO dto)
         {
+            // Get doctorProfileId
+            var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorSpec);
+
+            if (doctor == null)
+                return Result.Fail(Error.NotFound("Doctor Is Not Found"));
+
+            int doctorProfileId = doctor.Id;
+
             var scheduleRepo = _unitOfWork.GetRepository<DoctorSchedule, int>();
 
-           
             var scheduleToUpdate = await scheduleRepo.GetByIdAsync(scheduleId);
 
             if (scheduleToUpdate == null || scheduleToUpdate.DoctorProfileId != doctorProfileId)
@@ -175,7 +198,6 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
 
             return Result.Ok();
         }
-
 
         public async Task<Result> GenerateSlotsBySchedule(int scheduleId, GeneratedSlotsRequestDto generatedSlotsRequestDto)
         {
@@ -257,8 +279,17 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result.Ok();
         }
 
-        public async Task<Result<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(int doctorId, DateTime? date)
+        public async Task<Result<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(string userDoctorId, DateTime? date)
         {
+            // Get Doctor ID
+            var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorSpec);
+
+            if (doctor == null)
+                return Result<IEnumerable<GeneratedSlotsDTO>>.Fail(Error.NotFound("Doctor Is Not Found"));
+
+            int doctorId = doctor.Id;
+
             var spec = new DoctorSlotsSpec(doctorId, date);
             var Slots = await _unitOfWork.GetRepository<DoctorGeneratedSlots , int>().GetAllAsync(spec);
 

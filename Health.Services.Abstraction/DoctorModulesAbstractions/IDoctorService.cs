@@ -16,14 +16,14 @@ namespace Health.Services.Abstraction.DoctorModulesAbstractions
         Task<Result> AddScheduleAsync(string doctorId , DoctorScheduleDTO DoctorScheduleDTOs);
         Task<PaginatedResult<DoctorDTO>> GetAllDoctorsAsync(DoctorSpecParams QueryParams);
         Task<Result<DoctorDTO>> GetDoctorByIdAsync(int id);
-        Task<Result<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScheduleAsync(int doctorId);
-        Task<Result> DeleteScheduleAsync(int scheduleId, int doctorProfileId);
+        Task<Result<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScheduleAsync(string doctorId);
+        Task<Result> DeleteScheduleAsync(int scheduleId, string doctorProfileId);
 
-        Task<Result> UpdateScheduleAsync(int doctorProfileId, int scheduleId, DoctorScheduleDTO dto);
+        Task<Result> UpdateScheduleAsync(string userDoctorId, int scheduleId, DoctorScheduleDTO dto);
 
         Task<Result> GenerateSlotsBySchedule(int scheduleId , GeneratedSlotsRequestDto generatedSlotsRequestDto);
 
-        Task<Result<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(int doctorId, DateTime? date);
+        Task<Result<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(string userDoctorId, DateTime? date);
 
     }
 }
