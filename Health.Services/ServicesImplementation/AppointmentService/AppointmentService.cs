@@ -2,7 +2,9 @@
 using Health.Domain.Contracts;
 using Health.Domain.Entities.AppointmentModule;
 using Health.Domain.Entities.DoctorModule;
+using Health.Domain.Entities.PatientModule;
 using Health.Services.Abstraction.AppointmentInterface;
+using Health.Services.Specifications.PatientSpecification;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.AppointmentDTOs;
 using System;
@@ -21,8 +23,15 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<Result> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, int patientId)
+        public async Task<Result> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, string userPatientId)
         {
+            // Get PatientId [Identity]
+            var spec = new PatientByIdWithoutIncludes(userPatientId);
+            var patient = await _unitOfWork.GetRepository<PatientProfile, int>().GetByIdAsync(spec);
+            if (patient is null)
+                return Result.Fail(Error.NotFound("Patient.NotFound", "Patient Not Found"));
+            int patientId = patient.Id;
+
             // Slots Exist
             var slot = await _unitOfWork.GetRepository<DoctorGeneratedSlots , int>().GetByIdAsync(createAppointmentDTO.DoctorGeneratedSlotsId);
             if (slot is null)

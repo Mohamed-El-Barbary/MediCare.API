@@ -17,12 +17,14 @@ namespace Health.Presentation.Controllers
         }
 
 
-        [HttpPost("{patientId}")] 
+        [HttpPost("me")] 
         public async Task<IActionResult> Book([FromBody] CreateAppointmentDTO dto , int patientId)
         {
-            var result = await _appointmentService.BookAppointmentAsync(dto, patientId);
+            string patientUserId = GetUserId();
+            var result = await _appointmentService.BookAppointmentAsync(dto, patientUserId);
             return HandleResult(result , "Patient Appointment has been established successfully.");
         }
+
 
 
     }

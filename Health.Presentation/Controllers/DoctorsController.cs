@@ -94,20 +94,7 @@ namespace Health.Presentation.Controllers
         }
 
 
-        #region HelperMethod
-
-            private string GetUserId()
-            {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-                if (string.IsNullOrEmpty(userId))
-                    throw new UnauthorizedAccessException("Invalid token");
-
-                return userId;
-            }
-    
-
-        #endregion
+        
 
 
     }

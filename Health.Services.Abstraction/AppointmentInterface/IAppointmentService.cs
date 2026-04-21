@@ -8,6 +8,6 @@ namespace Health.Services.Abstraction.AppointmentInterface
 {
     public interface IAppointmentService
     {
-        Task<Result> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, int patientId);
+        Task<Result> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, string patientUserId);
     }
 }
