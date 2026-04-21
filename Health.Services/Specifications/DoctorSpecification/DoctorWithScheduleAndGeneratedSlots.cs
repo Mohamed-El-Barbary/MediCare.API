@@ -45,5 +45,6 @@ namespace Health.Services.Specifications.DoctorSpecification
             AddInclude(D => D.DoctorSchedule);
             AddInclude(D => D.DoctorGeneratedSlots);
         }
+       
     }
 }

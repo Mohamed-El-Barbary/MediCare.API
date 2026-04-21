@@ -67,7 +67,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                 return Error.NotFound("Doctor.NotFound", $"Doctor With Id:{id} Is Not Found");
             }
 
-            return _mapper.Map<DoctorProfile ,DoctorDTO>(doctor);
+            return _mapper.Map<DoctorDTO>(doctor);
         }
 
         public async Task<Result> AddScheduleAsync(string userDoctorId, DoctorScheduleDTO dto)
