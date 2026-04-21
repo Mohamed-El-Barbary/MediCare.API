@@ -11,10 +11,7 @@ namespace Health.Services.Specifications.DoctorSpecification
         public DoctorWithScheduleAndGeneratedSlots(DoctorSpecParams QueryParams) 
                : base(DoctorSpecificationHelper.critariaFunc(QueryParams))
         {
-            AddInclude(D => D.DoctorSchedule);
-            AddInclude(D => D.DoctorGeneratedSlots);
-
-
+            
             switch (QueryParams.Sort)
             {
                 case DoctorSortingOptions.Rating:
@@ -45,6 +42,7 @@ namespace Health.Services.Specifications.DoctorSpecification
             AddInclude(D => D.DoctorSchedule);
             AddInclude(D => D.DoctorGeneratedSlots);
         }
+       
        
     }
 }
