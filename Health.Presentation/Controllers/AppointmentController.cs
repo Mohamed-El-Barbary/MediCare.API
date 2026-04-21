@@ -1,5 +1,6 @@
 ﻿using Health.Services.Abstraction.AppointmentInterface;
 using Health.Shared.DTOs.AppointmentDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -17,14 +18,23 @@ namespace Health.Presentation.Controllers
         }
 
 
-        [HttpPost("me")] 
-        public async Task<IActionResult> Book([FromBody] CreateAppointmentDTO dto , int patientId)
+        [Authorize(Roles = "Patient")]
+        [HttpPost()] 
+        public async Task<IActionResult> Book([FromBody] CreateAppointmentDTO dto)
         {
             string patientUserId = GetUserId();
             var result = await _appointmentService.BookAppointmentAsync(dto, patientUserId);
             return HandleResult(result , "Patient Appointment has been established successfully.");
         }
 
+        [Authorize(Roles = "Patient")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PatientAppointmentDTO>>> GetAllPatientAppointments()
+        {
+            string patientUserId = GetUserId();
+            var result = await _appointmentService.GetPatientAppointment(patientUserId);
+            return HandleResult(result);
+        }
 
 
     }

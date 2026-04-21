@@ -64,5 +64,25 @@ namespace Health.Services.ServicesImplementation.AppointmentService
 
             return Result.Ok();
         }
+
+        public async Task<Result<IEnumerable<PatientAppointmentDTO>>> GetPatientAppointment(string PatientUserId)
+        {
+            // Get PatientId
+            var spec = new PatientByIdWithoutIncludes(PatientUserId);
+            var patient = await _unitOfWork.GetRepository<PatientProfile, int>().GetByIdAsync(spec);
+            if(patient is null)
+                return Result<IEnumerable<PatientAppointmentDTO>>.Fail(Error.NotFound("Patient.NotFound" , "Patient Is Not Found"));
+            var patientId = patient.Id;
+
+            var FilterAppointmentByPatientId = new PatientFilterationById(patientId);
+            var PatientAppointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync(FilterAppointmentByPatientId);
+
+            if (PatientAppointments is null)
+                return Result<IEnumerable<PatientAppointmentDTO>>.Fail(Error.NotFound("PatientAppointment.Notfound", "This Patient Did Not Create Appointments"));
+           
+            var result = _mapper.Map<IEnumerable<PatientAppointmentDTO>>(PatientAppointments);
+
+            return Result<IEnumerable<PatientAppointmentDTO>>.Ok(result);
+        }
     }
 }

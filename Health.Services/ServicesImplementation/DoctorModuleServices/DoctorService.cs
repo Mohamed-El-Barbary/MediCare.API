@@ -29,7 +29,12 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         private readonly IDoctorScheduleRepository _doctorScheduleRepository;
         private readonly IDoctorGenerateSlotsRepository _slotRepo;
 
-        public DoctorService(IUnitOfWork unitOfWork, IMapper mapper , IDoctorScheduleRepository doctorScheduleRepository , IDoctorGenerateSlotsRepository SlotRepo)
+        public DoctorService(IUnitOfWork unitOfWork, 
+                             IMapper mapper , 
+                             IDoctorScheduleRepository doctorScheduleRepository , 
+                             IDoctorGenerateSlotsRepository SlotRepo
+                           
+            )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
