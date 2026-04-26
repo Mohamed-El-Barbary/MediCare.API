@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
 
 namespace Health.Presentation.Controllers
@@ -46,28 +47,34 @@ namespace Health.Presentation.Controllers
             return HandleResult(result , "Doctor schedule has been established successfully.");
         }
 
-        [HttpGet("{id}/schedule")]
-        public async Task<ActionResult<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScedule(int id)
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("schedule")]
+        public async Task<ActionResult<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScedule()
         {
-            var result = await _doctorService.GetAllDoctorScheduleAsync(id);
+            var userId = GetUserId();
+            var result = await _doctorService.GetAllDoctorScheduleAsync(userId);
             return HandleResult(result);
         }
 
+        [Authorize(Roles = "Doctor")]
         [HttpDelete("{scheduleId}")]
-        public async Task<ActionResult> DeleteSpacificSchdeuleFroDoctorProfile([FromRoute] int scheduleId , [FromQuery] int doctorProfileId)
+        public async Task<ActionResult> DeleteSpacificSchdeuleFroDoctorProfile([FromRoute] int scheduleId)
         {
-            var result = await _doctorService.DeleteScheduleAsync(scheduleId, doctorProfileId);
+            string userId = GetUserId();
+            var result = await _doctorService.DeleteScheduleAsync(scheduleId, userId);
             return HandleResult(result , "Schedule deleted successfully");
         }
 
-
-        [HttpPut("{doctorProfileId}/schedule/{scheduleId}")]
-        public async Task<IActionResult> UpdateSchedule([FromRoute] int doctorProfileId,[FromRoute] int scheduleId,[FromBody] DoctorScheduleDTO dto)
+        [Authorize(Roles = "Doctor")]
+        [HttpPut("schedule/{scheduleId}")]
+        public async Task<IActionResult> UpdateSchedule([FromRoute] int scheduleId,[FromBody] DoctorScheduleDTO dto)
         {
-            var result = await _doctorService.UpdateScheduleAsync(doctorProfileId, scheduleId, dto);
+            string userDoctorId = GetUserId();
+            var result = await _doctorService.UpdateScheduleAsync(userDoctorId, scheduleId, dto);
             return HandleResult(result , "Schedule Updated Successfully");
         }
 
+        [Authorize(Roles = "Doctor")]
         [HttpPost("{scheduleId}/generate-slots")]
         public async Task<IActionResult> GenerateSlots(int scheduleId , GeneratedSlotsRequestDto requestDTO)
         {
@@ -76,29 +83,18 @@ namespace Health.Presentation.Controllers
             return HandleResult(result, "Doctor Slots has been established successfully.");
         }
 
-        [HttpGet("{doctorId}/generate-slots")]
-        public async Task<ActionResult<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(int doctorId, DateTime? Date)
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("generate-slots")]
+        public async Task<ActionResult<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(DateTime? Date)
         {
-            var result = await _doctorService.GetDoctorSlots(doctorId, Date);
+            string userDoctorId = GetUserId();
+            var result = await _doctorService.GetDoctorSlots(userDoctorId, Date);
 
             return HandleResult(result);
         }
 
 
-        #region HelperMethod
-
-            private string GetUserId()
-            {
-                var userId = User.FindFirst("userId")?.Value;
-
-                if (string.IsNullOrEmpty(userId))
-                    throw new UnauthorizedAccessException("Invalid token");
-
-                return userId;
-            }
-    
-
-        #endregion
+        
 
 
     }
