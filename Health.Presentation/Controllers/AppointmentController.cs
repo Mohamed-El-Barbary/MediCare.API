@@ -38,6 +38,14 @@ namespace Health.Presentation.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("Doctor")]
+        public async Task<ActionResult<PaginatedResult<DoctorAppointmentDTO>>> GetAllDoctorAppointment([FromQuery] AppointmentSpecParams specParams)
+        {
+            string DoctorUserId = GetUserId();
+            var result = await _appointmentService.GetDoctorAppointment(DoctorUserId , specParams);
+            return Ok(result);
+        }
 
     }
 }

@@ -13,5 +13,6 @@ namespace Health.Services.Abstraction.AppointmentInterface
         Task<Result> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, string patientUserId);
 
         Task<PaginatedResult<PatientAppointmentDTO>> GetPatientAppointment(string PatientUserId, AppointmentSpecParams specParams);
+        Task<PaginatedResult<DoctorAppointmentDTO>> GetDoctorAppointment(string DoctorUserId, AppointmentSpecParams specParams);
     }
 }

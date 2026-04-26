@@ -5,6 +5,7 @@ using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.PatientModule;
 using Health.Services.Abstraction.AppointmentInterface;
 using Health.Services.Specifications.AppointmentSpecification;
+using Health.Services.Specifications.DoctorSpecification;
 using Health.Services.Specifications.PatientSpecification;
 using Health.Shared;
 using Health.Shared.CommonResponses;
@@ -69,6 +70,7 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             return Result.Ok();
         }
 
+   
         public async Task<PaginatedResult<PatientAppointmentDTO>> GetPatientAppointment(string PatientUserId , AppointmentSpecParams specParams)
         {
             // Get PatientId
@@ -85,8 +87,8 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             var totalCount = await _unitOfWork .GetRepository<Appointment, int>().CountAsync(countSpec);
 
             // Data
-            var FilterAppointmentByPatientId = new PatientFilteration(patientId , specParams);
-            var PatientAppointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync(FilterAppointmentByPatientId);
+            var FilterAppointment = new PatientFilteration(patientId , specParams);
+            var PatientAppointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync(FilterAppointment);
 
             if (PatientAppointments is null)
                 throw new Exception("PatientAppointment not found");
@@ -96,5 +98,35 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             var result = _mapper.Map<IEnumerable<PatientAppointmentDTO>>(PatientAppointments);
             return new PaginatedResult<PatientAppointmentDTO>(specParams.PageIndex, CountOfResultData, totalCount, result);
         }
+
+        public async Task<PaginatedResult<DoctorAppointmentDTO>> GetDoctorAppointment(string DoctorUserId, AppointmentSpecParams specParams)
+        {
+
+            // Get DoctorId
+            var spec = new DoctorByIdSpecification(DoctorUserId);
+            var Doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+
+            if (Doctor is null)
+                throw new Exception("Patient not found");
+
+            var doctorId = Doctor.Id;
+
+            // CountOfResult
+            var countSpec = new DoctorAppointmentsCountSpec(doctorId, specParams);
+            var totalCount = await _unitOfWork.GetRepository<Appointment, int>().CountAsync(countSpec);
+
+            // Data
+            var FilterAppointment = new DoctorAppointmentFilteration(doctorId, specParams);
+            var DoctorAppointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync(FilterAppointment);
+
+            if (DoctorAppointments is null)
+                throw new Exception("PatientAppointment not found");
+
+            // CountOfReturnedData
+            int CountOfResultData = DoctorAppointments.Count();
+            var result = _mapper.Map<IEnumerable<DoctorAppointmentDTO>>(DoctorAppointments);
+            return new PaginatedResult<DoctorAppointmentDTO>(specParams.PageIndex, CountOfResultData, totalCount, result);
+        }
+
     }
 }
