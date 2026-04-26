@@ -128,5 +128,21 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             return new PaginatedResult<DoctorAppointmentDTO>(specParams.PageIndex, CountOfResultData, totalCount, result);
         }
 
+        public async Task<Result<PatientAppointmentDTO>> GetPatientAppointmentForSpacificDoctor(int AppointmentId)
+        {
+            var spec = new AppointmentSpecPatientViewer(AppointmentId);
+            var appointment = await _unitOfWork.GetRepository<Appointment, int>().GetByIdAsync(spec);
+            if (appointment is null)
+                return Error.NotFound("Appointment.NotFound", $"Appointment With This Id:{AppointmentId} Is Not Found");
+            return _mapper.Map<PatientAppointmentDTO>(appointment);
+        }
+        public async Task<Result<DoctorAppointmentDTO>> GetDoctorAppointmentForSpacificPatient(int AppointmentId)
+        {
+            var spec = new AppointmentSpecDoctorViewer(AppointmentId);
+            var appointment = await _unitOfWork.GetRepository<Appointment, int>().GetByIdAsync(spec);
+            if (appointment is null)
+                return Error.NotFound("Appointment.NotFound", $"Appointment With This Id:{AppointmentId} Is Not Found");
+            return _mapper.Map<DoctorAppointmentDTO>(appointment);
+        }
     }
 }

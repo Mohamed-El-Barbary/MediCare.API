@@ -47,5 +47,21 @@ namespace Health.Presentation.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("Doctor/{AppointmentId}")]
+        public async Task<ActionResult<DoctorAppointmentDTO>> GetDoctorAppointmentForSpacificPatient([FromRoute] int AppointmentId)
+        {
+            var result = await _appointmentService.GetDoctorAppointmentForSpacificPatient(AppointmentId);
+            return HandleResult(result);
+        }
+
+        [Authorize(Roles = "Patient")]
+        [HttpGet("Patient/{AppointmentId}")]
+        public async Task<ActionResult<PatientAppointmentDTO>> GetPatientAppointmentForSpacificDoctor([FromRoute] int AppointmentId)
+        {
+            var result = await _appointmentService.GetPatientAppointmentForSpacificDoctor(AppointmentId);
+            return HandleResult(result);
+        }
+
     }
 }
