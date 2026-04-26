@@ -1,5 +1,7 @@
-﻿using Health.Shared.CommonResponses;
+﻿using Health.Shared;
+using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.AppointmentDTOs;
+using Health.Shared.ParamsForFilterationPatientAppointment;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +12,6 @@ namespace Health.Services.Abstraction.AppointmentInterface
     {
         Task<Result> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, string patientUserId);
 
-        Task<Result<IEnumerable<PatientAppointmentDTO>>> GetPatientAppointment(string PatientUserId);
+        Task<PaginatedResult<PatientAppointmentDTO>> GetPatientAppointment(string PatientUserId, AppointmentSpecParams specParams);
     }
 }

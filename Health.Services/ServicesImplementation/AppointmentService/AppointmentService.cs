@@ -4,9 +4,13 @@ using Health.Domain.Entities.AppointmentModule;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.PatientModule;
 using Health.Services.Abstraction.AppointmentInterface;
+using Health.Services.Specifications.AppointmentSpecification;
 using Health.Services.Specifications.PatientSpecification;
+using Health.Shared;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.AppointmentDTOs;
+using Health.Shared.DTOs.DoctorDTOs;
+using Health.Shared.ParamsForFilterationPatientAppointment;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -65,24 +69,32 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             return Result.Ok();
         }
 
-        public async Task<Result<IEnumerable<PatientAppointmentDTO>>> GetPatientAppointment(string PatientUserId)
+        public async Task<PaginatedResult<PatientAppointmentDTO>> GetPatientAppointment(string PatientUserId , AppointmentSpecParams specParams)
         {
             // Get PatientId
             var spec = new PatientByIdWithoutIncludes(PatientUserId);
             var patient = await _unitOfWork.GetRepository<PatientProfile, int>().GetByIdAsync(spec);
+
             if(patient is null)
-                return Result<IEnumerable<PatientAppointmentDTO>>.Fail(Error.NotFound("Patient.NotFound" , "Patient Is Not Found"));
+                throw new Exception("Patient not found");
+
             var patientId = patient.Id;
 
-            var FilterAppointmentByPatientId = new PatientFilterationById(patientId);
+            // CountOfResult
+            var countSpec = new PatientAppointmentsCountSpec(patientId, specParams);
+            var totalCount = await _unitOfWork .GetRepository<Appointment, int>().CountAsync(countSpec);
+
+            // Data
+            var FilterAppointmentByPatientId = new PatientFilteration(patientId , specParams);
             var PatientAppointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync(FilterAppointmentByPatientId);
 
             if (PatientAppointments is null)
-                return Result<IEnumerable<PatientAppointmentDTO>>.Fail(Error.NotFound("PatientAppointment.Notfound", "This Patient Did Not Create Appointments"));
-           
-            var result = _mapper.Map<IEnumerable<PatientAppointmentDTO>>(PatientAppointments);
+                throw new Exception("PatientAppointment not found");
 
-            return Result<IEnumerable<PatientAppointmentDTO>>.Ok(result);
+            // CountOfReturnedData
+            int CountOfResultData = PatientAppointments.Count();
+            var result = _mapper.Map<IEnumerable<PatientAppointmentDTO>>(PatientAppointments);
+            return new PaginatedResult<PatientAppointmentDTO>(specParams.PageIndex, CountOfResultData, totalCount, result);
         }
     }
 }

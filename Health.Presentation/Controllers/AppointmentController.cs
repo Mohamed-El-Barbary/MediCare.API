@@ -1,5 +1,7 @@
 ﻿using Health.Services.Abstraction.AppointmentInterface;
+using Health.Shared;
 using Health.Shared.DTOs.AppointmentDTOs;
+using Health.Shared.ParamsForFilterationPatientAppointment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -29,11 +31,11 @@ namespace Health.Presentation.Controllers
 
         [Authorize(Roles = "Patient")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PatientAppointmentDTO>>> GetAllPatientAppointments()
+        public async Task<ActionResult<PaginatedResult<PatientAppointmentDTO>>> GetAllPatientAppointments([FromQuery] AppointmentSpecParams specParams)
         {
             string patientUserId = GetUserId();
-            var result = await _appointmentService.GetPatientAppointment(patientUserId);
-            return HandleResult(result);
+            var result = await _appointmentService.GetPatientAppointment(patientUserId , specParams);
+            return Ok(result);
         }
 
 
