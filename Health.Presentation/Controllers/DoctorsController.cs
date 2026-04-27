@@ -93,9 +93,5 @@ namespace Health.Presentation.Controllers
             return HandleResult(result);
         }
 
-
-        
-
-
     }
 }

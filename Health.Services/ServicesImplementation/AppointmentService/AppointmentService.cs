@@ -69,8 +69,6 @@ namespace Health.Services.ServicesImplementation.AppointmentService
 
             return Result.Ok();
         }
-
-   
         public async Task<PaginatedResult<PatientAppointmentDTO>> GetPatientAppointment(string PatientUserId , AppointmentSpecParams specParams)
         {
             // Get PatientId
@@ -98,7 +96,6 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             var result = _mapper.Map<IEnumerable<PatientAppointmentDTO>>(PatientAppointments);
             return new PaginatedResult<PatientAppointmentDTO>(specParams.PageIndex, CountOfResultData, totalCount, result);
         }
-
         public async Task<PaginatedResult<DoctorAppointmentDTO>> GetDoctorAppointment(string DoctorUserId, AppointmentSpecParams specParams)
         {
 
@@ -127,7 +124,6 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             var result = _mapper.Map<IEnumerable<DoctorAppointmentDTO>>(DoctorAppointments);
             return new PaginatedResult<DoctorAppointmentDTO>(specParams.PageIndex, CountOfResultData, totalCount, result);
         }
-
         public async Task<Result<PatientAppointmentDTO>> GetPatientAppointmentForSpacificDoctor(int AppointmentId)
         {
             var spec = new AppointmentSpecPatientViewer(AppointmentId);
@@ -144,5 +140,91 @@ namespace Health.Services.ServicesImplementation.AppointmentService
                 return Error.NotFound("Appointment.NotFound", $"Appointment With This Id:{AppointmentId} Is Not Found");
             return _mapper.Map<DoctorAppointmentDTO>(appointment);
         }
+        public async Task<Result> CancelAppointmentAsync(int AppointmentId, string userId, string role)
+        {
+            var appointment = await GetAppointmentWithSlots(AppointmentId);
+            if (appointment is null)
+                return Result.Fail(Error.NotFound("Appointment.NotFound", $"Apointment With {AppointmentId} Not Found"));
+
+            var validationResult = await ValidateUserAccess(appointment, userId, role);
+
+            if (!validationResult.IsSuccess)
+                return validationResult;
+
+            var statusResult = ValidateStatus(appointment);
+            if(!statusResult.IsSuccess)
+                return statusResult;
+
+            var timeResult = ValidateTime(appointment);
+            if (!timeResult.IsSuccess)
+                return timeResult;
+
+            ApplyCancellation(appointment);
+
+            await _unitOfWork.SaveChanges();
+
+            return Result.Ok();
+        }
+        
+        #region Helper Method For CancelAppointment
+        private async Task<Appointment?> GetAppointmentWithSlots(int AppointmentId)
+        {
+            var spec = new GetAppointmentBySlotsSpec(AppointmentId);
+            var appointment = await _unitOfWork.GetRepository<Appointment, int>().GetByIdAsync(spec);
+            return appointment;
+        }
+        private async Task<Result> ValidateUserAccess(Appointment appointment, string userId, string role)
+        {
+            if (role == "Patient")
+            {
+                var spec = new PatientByIdSpecification(userId);
+                var patient = await _unitOfWork.GetRepository<PatientProfile, int>().GetByIdAsync(spec);
+                if (patient is null)
+                    return Result.Fail(Error.NotFound("Patient.NotFound", "This Patient Is Not Found"));
+
+                var patientId = patient.Id;
+                if (appointment.PatientProfileId != patientId)
+                    return Result.Fail(Error.Unauthorized("Patient.NotAllowed", "This Patient Is Not Allowed"));
+            }
+            else if (role == "Doctor")
+            {
+                var spec = new DoctorByIdSpecification(userId);
+                var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+                if (doctor is null)
+                    return Result.Fail(Error.NotFound("Patient.NotFound", "This Patient Is Not Found"));
+                var doctorId = doctor.Id;
+                if (appointment.PatientProfileId != doctorId)
+                    return Result.Fail(Error.Unauthorized("Patient.NotAllowed", "This Patient Is Not Allowed"));
+            }
+
+            return Result.Ok();
+        }
+        private Result ValidateStatus(Appointment appointment)
+        {
+            if (appointment.Status == AppointmentStatus.Completed ||
+                appointment.Status == AppointmentStatus.Cancelled)
+            {
+                return Result.Fail(Error.Failure("Canced.Failuer", "Cannot cancel this appointment"));
+            }
+
+            return Result.Ok();
+        }
+        private Result ValidateTime(Appointment appointment)
+        {
+            var slot = appointment.DoctorGeneratedSlots;
+            var appointmentTime = slot.SlotDate.Date + slot.StartTime;
+
+            if (appointmentTime <= DateTime.UtcNow.AddHours(2))
+                return Result.Fail(Error.Failure("Cancel.Failure", "Too late to cancel"));
+
+            return Result.Ok();
+        }
+        private void ApplyCancellation(Appointment appointment)
+        {
+            appointment.Status = AppointmentStatus.Cancelled;
+            var slot = appointment.DoctorGeneratedSlots;
+            slot.Status = SlotStatus.Available;
+        }
+        #endregion
     }
 }
