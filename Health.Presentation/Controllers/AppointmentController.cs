@@ -63,5 +63,15 @@ namespace Health.Presentation.Controllers
             return HandleResult(result);
         }
 
+        [HttpDelete("{appointmentId}")]
+        [Authorize(Roles = "Patient,Doctor")]
+        public async Task<IActionResult> CancelAppointment(int appointmentId)
+        {
+            string userId = GetUserId();
+            string role = GetUserRole();
+            var result = await _appointmentService.CancelAppointmentAsync(appointmentId, userId, role);
+            return HandleResult(result , "Appointment cancelled successfully");
+        }
+
     }
 }

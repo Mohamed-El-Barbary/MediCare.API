@@ -104,5 +104,15 @@ namespace Health.Presentation.Controllers
 
             return userId;
         }
+
+        protected string GetUserRole()
+        {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (string.IsNullOrEmpty(role))
+                throw new UnauthorizedAccessException("Invalid token");
+
+            return role;
+        }
     }
 }

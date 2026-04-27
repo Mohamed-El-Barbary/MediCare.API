@@ -17,5 +17,6 @@ namespace Health.Services.Abstraction.AppointmentInterface
 
         Task<Result<DoctorAppointmentDTO>> GetDoctorAppointmentForSpacificPatient(int AppointmentId);
         Task<Result<PatientAppointmentDTO>> GetPatientAppointmentForSpacificDoctor(int AppointmentId);
+        Task<Result> CancelAppointmentAsync(int AppointmentId , string userId , string role);
     }
 }
