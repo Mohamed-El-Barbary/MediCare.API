@@ -3,9 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
 
-namespace Health.Persistence.Data.Configurations
+namespace Health.Persistence.Data.Configurations.DoctorModuleConfigurations
 {
     public class DoctorGeneratedSlotsConfigurations : IEntityTypeConfiguration<DoctorGeneratedSlots>
     {
@@ -23,8 +24,8 @@ namespace Health.Persistence.Data.Configurations
                    .IsRequired()
                    .HasColumnType("time");
 
-            builder.Property(s => s.IsBooked)
-                   .IsRequired();
+            builder.Property(s => s.Status)
+                   .HasConversion<int>();
 
             builder.HasOne(s => s.DoctorSchedule)
                    .WithMany(ds => ds.DoctorGeneratedSlots)

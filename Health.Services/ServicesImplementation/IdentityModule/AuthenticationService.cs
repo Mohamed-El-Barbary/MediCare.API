@@ -505,8 +505,8 @@ namespace Health.Services.ServicesImplementation.IdentityModule
 
             var claims = new List<Claim>
             {
-                new Claim("userId", user.Id),
-                new Claim("displayName", $"{user.FirstName!} {user.LastName!}"),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Name, $"{user.FirstName!} {user.LastName!}"),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
@@ -514,15 +514,15 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             var roles = await _userManager.GetRolesAsync(user);
 
             foreach (var role in roles)
-                claims.Add(new Claim("role", role));
+                claims.Add(new Claim(ClaimTypes.Role, role));
 
             var secretKey = _configuration["JWTOptions:SecretKey"];
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!));
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["JWTOptions:SecretKey"],
-                audience: _configuration["JWTOptions:SecretKey"],
+                issuer: _configuration["JWTOptions:Issuer"],
+                audience: _configuration["JWTOptions:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: cred

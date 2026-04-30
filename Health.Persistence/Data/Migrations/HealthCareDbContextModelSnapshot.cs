@@ -22,6 +22,44 @@ namespace Health.Persistence.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Health.Domain.Entities.AppointmentModule.Appointment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppointmentType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DoctorGeneratedSlotsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DoctorProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PatientProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorGeneratedSlotsId")
+                        .IsUnique();
+
+                    b.HasIndex("DoctorProfileId");
+
+                    b.HasIndex("PatientProfileId");
+
+                    b.ToTable("Appointments");
+                });
+
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorGeneratedSlots", b =>
                 {
                     b.Property<int>("Id")
@@ -39,14 +77,14 @@ namespace Health.Persistence.Data.Migrations
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("time");
 
-                    b.Property<bool>("IsBooked")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime>("SlotDate")
                         .HasColumnType("date");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -54,7 +92,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasIndex("DoctorScheduleId");
 
-                    b.ToTable("DoctorGeneratedSlots", (string)null);
+                    b.ToTable("DoctorGeneratedSlots");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorProfile", b =>
@@ -130,7 +168,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DoctorProfiles", (string)null);
+                    b.ToTable("DoctorProfiles");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorSchedule", b =>
@@ -160,7 +198,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasIndex("DoctorProfileId");
 
-                    b.ToTable("DoctorSchedules", (string)null);
+                    b.ToTable("DoctorSchedules");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.PatientModule.ChronicDisease", b =>
@@ -178,7 +216,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ChronicDisease", (string)null);
+                    b.ToTable("ChronicDisease");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.PatientModule.PatientChronicDisease", b =>
@@ -201,7 +239,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasIndex("ChronicDiseaseId");
 
-                    b.ToTable("PatientChronicDisease", (string)null);
+                    b.ToTable("PatientChronicDisease");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.PatientModule.PatientProfile", b =>
@@ -234,7 +272,34 @@ namespace Health.Persistence.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PatientProfile", (string)null);
+                    b.ToTable("PatientProfiles");
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.AppointmentModule.Appointment", b =>
+                {
+                    b.HasOne("Health.Domain.Entities.DoctorModule.DoctorGeneratedSlots", "DoctorGeneratedSlots")
+                        .WithOne()
+                        .HasForeignKey("Health.Domain.Entities.AppointmentModule.Appointment", "DoctorGeneratedSlotsId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Health.Domain.Entities.DoctorModule.DoctorProfile", "DoctorProfile")
+                        .WithMany("Appointments")
+                        .HasForeignKey("DoctorProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Health.Domain.Entities.PatientModule.PatientProfile", "PatientProfile")
+                        .WithMany("Appointments")
+                        .HasForeignKey("PatientProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DoctorGeneratedSlots");
+
+                    b.Navigation("DoctorProfile");
+
+                    b.Navigation("PatientProfile");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorGeneratedSlots", b =>
@@ -280,7 +345,7 @@ namespace Health.Persistence.Data.Migrations
 
                             b1.HasKey("DoctorProfileId");
 
-                            b1.ToTable("DoctorProfiles", (string)null);
+                            b1.ToTable("DoctorProfiles");
 
                             b1.WithOwner()
                                 .HasForeignKey("DoctorProfileId");
@@ -344,7 +409,7 @@ namespace Health.Persistence.Data.Migrations
 
                             b1.HasKey("PatientProfileId");
 
-                            b1.ToTable("PatientProfile", (string)null);
+                            b1.ToTable("PatientProfiles");
 
                             b1.WithOwner()
                                 .HasForeignKey("PatientProfileId");
@@ -356,6 +421,8 @@ namespace Health.Persistence.Data.Migrations
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorProfile", b =>
                 {
+                    b.Navigation("Appointments");
+
                     b.Navigation("DoctorGeneratedSlots");
 
                     b.Navigation("DoctorSchedule");
@@ -373,6 +440,8 @@ namespace Health.Persistence.Data.Migrations
 
             modelBuilder.Entity("Health.Domain.Entities.PatientModule.PatientProfile", b =>
                 {
+                    b.Navigation("Appointments");
+
                     b.Navigation("PatientChronicDiseases");
                 });
 #pragma warning restore 612, 618
