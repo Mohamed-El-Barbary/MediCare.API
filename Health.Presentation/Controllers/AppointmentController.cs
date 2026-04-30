@@ -73,5 +73,22 @@ namespace Health.Presentation.Controllers
             return HandleResult(result , "Appointment cancelled successfully");
         }
 
+        [HttpPut("{appointmentId}/Confirmed")]
+        [Authorize(Roles = "Doctor")]
+        public async Task<IActionResult> ConfirmeAppointment(int appointmentId)
+        {
+            string userId = GetUserId();
+            var result = await _appointmentService.ConfirmAppointment(appointmentId , userId);
+            return HandleResult(result, "Appointment Confirmed successfully");
+        }
+        [HttpPut("{appointmentId}/Complete")]
+        [Authorize(Roles = "Doctor")]
+        public async Task<IActionResult> CompleteAppointment(int appointmentId)
+        {
+            string userId = GetUserId();
+            var result = await _appointmentService.CompleteAppointment(appointmentId , userId);
+            return HandleResult(result, "Appointment Complete successfully");
+        }
+
     }
 }
