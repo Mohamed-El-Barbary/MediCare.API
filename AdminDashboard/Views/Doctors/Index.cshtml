@@ -282,7 +282,7 @@
                                 </li>
 
                                 <!-- Pages -->
-                                @for (int i = 1; i <= Math.Ceiling((double)Model.DoctorsData.CountOfAllProduct / Model.QueryParams.PageSize); i++)
+                                @for (int i = 1; i <= Math.Ceiling((double)Model.DoctorsData.CountOfAllResult / Model.QueryParams.PageSize); i++)
                                 {
                                     <li class="page-item @(i == Model.DoctorsData.PageIndex ? "active" : "")">
                                         <a class="page-link"
@@ -294,7 +294,7 @@
                                 }
 
                                 <!-- Next -->
-                                <li class="page-item @(Model.DoctorsData.PageIndex == Math.Ceiling((double)Model.DoctorsData.CountOfAllProduct / Model.QueryParams.PageSize) ? "disabled" : "")">
+                                <li class="page-item @(Model.DoctorsData.PageIndex == Math.Ceiling((double)Model.DoctorsData.CountOfAllResult / Model.QueryParams.PageSize) ? "disabled" : "")">
                                     <a class="page-link"
                                        asp-all-route-data="routeValues"
                                        asp-route-PageIndex="@(Model.DoctorsData.PageIndex + 1)">
