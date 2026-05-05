@@ -70,7 +70,7 @@ namespace Health.Presentation.Controllers
             return Ok(result.Value);
         }
 
-        [HttpPost("foregt-password")]
+        [HttpPost("forget-password")]
         public async Task<ActionResult> ForgetPassord(ForgotPasswordDTO forgotPasswordDTO)
         {
             var result = await _authenticationService.ForgetPasswordAsync(forgotPasswordDTO);

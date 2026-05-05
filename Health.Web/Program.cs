@@ -46,6 +46,19 @@ namespace Health.Web
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddCors(opt =>
+            {
+                opt.AddPolicy(
+                    "DevelopmentPolicy",
+                    builder =>
+                    {
+                        builder.WithOrigins("https://localhost:4200")
+                               .AllowAnyHeader()
+                               .AllowAnyMethod()
+                               .AllowCredentials()
+                               .SetIsOriginAllowed(_ => true);
+                    });
+            });
             builder.Services.AddDbContext<HealthCareDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnextion"));
@@ -133,6 +146,8 @@ namespace Health.Web
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseCors("DevelopmentPolicy");
 
             app.UseAuthentication();
             app.UseAuthorization();

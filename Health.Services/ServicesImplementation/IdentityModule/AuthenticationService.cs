@@ -213,19 +213,22 @@ namespace Health.Services.ServicesImplementation.IdentityModule
 
         public async Task<Result> ResetPasswordAsync(ResetPasswordOtpDTO resetPasswordOtpDTO)
         {
+            if (resetPasswordOtpDTO.Password != resetPasswordOtpDTO.ConfirmPassword)
+            {
+                return Result.Fail(Error.Validation("Auth.PasswordMismatch", "Passwords do not match."));
+            }
+  
+            var isVerifiedResult = await _otpService.IsOtpVerifiedAsync(resetPasswordOtpDTO.Email, OtpPurposeDTO.ForgotPassword);
+            if (isVerifiedResult.IsFailure || !isVerifiedResult.Value)
+                return Result.Fail(Error.Failure("Auth.OtpNotVerified", "OTP not verified."));
+
             var user = await _userManager.FindByEmailAsync(resetPasswordOtpDTO.Email);
             if (user is null)
                 return Result.Fail(Error.Unauthorized("Auth.UserNotFound", "No account found with this email."));
 
-            var isVerifiedResult = await _otpService.IsOtpVerifiedAsync(resetPasswordOtpDTO.Email, OtpPurposeDTO.ForgotPassword);
-
-            if (isVerifiedResult.IsFailure || !isVerifiedResult.Value)
-                return Result.Fail(Error.Failure("Auth.OtpNotVerified", "OTP not verified."));
-
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             var result = await _userManager.ResetPasswordAsync(user, resetToken, resetPasswordOtpDTO.Password);
-
             if (!result.Succeeded)
                 return Result.Fail(Error.Failure("Auth.PasswordResetFailed", "Password reset failed."));
 

@@ -165,7 +165,78 @@ namespace Health.Services.ServicesImplementation.AppointmentService
 
             return Result.Ok();
         }
-        
+        public async Task<Result> ConfirmAppointment(int appointmentId, string userId)
+        {
+            var appointment = await GetAppointmentWithSlots(appointmentId);
+            if (appointment is null)
+                return Result.Fail(Error.NotFound("Appointment.NotFound", $"Apointment With {appointmentId} Not Found"));
+
+            var spec = new DoctorByIdSpecification(userId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+
+            if (doctor is null)
+                return Result.Fail(Error.NotFound("Doctor.NotFound", "Doctor Is Not Found"));
+            var doctorId = doctor.Id;
+
+            if(appointment.DoctorProfileId != doctorId)
+                return Result.Fail(Error.Unauthorized( "Doctor.UnAuthorize" , "You are not allowed"));
+
+            if (appointment.Status != AppointmentStatus.Pending)
+                return Result.Fail(Error.Failure("Status.Failure" , "Only pending appointments can be confirmed"));
+
+            var slot = appointment.DoctorGeneratedSlots;
+            var appointmentTime = slot.SlotDate.Date + slot.StartTime;
+            if (appointmentTime < DateTime.UtcNow)
+                return Result.Fail(Error.Failure("AppointmentTime.Failure" , "Cannot confirm past appointment"));
+
+            appointment.Status = AppointmentStatus.Confirmed; 
+
+            _unitOfWork.GetRepository<Appointment , int>().Update(appointment);
+
+            var result = await _unitOfWork.SaveChanges();
+
+            if (result <= 0)
+                return Result.Fail(Error.Failure("confirmed.Failure" , "Failed to confirm appointment"));
+
+            return Result.Ok();
+        }
+        public async Task<Result> CompleteAppointment(int appointmentId, string userId)
+        {
+            var appointment = await GetAppointmentWithSlots(appointmentId);
+            if (appointment is null)
+                return Result.Fail(Error.NotFound("Appointment.NotFound", $"Apointment With {appointmentId} Not Found"));
+
+            var spec = new DoctorByIdSpecification(userId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+
+            if (doctor is null)
+                return Result.Fail(Error.NotFound("Doctor.NotFound", "Doctor Is Not Found"));
+            var doctorId = doctor.Id;
+
+            if (appointment.DoctorProfileId != doctorId)
+                return Result.Fail(Error.Unauthorized("Doctor.UnAuthorize", "You are not allowed"));
+
+            if (appointment.Status != AppointmentStatus.Confirmed)
+                return Result.Fail(Error.Failure("Status.Failure", "Only pending appointments can be confirmed"));
+
+            var slot = appointment.DoctorGeneratedSlots;
+            var appointmentTime = slot.SlotDate.Date + slot.EndTime;
+
+            if (appointmentTime > DateTime.UtcNow)
+                return Result.Fail(Error.Failure("Appointment time has not finished yet"));
+
+            appointment.Status = AppointmentStatus.Completed;
+
+            _unitOfWork.GetRepository<Appointment, int>().Update(appointment);
+
+            var result = await _unitOfWork.SaveChanges();
+
+            if (result <= 0)
+                return Result.Fail(Error.Failure("StatusComplete.Failure", "Failed to Complete appointment"));
+
+            return Result.Ok();
+        }
+
         #region Helper Method For CancelAppointment
         private async Task<Appointment?> GetAppointmentWithSlots(int AppointmentId)
         {
@@ -225,6 +296,8 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             var slot = appointment.DoctorGeneratedSlots;
             slot.Status = SlotStatus.Available;
         }
+
         #endregion
+
     }
 }
