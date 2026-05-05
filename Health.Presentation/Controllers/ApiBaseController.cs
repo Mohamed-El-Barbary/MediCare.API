@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Security.Claims;
 
 
 namespace Health.Presentation.Controllers
@@ -92,6 +93,26 @@ namespace Health.Presentation.Controllers
                 modelState.AddModelError(err.Code, err.Description);
 
             return ValidationProblem(modelState);
+        }
+
+        protected string GetUserId()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                throw new UnauthorizedAccessException("Invalid token");
+
+            return userId;
+        }
+
+        protected string GetUserRole()
+        {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (string.IsNullOrEmpty(role))
+                throw new UnauthorizedAccessException("Invalid token");
+
+            return role;
         }
     }
 }
