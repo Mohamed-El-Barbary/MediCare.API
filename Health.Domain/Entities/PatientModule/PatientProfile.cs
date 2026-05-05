@@ -1,4 +1,5 @@
-﻿using Health.Domain.Entities.DoctorModule;
+﻿using Health.Domain.Entities.AppointmentModule;
+using Health.Domain.Entities.DoctorModule;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,5 +15,6 @@ namespace Health.Domain.Entities.PatientModule
         public DateTime JoinDate { get; set; } = DateTime.UtcNow;
         public Address Address { get; set; } = null!;
         public ICollection<PatientChronicDisease> PatientChronicDiseases { get; set; } = new List<PatientChronicDisease>();
+        public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     }
 }
