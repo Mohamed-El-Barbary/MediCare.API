@@ -14,6 +14,7 @@ namespace Health.Services.Abstraction.IdentityModuleAbstraction
         Task<Result<UserDTO>> RefreshTokenAsync(string refreshToken);
         Task<Result> ForgetPasswordAsync(ForgotPasswordDTO forgotPasswordDTO);
         Task<Result> VerifyOtpAsync(VerifyOtpDTO verifyOtpDTO);
+        Task<Result> ResendOtpAsync(ResendOtpDTO resendOtpDTO);
         Task<Result> ResetPasswordAsync(ResetPasswordOtpDTO resetPasswordOtpDTO);
         Task<Result> ChangePasswordAsync(string userId, ChangePasswordDTO changePasswordDTO);
         Task<Result> UpdateDoctorProfileAsync(string userId, UpdateDoctorProfileDTO request);

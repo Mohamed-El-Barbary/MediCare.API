@@ -211,13 +211,30 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             return Result.Ok();
         }
 
+        public async Task<Result> ResendOtpAsync(ResendOtpDTO resendOtpDTO)
+        {
+            var user = await _userManager.FindByEmailAsync(resendOtpDTO.Email);
+            if (user is null)
+                return Result.Fail(Error.Unauthorized("Auth.UserNotFound", "No account found with this email."));
+
+            var deleteResult = await _otpService.DeleteOtpAsync(resendOtpDTO.Email, OtpPurposeDTO.ForgotPassword);
+            if (deleteResult is null)
+                return Result.Fail(Error.Failure("Failed.ResendOtp", "Error In Resending Otp Try Again"));
+
+            var sendResult = await _otpService.SendOtpAsync(resendOtpDTO.Email, OtpPurposeDTO.ForgotPassword);
+            if (sendResult is null)
+                return Result.Fail(Error.Failure("Failed.ResendOtp", "Error In Resending Otp Try Again"));
+
+            return Result.Ok();
+        }
+
         public async Task<Result> ResetPasswordAsync(ResetPasswordOtpDTO resetPasswordOtpDTO)
         {
             if (resetPasswordOtpDTO.Password != resetPasswordOtpDTO.ConfirmPassword)
             {
                 return Result.Fail(Error.Validation("Auth.PasswordMismatch", "Passwords do not match."));
             }
-  
+
             var isVerifiedResult = await _otpService.IsOtpVerifiedAsync(resetPasswordOtpDTO.Email, OtpPurposeDTO.ForgotPassword);
             if (isVerifiedResult.IsFailure || !isVerifiedResult.Value)
                 return Result.Fail(Error.Failure("Auth.OtpNotVerified", "OTP not verified."));
