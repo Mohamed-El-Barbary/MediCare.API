@@ -1,4 +1,5 @@
-﻿using Health.Domain.Entities.DoctorModule;
+﻿using Health.Domain.Entities.AppointmentModule;
+using Health.Domain.Entities.DoctorModule;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,8 +12,9 @@ namespace Health.Domain.Entities.PatientModule
         public string DisplayName { get; set; } = null!;
         public Gender Gender { get; set; }
         public DateTime DateOfBirth { get; set; }
+        public DateTime JoinDate { get; set; } = DateTime.UtcNow;
         public Address Address { get; set; } = null!;
-
-        public ICollection<PatientChronicDisease> PatientChronicDiseases = [];
+        public ICollection<PatientChronicDisease> PatientChronicDiseases { get; set; } = new List<PatientChronicDisease>();
+        public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     }
 }

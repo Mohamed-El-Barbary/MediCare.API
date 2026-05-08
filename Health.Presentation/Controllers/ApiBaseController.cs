@@ -12,11 +12,13 @@ namespace Health.Presentation.Controllers
     {
 
         // Handle Result Without Value 
-        protected IActionResult HandleResult(Result result)
+        protected ActionResult HandleResult(Result result, string? successMessage = default)
         {
 
             if (result.IsSuccess)
-                return NoContent();
+                return successMessage is null
+                      ? NoContent()
+                      : Ok(new { message = successMessage });
             else
                 return HandleProblem(result.Errors);
         }
