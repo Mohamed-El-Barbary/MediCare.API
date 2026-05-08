@@ -4,6 +4,7 @@ using Health.Persistence.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Health.Persistence.Data.Migrations
 {
     [DbContext(typeof(HealthCareDbContext))]
-    partial class HealthCareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260417143142_AppointMentModuleInitialSetup")]
+    partial class AppointMentModuleInitialSetup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -250,9 +253,6 @@ namespace Health.Persistence.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("BloodType")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
@@ -390,27 +390,6 @@ namespace Health.Persistence.Data.Migrations
 
             modelBuilder.Entity("Health.Domain.Entities.PatientModule.PatientProfile", b =>
                 {
-                    b.OwnsOne("Health.Domain.Entities.PatientModule.EmergencyContact", "EmergencyContact", b1 =>
-                        {
-                            b1.Property<int>("PatientProfileId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("ContactName")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("PhoneNumber")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("PatientProfileId");
-
-                            b1.ToTable("PatientProfiles");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PatientProfileId");
-                        });
-
                     b.OwnsOne("Health.Domain.Entities.DoctorModule.Address", "Address", b1 =>
                         {
                             b1.Property<int>("PatientProfileId")
@@ -441,8 +420,6 @@ namespace Health.Persistence.Data.Migrations
 
                     b.Navigation("Address")
                         .IsRequired();
-
-                    b.Navigation("EmergencyContact");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorProfile", b =>

@@ -4,6 +4,7 @@ using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.DoctorDTOs;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -33,6 +34,53 @@ namespace Health.Presentation.Controllers
 
             return HandleResult<DoctorDTO>(result);
         }
+
+        [HttpPost("{id}/schedule")]
+        public async Task<IActionResult> AddSchedule(int id, [FromBody] DoctorScheduleDTO dto)
+        {
+            var result = await _doctorService.AddScheduleAsync(id, dto);
+
+            return HandleResult(result , "Doctor schedule has been established successfully.");
+        }
+
+        [HttpGet("{id}/schedule")]
+        public async Task<ActionResult<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScedule(int id)
+        {
+            var result = await _doctorService.GetAllDoctorScheduleAsync(id);
+            return HandleResult(result);
+        }
+
+        [HttpDelete("{scheduleId}")]
+        public async Task<ActionResult> DeleteSpacificSchdeuleFroDoctorProfile([FromRoute] int scheduleId , [FromQuery] int doctorProfileId)
+        {
+            var result = await _doctorService.DeleteScheduleAsync(scheduleId, doctorProfileId);
+            return HandleResult(result , "Schedule deleted successfully");
+        }
+
+
+        [HttpPut("{doctorProfileId}/schedule/{scheduleId}")]
+        public async Task<IActionResult> UpdateSchedule([FromRoute] int doctorProfileId,[FromRoute] int scheduleId,[FromBody] DoctorScheduleDTO dto)
+        {
+            var result = await _doctorService.UpdateScheduleAsync(doctorProfileId, scheduleId, dto);
+            return HandleResult(result , "Schedule Updated Successfully");
+        }
+
+        [HttpPost("{scheduleId}/generate-slots")]
+        public async Task<IActionResult> GenerateSlots(int scheduleId , GeneratedSlotsRequestDto requestDTO)
+        {
+            var result = await _doctorService.GenerateSlotsBySchedule(scheduleId, requestDTO);
+
+            return HandleResult(result, "Doctor Slots has been established successfully.");
+        }
+
+        [HttpGet("{doctorId}/generate-slots")]
+        public async Task<ActionResult<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(int doctorId, DateTime? Date)
+        {
+            var result = await _doctorService.GetDoctorSlots(doctorId, Date);
+
+            return HandleResult(result);
+        }
+
 
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Health.Domain.Entities;
+using Health.Domain.Entities.DoctorModule;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Health.Domain.Contracts
@@ -16,11 +18,15 @@ namespace Health.Domain.Contracts
 
         Task AddAsync(TEntity entity);
 
+        Task AddRangeAsync(IEnumerable<TEntity> entitys);
+
         void Update(TEntity entity);
 
-        void Delete(int id);
+        void Delete(TEntity entity);
 
         Task<int> CountAsync(ISpecifications<TEntity, Tkey> specifications);
+
+
 
     }
 }

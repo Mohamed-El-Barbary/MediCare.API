@@ -15,6 +15,7 @@ namespace Health.Shared.DTOs.DoctorDTOs
         public decimal PriceConsultation { get; set; }
         public decimal Rating { get; set; }
         public string PhoneClinc { get; set; } = default!;
+        public string ClinicLocation { get; set; } = default!;
         public DoctorScheduleDTO? DoctorScheduleDTO { get; set; }
         public GeneratedSlotsDTO? GeneratedSlotsDTO { get; set; }
     }
