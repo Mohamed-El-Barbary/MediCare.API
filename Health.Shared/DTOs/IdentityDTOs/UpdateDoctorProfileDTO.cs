@@ -12,7 +12,7 @@ namespace Health.Shared.DTOs.IdentityDTOs
         public string? PhoneNumber { get; init; }
         public Gender? Gender { get; init; }
         public string? Specialization { get; init; }
-        public int? YearsOfExperience { get; init; }
+        public string? YearsOfExperience { get; init; }
         public string? Bio { get; init; }
         public string? ClinicLocation { get; init; }
         public string? PhoneClinic { get; init; }

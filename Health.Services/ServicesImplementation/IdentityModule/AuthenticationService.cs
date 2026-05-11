@@ -63,26 +63,26 @@ namespace Health.Services.ServicesImplementation.IdentityModule
 
             await _userManager.AddToRoleAsync(user, "Doctor");
 
-            var doctorPicResult = await UploadImageMandatoryAsync(registerDTO.DoctorPictureFile, "doctors");
-            if (!doctorPicResult.IsSuccess)
-            {
-                await _userManager.DeleteAsync(user);
-                return doctorPicResult.Errors.ToList();
-            }
-            var doctorPicUrl = doctorPicResult.Value;
+            //var doctorPicResult = await UploadImageMandatoryAsync(registerDTO.DoctorPictureFile, "doctors");
+            //if (!doctorPicResult.IsSuccess)
+            //{
+            //    await _userManager.DeleteAsync(user);
+            //    return doctorPicResult.Errors.ToList();
+            //}
+            //var doctorPicUrl = doctorPicResult.Value;
 
-            var syndicateResult = await UploadImageMandatoryAsync(registerDTO.SyndicateCardFile, "doctors");
-            if (!syndicateResult.IsSuccess)
-            {
-                await _userManager.DeleteAsync(user);
-                return syndicateResult.Errors.ToList();
-            }
-            var syndicateUrl = syndicateResult.Value;
+            //var syndicateResult = await UploadImageMandatoryAsync(registerDTO.SyndicateCardFile, "doctors");
+            //if (!syndicateResult.IsSuccess)
+            //{
+            //    await _userManager.DeleteAsync(user);
+            //    return syndicateResult.Errors.ToList();
+            //}
+            //var syndicateUrl = syndicateResult.Value;
 
             var doctorProfile = _mapper.Map<DoctorProfile>(registerDTO);
             doctorProfile.UserId = user.Id;
-            doctorProfile.DoctorPictureUrl = doctorPicUrl!;
-            doctorProfile.SyndicateCardUrl = syndicateUrl!;
+            //doctorProfile.DoctorPictureUrl = doctorPicUrl!;
+            //doctorProfile.SyndicateCardUrl = syndicateUrl!;
 
             try
             {
@@ -373,9 +373,7 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             doctorProfile.Bio = dto.Bio ?? doctorProfile.Bio;
             doctorProfile.ClinicLocation = dto.ClinicLocation ?? doctorProfile.ClinicLocation;
             doctorProfile.PhoneClinc = dto.PhoneClinic ?? doctorProfile.PhoneClinc;
-
-            if (dto.YearsOfExperience.HasValue)
-                doctorProfile.YearsOfExperience = dto.YearsOfExperience.Value;
+            doctorProfile.YearsOfExperience = dto.YearsOfExperience ?? doctorProfile.YearsOfExperience;
 
             if (dto.Address is not null)
                 doctorProfile.Address = _mapper.Map<Address>(dto.Address);
