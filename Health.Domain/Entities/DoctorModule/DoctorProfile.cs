@@ -19,7 +19,7 @@ namespace Health.Domain.Entities.DoctorModule
         public string? Bio { get; set; }
         public string ClinicLocation { get; set; } = default!;
         public string? SyndicateCardUrl { get; set; }
-        public int YearsOfExperience { get; set; }
+        public string YearsOfExperience { get; set; } = default!;
         public VerificationStatus VerificationStatus { get; set; } = VerificationStatus.Pending;
         public string? DoctorPictureUrl { get; set; }
         public string? MedicalLicenseNumber { get; set; }
