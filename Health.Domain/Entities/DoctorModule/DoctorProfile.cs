@@ -10,18 +10,19 @@ namespace Health.Domain.Entities.DoctorModule
     {
         public string UserId { get; set; } = default!;
         public string DisplayName { get; set; } = default!;
-        public string PhoneClinc { get; set; } = default!;
+        public string? PhoneClinc { get; set; }
         public decimal PriceConsultation { get; set; }
         public Gender Gender { get; set; }
         public DateTime JoinDate { get; set; } = DateTime.UtcNow;
         public Address Address { get; set; } = default!;
         public string Specialization { get; set; } = default!;
-        public string Bio { get; set; } = default!;
+        public string? Bio { get; set; }
         public string ClinicLocation { get; set; } = default!;
-        public string SyndicateCardUrl { get; set; } = default!;
+        public string? SyndicateCardUrl { get; set; }
         public int YearsOfExperience { get; set; }
         public VerificationStatus VerificationStatus { get; set; } = VerificationStatus.Pending;
-        public string DoctorPictureUrl { get; set; } = default!;
+        public string? DoctorPictureUrl { get; set; }
+        public string? MedicalLicenseNumber { get; set; }
         public decimal Rating { get; set; } = 0;
         public DateTime? ApprovedAt { get; set; }
         public string? ApprovedBy { get; set; }
