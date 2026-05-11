@@ -14,12 +14,18 @@ namespace Health.Services.MappingProfiles.DoctorMapping
 
         public DoctorMappingProfile()
         {
-            CreateMap<DoctorProfile, DoctorDTO>();
+            CreateMap<DoctorProfile, DoctorDTO>()
+                    .ForMember(dest => dest.DoctorScheduleDTO, opt => opt.MapFrom(src => src.DoctorSchedule))
+                 .ForMember(dest => dest.GeneratedSlotsDTO,opt => opt.MapFrom(src => src.DoctorGeneratedSlots));
 
 
             CreateMap<DoctorScheduleDTO, DoctorSchedule>()
            .ForMember(dest => dest.DoctorProfileId,
                       opt => opt.Ignore());
+
+            CreateMap<DoctorSchedule, DoctorScheduleDTO>();
+            CreateMap<DoctorGeneratedSlots, GeneratedSlotsDTO>();
+
 
             CreateMap<DoctorSchedule, DoctorSceduleToReturn>();
 

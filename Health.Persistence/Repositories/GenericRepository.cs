@@ -66,6 +66,8 @@ namespace Health.Persistence.Repositories
             return await Query.FirstOrDefaultAsync();
         }
 
+        
+
         public void Update(TEntity entity)
         {
             _healthCareDbContext.Update(entity);
