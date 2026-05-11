@@ -11,6 +11,7 @@ namespace Health.Shared.DTOs.IdentityDTOs
         public string PhoneNumber { get; init; } = default!;
         public string Email { get; init; } = default!;
         public string Password { get; init; } = default!;
+        public string ConfirmPassword { get; init; } = default!;
     }
 
 }
