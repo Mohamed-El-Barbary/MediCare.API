@@ -20,7 +20,7 @@ namespace Health.Presentation.Controllers
         }
 
         [HttpPost("register-doctor")]
-        public async Task<ActionResult<UserDTO>> RegisterDoctor([FromForm] RegisterDoctorDTO registerDto)
+        public async Task<ActionResult<UserDTO>> RegisterDoctor(RegisterDoctorDTO registerDto)
         {
             var result = await _authenticationService.RegisterDoctorAsync(registerDto);
 
