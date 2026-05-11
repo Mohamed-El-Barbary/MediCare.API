@@ -1,5 +1,6 @@
 ﻿using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.PatientModule;
+using Health.Domain.Entities.ReviewModule;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,6 +17,7 @@ namespace Health.Domain.Entities.AppointmentModule
         public DoctorProfile DoctorProfile { get; set; } = default!;
         public PatientProfile PatientProfile { get; set; } = default!;
         public DoctorGeneratedSlots DoctorGeneratedSlots { get; set; } = default!;
+        public Review? Review { get; set; }
         // Business Property
         public AppointmentStatus Status { get; set; }
         public AppointmentType AppointmentType { get; set; }
