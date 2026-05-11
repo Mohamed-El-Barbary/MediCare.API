@@ -8,7 +8,6 @@ namespace Health.Shared.DTOs.IdentityDTOs
 {
     public class RegisterPatientDTO : RegisterUserDTO
     {
-        public string DisplayName { get; init; } = null!;
         public Gender Gender { get; init; }
         public DateTime DateOfBirth { get; init; }
 
@@ -17,5 +16,8 @@ namespace Health.Shared.DTOs.IdentityDTOs
 
         // Chronic Diseases selected (IDs from UI)
         public ICollection<int> ChronicDiseaseIds { get; init; } = [];
+        public string? EmergencyContactName { get; init; }
+        public string? EmergencyPhoneNumber { get; init; }
+        public int? BloodType { get; init; }
     }
 }
