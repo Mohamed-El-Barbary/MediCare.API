@@ -8,6 +8,7 @@ namespace Health.Services.Abstraction.ReviewModule
 {
     public interface IReview
     {
-        Task<Result<ReviewResposeDTO>> CreateReviewOnDoctor(string PatientUserId , CreateReviewDto createReviewDto);
+        Task<Result<ReviewResposeForPatinetDTO>> CreateReviewOnDoctor(string PatientUserId , CreateReviewDto createReviewDto);
+        Task<Result<ReviewResposeForPatinetDTO>> UpdateReview(string PatientUserId, int reviewId , UpdateReviewDto createReviewDto);
     }
 }
