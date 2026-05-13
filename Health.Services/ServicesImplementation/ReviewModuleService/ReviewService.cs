@@ -23,25 +23,25 @@ namespace Health.Services.ServicesImplementation.ReviewModuleService
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<Result<ReviewResposeDTO>> CreateReviewOnDoctor(string PatientUserId, CreateReviewDto createReviewDto)
+        public async Task<Result<ReviewResposeForPatinetDTO>> CreateReviewOnDoctor(string PatientUserId, CreateReviewDto createReviewDto)
         {
             var patientId = await getPatientId(PatientUserId);
             if (patientId is null)
-                return Result<ReviewResposeDTO>.Fail(Error.Unauthorized("Patient.UnAuthorize", "Patient With This Id Not Found"));
+                return Result<ReviewResposeForPatinetDTO>.Fail(Error.Unauthorized("Patient.UnAuthorize", "Patient With This Id Not Found"));
 
             var Appointment = await GetAppointmentById(createReviewDto.AppointmentId);
             if(Appointment is null)
-                return Result<ReviewResposeDTO>.Fail(Error.NotFound("Appointment.NotFound", "Appointment With This Id Not Found"));
+                return Result<ReviewResposeForPatinetDTO>.Fail(Error.NotFound("Appointment.NotFound", "Appointment With This Id Not Found"));
 
             if (patientId != Appointment.PatientProfileId)
-                return Result<ReviewResposeDTO>.Fail(
+                return Result<ReviewResposeForPatinetDTO>.Fail(
                     Error.Unauthorized(
                         "Patient.Unauthorized", 
                     "The patient is not allowed to rate this doctor because they did not book appointment with him."
                 ));
 
             if(Appointment.Status != AppointmentStatus.Completed)
-                return Result<ReviewResposeDTO>.Fail(
+                return Result<ReviewResposeForPatinetDTO>.Fail(
                     Error.InvalidCredentials(
                         "Patient.NotAllow",
                     "The patient is not allowed to rate this doctor because they did not complete an appointment with him."
@@ -58,16 +58,48 @@ namespace Health.Services.ServicesImplementation.ReviewModuleService
             if (await _unitOfWork.SaveChanges() > 0)
             {
 
-                var response = _mapper.Map<ReviewResposeDTO>(review);
-                return Result<ReviewResposeDTO>.Ok(response);
+                var response = _mapper.Map<ReviewResposeForPatinetDTO>(review);
+                return Result<ReviewResposeForPatinetDTO>.Ok(response);
             }
 
-            return Result<ReviewResposeDTO>.Fail(Error.Failure("Review.Failer" , "Failure When Create Rview"));
+            return Result<ReviewResposeForPatinetDTO>.Fail(Error.Failure("Review.Failer" , "Failure When Create Rview"));
         }
 
+        public async Task<Result<ReviewResposeForPatinetDTO>> UpdateReview(string PatientUserId, int reviewId, UpdateReviewDto updateReviewDto)
+        {
+            var patientId = await getPatientId(PatientUserId);
+            if (patientId is null)
+                return Error.Unauthorized("Patient.UnAuthorize", "Patient With This Id Not Found");
+
+            var review = await _unitOfWork.GetRepository<Review, int>().GetByIdAsync(reviewId);
+            if(review is null)
+                return Error.NotFound("Review.", "Review With This Id Not Found");
+
+            if (review.PatientId != patientId)
+                return Error.Unauthorized("Patient.NotAllow", "Patient Not allow To Update This Review");
+
+            var hoursSinceCreation = DateTime.UtcNow - review.CreatedAt;
+            if (hoursSinceCreation.TotalHours > 24)
+                return Error.Failure("Update.NotAllowed" , "You can only edit review within 24 hours");
+
+            review.Rating = updateReviewDto.Rating;
+            if(updateReviewDto.comment is not null)
+                review.Comment = updateReviewDto.comment;
+            review.UpdateAt = DateTime.UtcNow;
+
+            _unitOfWork.GetRepository<Review,int>().Update(review);
+
+            if(await _unitOfWork.SaveChanges() > 0)
+            {
+                var response = _mapper.Map<ReviewResposeForPatinetDTO>(review);
+                return Result<ReviewResposeForPatinetDTO>.Ok(response);
+            }
+
+            return Error.Failure("Review.Failure" , "Review Failure To Update");
+        }
+
+
         #region HelperMethod
-
-
         private async Task<int?> getPatientId(string PatientUserId)
         {
             var spec = new PatientByIdWithoutIncludes(PatientUserId);

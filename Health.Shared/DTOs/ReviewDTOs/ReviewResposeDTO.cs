@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Health.Shared.DTOs.ReviewDTOs
 {
-    public class ReviewResposeDTO
+    public class ReviewResposeForPatinetDTO
     {
         public int Id { get; set; }
         public int Rating { get; set; }
