@@ -49,5 +49,14 @@ namespace Health.Presentation.Controllers
             return HandleResult(result , $"Review has been Deleted");
         }
 
+
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("AvgRating")]
+        public async Task<ActionResult<DoctorRatingDTO>> AvgRatingAndReviewsCount()
+        {
+            string DoctorId = GetUserId();
+            var result = await _review.GetDoctorAverageRating(DoctorId);
+            return HandleResult(result);
+        }
     }
 }

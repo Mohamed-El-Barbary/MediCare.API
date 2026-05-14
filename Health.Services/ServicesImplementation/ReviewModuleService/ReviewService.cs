@@ -7,10 +7,12 @@ using Health.Domain.Entities.ReviewModule;
 using Health.Services.Abstraction.ReviewModule;
 using Health.Services.Specifications.DoctorSpecification;
 using Health.Services.Specifications.PatientSpecification;
+using Health.Services.Specifications.ReviewSpecification;
 using Health.Shared;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.ReviewDTOs;
 using Health.Shared.ReviewSpecParams;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -118,6 +120,38 @@ namespace Health.Services.ServicesImplementation.ReviewModuleService
                 return Result.Ok();
 
             return Result.Fail(Error.Failure("Failure.Delete", "Failure To Delete Review"));
+        }
+
+        public async Task<Result<DoctorRatingDTO>> GetDoctorAverageRating(string DoctorUserId)
+        {
+
+            var DoctorId = await getDoctorId(DoctorUserId);
+            if(DoctorId is null)
+                return Error.NotFound("Doctor.NotFound" , "Doctor Is Not Found");
+
+            var ElementReview =  _unitOfWork.GetRepository<Review, int>();
+            var spec = new ReviewCountSpecification(DoctorId);
+            var CountOfreviews = await ElementReview.CountAsync(spec);
+            if(CountOfreviews == 0)
+            {
+                    return Result<DoctorRatingDTO>.Ok(new DoctorRatingDTO
+                    {
+                        AvegrageRating = 0,
+                        TotalReviews = 0,
+
+                    });
+            }
+
+            var query = ElementReview.GetAverageReview(spec);
+            var getAverageRating = await query.AverageAsync(r => r.Rating);
+
+            var result = new DoctorRatingDTO
+            {
+                AvegrageRating = Math.Round(getAverageRating, 1),
+                TotalReviews = CountOfreviews
+            };
+
+            return Result<DoctorRatingDTO>.Ok(result);
         }
 
         #region HelperMethod
