@@ -1,12 +1,18 @@
 ﻿using AutoMapper;
 using Health.Domain.Contracts;
 using Health.Domain.Entities.AppointmentModule;
+using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.PatientModule;
 using Health.Domain.Entities.ReviewModule;
 using Health.Services.Abstraction.ReviewModule;
+using Health.Services.Specifications.DoctorSpecification;
 using Health.Services.Specifications.PatientSpecification;
+using Health.Services.Specifications.ReviewSpecification;
+using Health.Shared;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.ReviewDTOs;
+using Health.Shared.ReviewSpecParams;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -98,6 +104,55 @@ namespace Health.Services.ServicesImplementation.ReviewModuleService
             return Error.Failure("Review.Failure" , "Review Failure To Update");
         }
 
+        public async Task<Result> DeleteReview(string PatientUserId , int reviewId)
+        {
+            var patientId = await getPatientId(PatientUserId);
+            if (patientId == null)
+                return Result.Fail(Error.NotFound("Patient.NotFound" , "Patient Not Found"));
+
+            var review = await _unitOfWork.GetRepository<Review , int>().GetByIdAsync(reviewId);
+            if (review is null)
+                return Result.Fail(Error.NotFound("Review.NotFound", "Review Is Not Found"));
+
+            _unitOfWork.GetRepository<Review, int>().Delete(review);
+
+            if (await _unitOfWork.SaveChanges() > 0)
+                return Result.Ok();
+
+            return Result.Fail(Error.Failure("Failure.Delete", "Failure To Delete Review"));
+        }
+
+        public async Task<Result<DoctorRatingDTO>> GetDoctorAverageRating(string DoctorUserId)
+        {
+
+            var DoctorId = await getDoctorId(DoctorUserId);
+            if(DoctorId is null)
+                return Error.NotFound("Doctor.NotFound" , "Doctor Is Not Found");
+
+            var ElementReview =  _unitOfWork.GetRepository<Review, int>();
+            var spec = new ReviewCountSpecification(DoctorId);
+            var CountOfreviews = await ElementReview.CountAsync(spec);
+            if(CountOfreviews == 0)
+            {
+                    return Result<DoctorRatingDTO>.Ok(new DoctorRatingDTO
+                    {
+                        AvegrageRating = 0,
+                        TotalReviews = 0,
+
+                    });
+            }
+
+            var query = ElementReview.GetAverageReview(spec);
+            var getAverageRating = await query.AverageAsync(r => r.Rating);
+
+            var result = new DoctorRatingDTO
+            {
+                AvegrageRating = Math.Round(getAverageRating, 1),
+                TotalReviews = CountOfreviews
+            };
+
+            return Result<DoctorRatingDTO>.Ok(result);
+        }
 
         #region HelperMethod
         private async Task<int?> getPatientId(string PatientUserId)
@@ -109,7 +164,15 @@ namespace Health.Services.ServicesImplementation.ReviewModuleService
             else
                 return patient.Id;
         }
-
+        private async Task<int?> getDoctorId(string DoctorUserId)
+        {
+            var spec = new DoctorByIdSpecification(DoctorUserId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+            if (doctor is null)
+                return null;
+            else
+                return doctor.Id;
+        }
         private async Task<Appointment?> GetAppointmentById(int AppointmentId)
         {
             var Appointment = await _unitOfWork.GetRepository<Appointment, int>().GetByIdAsync(AppointmentId);

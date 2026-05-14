@@ -1,5 +1,8 @@
 ﻿using Health.Services.Abstraction.ReviewModule;
+using Health.Shared;
+using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.ReviewDTOs;
+using Health.Shared.ReviewSpecParams;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -34,6 +37,25 @@ namespace Health.Presentation.Controllers
         {
             var userId = GetUserId();
             var result = await _review.UpdateReview(userId , reviewId , dto);
+            return HandleResult(result);
+        }
+
+        [Authorize(Roles = "Patient")]
+        [HttpDelete("{reviewId}")]
+        public async Task<ActionResult> DeleteReview(int reviewId)
+        {
+            string patientId = GetUserId();
+            var result = await _review.DeleteReview(patientId, reviewId);
+            return HandleResult(result , $"Review has been Deleted");
+        }
+
+
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("AvgRating")]
+        public async Task<ActionResult<DoctorRatingDTO>> AvgRatingAndReviewsCount()
+        {
+            string DoctorId = GetUserId();
+            var result = await _review.GetDoctorAverageRating(DoctorId);
             return HandleResult(result);
         }
     }
