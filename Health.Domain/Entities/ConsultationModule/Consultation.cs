@@ -23,8 +23,8 @@ namespace Health.Domain.Entities.ConsultationModule
         public DateTime ScheduledAt { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? EndedAt { get; set; }
-        public string Symptoms { get; set; } = default!;
-        public string Diagnosis { get; set; } = default!;
+        public string? Symptoms { get; set; }
+        public string? Diagnosis { get; set; }
         public string? Notes { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
     }
