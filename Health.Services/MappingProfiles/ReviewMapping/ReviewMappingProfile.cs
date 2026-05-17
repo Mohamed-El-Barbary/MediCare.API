@@ -15,7 +15,8 @@ namespace Health.Services.MappingProfiles.ReviewMapping
                     .ForMember(desc => desc.PatientId, opt => opt.Ignore())
                     .ForMember(desc => desc.doctorId, opt => opt.Ignore());
 
-            CreateMap<Review, ReviewResposeForPatinetDTO>();
+            CreateMap<Review, ReviewResposeForPatinetDTO>()
+                    .ForMember(desc => desc.DoctorName , opt => opt.MapFrom(src => src.doctor.DisplayName));
 
         }
     }

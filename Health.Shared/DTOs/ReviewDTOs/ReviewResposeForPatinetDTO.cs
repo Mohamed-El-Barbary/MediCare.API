@@ -10,6 +10,7 @@ namespace Health.Shared.DTOs.ReviewDTOs
         public int Rating { get; set; }
         public string? Comment { get; set; }
         public int DoctorId { get; set; }
+        public string DoctorName { get; set; } = default!;
         public DateTime CreatedAt { get; set; }
     }
 }

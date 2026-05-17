@@ -13,6 +13,7 @@ using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.ReviewDTOs;
 using Health.Shared.ReviewSpecParams;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -130,7 +131,7 @@ namespace Health.Services.ServicesImplementation.ReviewModuleService
                 return Error.NotFound("Doctor.NotFound" , "Doctor Is Not Found");
 
             var ElementReview =  _unitOfWork.GetRepository<Review, int>();
-            var spec = new ReviewCountSpecification(DoctorId);
+            var spec = new ReviewSpecForAvgDoctor((int)DoctorId);
             var CountOfreviews = await ElementReview.CountAsync(spec);
             if(CountOfreviews == 0)
             {
@@ -153,6 +154,24 @@ namespace Health.Services.ServicesImplementation.ReviewModuleService
 
             return Result<DoctorRatingDTO>.Ok(result);
         }
+
+        public async Task<PaginatedResult<ReviewResposeForPatinetDTO>> PatientResponse(string patientUserId , ReviewSpecParam reviewParams)
+        {
+            int? patientId = await getPatientId(patientUserId);
+            if (patientId is null)
+                throw new Exception("Patient With This Id Is Not Found");
+
+            var spec = new ReviewSpecForPagenation(reviewParams, (int)patientId);
+            var specOfCountData = new ReviewCountSpecification((int)patientId);
+
+            var Reviews = await _unitOfWork.GetRepository<Review, int>().GetAllAsync(spec);
+            var DataToReturn = _mapper.Map<IEnumerable<ReviewResposeForPatinetDTO>>(Reviews);
+            var countOfResultData = DataToReturn.Count();
+            var CountOverall = await _unitOfWork.GetRepository<Review, int>().CountAsync(specOfCountData);
+
+            return new PaginatedResult<ReviewResposeForPatinetDTO>(reviewParams.PageIndex, countOfResultData, CountOverall, DataToReturn);
+        }
+
 
         #region HelperMethod
         private async Task<int?> getPatientId(string PatientUserId)
