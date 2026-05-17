@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace Health.Persistence.Data.Configurations.ConsultationConfigurations
@@ -37,6 +38,9 @@ namespace Health.Persistence.Data.Configurations.ConsultationConfigurations
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasIndex(c => c.RoomId)
+                .IsUnique();
+
+            builder.HasIndex(c => c.AppointmentId)
                 .IsUnique();
 
         }
