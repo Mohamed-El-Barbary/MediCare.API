@@ -6,11 +6,11 @@ using System.Text;
 
 namespace Health.Services.Specifications.ReviewSpecification
 {
-    public class ReviewSpecForPagenation : BaseSpecification<Review , int>
+    public class ReviewSpecForDoctorPagenation : BaseSpecification<Review , int>
     {
-        public ReviewSpecForPagenation(ReviewSpecParam reviewSpec , int patientId) : base(r => r.PatientId == patientId)
+        public ReviewSpecForDoctorPagenation(ReviewSpecParam reviewSpec, int doctorId) : base(r => r.doctorId == doctorId)
         {
-            AddInclude(r => r.doctor);
+            AddInclude(r => r.Patient);
             ApplyPagination(reviewSpec.PageSize, reviewSpec.PageIndex);
         }
     }

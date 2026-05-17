@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Health.Services.Specifications.ReviewSpecification
 {
-    public class ReviewSpecForAvgDoctor : BaseSpecification<Review , int>
+    public class ReviewCountSpecForDoctor : BaseSpecification<Review , int>
     {
-        public ReviewSpecForAvgDoctor(int DoctorId):base(r => r.doctorId == DoctorId)
-        {}
+        public ReviewCountSpecForDoctor(int DoctorId) : base(r => r.doctorId == DoctorId)
+        { }
     }
 }

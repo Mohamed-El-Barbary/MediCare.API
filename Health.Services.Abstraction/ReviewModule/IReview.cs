@@ -15,5 +15,6 @@ namespace Health.Services.Abstraction.ReviewModule
         Task<Result> DeleteReview(string PatientUserId , int reviewId);
         Task<Result<DoctorRatingDTO>> GetDoctorAverageRating(string DoctorUserId);
         Task<PaginatedResult<ReviewResposeForPatinetDTO>> PatientResponse(string patientUserId, ReviewSpecParam reviewParams);
+        Task<PaginatedResult<ReviewResponseForDoctorDTO>> DoctorResponse(string DoctorUserId, ReviewSpecParam reviewParams);
     }
 }

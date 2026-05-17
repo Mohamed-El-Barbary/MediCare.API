@@ -67,5 +67,13 @@ namespace Health.Presentation.Controllers
             var result = await _review.PatientResponse(patientId , reviewSpec);
             return Ok(result);
         }
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("Doctor")]
+        public async Task<ActionResult<PaginatedResult<ReviewResposeForPatinetDTO>>> DoctorReviews([FromQuery] ReviewSpecParam reviewSpec)
+        {
+            var doctorId = GetUserId();
+            var result = await _review.DoctorResponse(doctorId, reviewSpec);
+            return Ok(result);
+        }
     }
 }
