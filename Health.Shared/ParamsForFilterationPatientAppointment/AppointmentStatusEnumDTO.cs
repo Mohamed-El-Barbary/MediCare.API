@@ -7,8 +7,8 @@ namespace Health.Shared.ParamsForFilterationPatientAppointment
     public enum AppointmentStatusEnumDTO
     {
         Pending = 0,
-        Confirmed,
-        Completed,
-        Cancelled
+        AppointmentConfirmed,
+        AppointmentCompleted,
+        AppointmentCancelled
     }
 }
