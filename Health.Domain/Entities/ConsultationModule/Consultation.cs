@@ -27,5 +27,6 @@ namespace Health.Domain.Entities.ConsultationModule
         public string? Diagnosis { get; set; }
         public string? Notes { get; set; }
         public ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+        public ICollection<SessionConnection> Connections { get; set; } = new List<SessionConnection>();
     }
 }

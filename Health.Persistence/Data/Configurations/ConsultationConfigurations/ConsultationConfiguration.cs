@@ -37,6 +37,11 @@ namespace Health.Persistence.Data.Configurations.ConsultationConfigurations
                 .HasForeignKey(c => c.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasMany(c => c.Connections)
+                .WithOne(sc => sc.Consultation)
+                .HasForeignKey(sc => sc.ConsultationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasIndex(c => c.RoomId)
                 .IsUnique();
 
