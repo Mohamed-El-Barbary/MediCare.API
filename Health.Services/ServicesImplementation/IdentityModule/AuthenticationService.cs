@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CloudinaryDotNet.Actions;
 using Health.Domain.Contracts;
 using Health.Domain.Entities;
 using Health.Domain.Entities.DoctorModule;
@@ -15,10 +16,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using SendGrid.Helpers.Mail;
 using System.IdentityModel.Tokens.Jwt;
+using System.Numerics;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Error = Health.Shared.CommonResponses.Error;
 using Gender = Health.Domain.Entities.DoctorModule.Gender;
 
 namespace Health.Services.ServicesImplementation.IdentityModule
@@ -97,7 +101,10 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             var refreshToken = await GenerateRefreshTokenAsync(user);
             var accessToken = await CreateTokenAsync(user);
 
-            return new UserDTO(user.Id, user.Email!, doctorProfile.DisplayName, "Doctor", accessToken, refreshToken.Token, refreshToken.ExpiresOn);
+            var userId = await GetUserProfileIdAsync(user.Id, "Doctor");
+
+
+            return new UserDTO(userId.Value, user.Email!, doctorProfile.DisplayName, "Doctor", accessToken, refreshToken.Token, refreshToken.ExpiresOn);
         }
 
         public async Task<Result<UserDTO>> RegisterPatientAsync(RegisterPatientDTO patientDTO)
@@ -133,7 +140,9 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             var refreshToken = await GenerateRefreshTokenAsync(user);
             var accessToken = await CreateTokenAsync(user);
 
-            return new UserDTO(user.Id, user.Email!, patientProfile.DisplayName, "Patient", accessToken, refreshToken.Token, refreshToken.ExpiresOn);
+            var userId = await GetUserProfileIdAsync(user.Id, "Patient");
+
+            return new UserDTO(userId.Value, user.Email!, patientProfile.DisplayName, "Patient", accessToken, refreshToken.Token, refreshToken.ExpiresOn);
         }
 
         public async Task<Result<UserDTO>> LoginAsync(LoginDTO loginDTO)
@@ -152,7 +161,10 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             var refreshToken = await GenerateRefreshTokenAsync(user);
             var accessToken = await CreateTokenAsync(user);
 
-            return new UserDTO(user.Id, user.Email!, $"{user.FirstName} {user.LastName} ", role, accessToken, refreshToken.Token, refreshToken.ExpiresOn);
+            var userId = await GetUserProfileIdAsync(user.Id, role);
+
+
+            return new UserDTO(userId.Value, user.Email!, $"{user.FirstName} {user.LastName} ", role, accessToken, refreshToken.Token, refreshToken.ExpiresOn);
         }
 
         public async Task<Result<UserDTO>> RefreshTokenAsync(string refreshToken)
@@ -177,7 +189,9 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             if (role is null)
                 return Error.Unauthorized("Invalid.Role");
 
-            return new UserDTO(user.Id, user.Email!, displayName, role, accessToken, newRefreshToken.Token, newRefreshToken.ExpiresOn);
+            var userId = await GetUserProfileIdAsync (user.Id, role);
+
+            return new UserDTO(userId.Value, user.Email!, displayName, role, accessToken, newRefreshToken.Token, newRefreshToken.ExpiresOn);
         }
 
         public async Task<Result> ForgetPasswordAsync(ForgotPasswordDTO forgotPasswordDTO)
@@ -564,6 +578,39 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             return refreshToken;
         }
 
+        private async Task<Result<int>> GetUserProfileIdAsync(string userId, string role)
+        {
+            return role switch
+            {
+                "Doctor" => await GetDoctorProfileId(userId),
+                "Patient" => await GetPatientProfileId(userId),
+                _ => Result<int>.Fail(Error.Validation("Role.Invalid", "Unsupported user role"))
+            };
+        }
+
+        private async Task<Result<int>> GetPatientProfileId(string userId)
+        {
+            var spec = new PatientByIdSpecification(userId);
+
+            var patient = await _unitOfWork.GetRepository<PatientProfile, int>().GetByIdAsync(spec);
+
+            if (patient is null)
+                return Result<int>.Fail(Error.NotFound("Patient.NotFound", "Patient profile not found"));
+
+            return Result<int>.Ok(patient.Id);
+        }
+
+        private async Task<Result<int>> GetDoctorProfileId(string userId)
+        {
+            var spec = new DoctorByIdSpecification(userId);
+
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+
+            if (doctor is null)
+                return Result<int>.Fail(Error.NotFound("Doctor.NotFound", "Doctor profile not found"));
+
+            return Result<int>.Ok(doctor.Id);
+        }
         #endregion
 
     }
