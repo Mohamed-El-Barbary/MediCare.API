@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace Health.Shared.DTOs.IdentityDTOs
 {
     public record UserDTO(
-        string Id,
+        int Id,
         string Email,
         string DisplayName,
         string Role,

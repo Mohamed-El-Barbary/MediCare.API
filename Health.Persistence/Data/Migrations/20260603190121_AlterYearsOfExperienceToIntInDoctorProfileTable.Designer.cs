@@ -4,6 +4,7 @@ using Health.Persistence.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Health.Persistence.Data.Migrations
 {
     [DbContext(typeof(HealthCareDbContext))]
-    partial class HealthCareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260603190121_AlterYearsOfExperienceToIntInDoctorProfileTable")]
+    partial class AlterYearsOfExperienceToIntInDoctorProfileTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -277,47 +280,6 @@ namespace Health.Persistence.Data.Migrations
                     b.ToTable("PatientProfiles");
                 });
 
-            modelBuilder.Entity("Health.Domain.Entities.ReviewModule.Review", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AppointmentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdateAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("doctorId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppointmentId")
-                        .IsUnique();
-
-                    b.HasIndex("PatientId");
-
-                    b.HasIndex("doctorId");
-
-                    b.ToTable("Review");
-                });
-
             modelBuilder.Entity("Health.Domain.Entities.AppointmentModule.Appointment", b =>
                 {
                     b.HasOne("Health.Domain.Entities.DoctorModule.DoctorGeneratedSlots", "DoctorGeneratedSlots")
@@ -485,38 +447,6 @@ namespace Health.Persistence.Data.Migrations
                     b.Navigation("EmergencyContact");
                 });
 
-            modelBuilder.Entity("Health.Domain.Entities.ReviewModule.Review", b =>
-                {
-                    b.HasOne("Health.Domain.Entities.AppointmentModule.Appointment", "Appointment")
-                        .WithOne("Review")
-                        .HasForeignKey("Health.Domain.Entities.ReviewModule.Review", "AppointmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Health.Domain.Entities.PatientModule.PatientProfile", "Patient")
-                        .WithMany("Reviews")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Health.Domain.Entities.DoctorModule.DoctorProfile", "doctor")
-                        .WithMany("Reviews")
-                        .HasForeignKey("doctorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Appointment");
-
-                    b.Navigation("Patient");
-
-                    b.Navigation("doctor");
-                });
-
-            modelBuilder.Entity("Health.Domain.Entities.AppointmentModule.Appointment", b =>
-                {
-                    b.Navigation("Review");
-                });
-
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorProfile", b =>
                 {
                     b.Navigation("Appointments");
@@ -524,8 +454,6 @@ namespace Health.Persistence.Data.Migrations
                     b.Navigation("DoctorGeneratedSlots");
 
                     b.Navigation("DoctorSchedule");
-
-                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorSchedule", b =>
@@ -543,8 +471,6 @@ namespace Health.Persistence.Data.Migrations
                     b.Navigation("Appointments");
 
                     b.Navigation("PatientChronicDiseases");
-
-                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

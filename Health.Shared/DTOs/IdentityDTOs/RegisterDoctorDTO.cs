@@ -10,7 +10,7 @@ namespace Health.Shared.DTOs.IdentityDTOs
     {
         public Gender Gender { get; init; } = default!;
         public string Specialization { get; init; } = default!;
-        public string YearsOfExperience { get; init; } = default!;
+        public int YearsOfExperience { get; init; } = default!;
         public string ClinicLocation { get; init; } = default!;
         public string? PhoneClinc { get; init; }
         public string MedicalLicenseNumber { get; set; } = default!;
