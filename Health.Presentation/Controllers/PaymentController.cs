@@ -25,5 +25,14 @@ namespace Health.Presentation.Controllers
             return HandleResult(result);
         }
 
+        [HttpPost("webhock")]
+        public async Task<IActionResult> WebHock()
+        {
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            var stripeSignature = Request.Headers["Stripe-Signature"];
+            await _paymentService.UpdateAppointmentPaymentStatus(json, stripeSignature!);
+            return new EmptyResult();
+        }
+
     }
 }

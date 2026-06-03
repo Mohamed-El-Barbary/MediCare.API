@@ -10,6 +10,7 @@ using Health.Shared.ParamsForFilterationPatientAppointment;
 using Microsoft.Extensions.Configuration;
 using SendGrid.Helpers.Mail;
 using Stripe;
+using Stripe.Climate;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -99,6 +100,37 @@ namespace Health.Services.ServicesImplementation.PaymentService
             };
 
             return Result<PaymentIntentResponseDto>.Ok(dto);
+        }
+
+        public async Task UpdateAppointmentPaymentStatus(string request, string stripeSignature)
+        {
+            var endpointSecret = _configuration["Stripe:EndpointSecret"];
+            var stripeEvent = EventUtility.ParseEvent(request, throwOnApiVersionMismatch: true);
+            stripeEvent = EventUtility.ConstructEvent(request, stripeSignature, endpointSecret, throwOnApiVersionMismatch: true);
+
+            var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+            Console.WriteLine(paymentIntent!.Id);
+            var Appointment = await _unitOfWork.GetRepository<Appointment, int>().GetByIdAsync(new AppointmentSpecWithPaymentIntent(paymentIntent!.Id));
+            // Handle the event
+            if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
+            {
+                Appointment!.PaymentStatus = PaymentStatus.PaymentRecieved;
+                Appointment.Status = AppointmentStatus.AppointmentConfirmed;
+                Appointment.PaidAt = DateTime.Now;
+                _unitOfWork.GetRepository<Appointment, int>().Update(Appointment);
+                await _unitOfWork.SaveChanges();
+            }
+            else if (stripeEvent.Type == EventTypes.PaymentIntentPaymentFailed)
+            {
+                Appointment!.PaymentStatus = PaymentStatus.PaymentFaild;
+                _unitOfWork.GetRepository<Appointment, int>().Update(Appointment);
+                await _unitOfWork.SaveChanges();
+            }
+            // ... handle other event types
+            else
+            {
+                Console.WriteLine("Unhandled event type: {0}", stripeEvent.Type);
+            }
         }
     }
 }

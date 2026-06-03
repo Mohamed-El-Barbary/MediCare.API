@@ -9,5 +9,6 @@ namespace Health.Services.Abstraction.PaymentServiceAbstraction
     public interface IPaymentService
     {
         Task<Result<PaymentIntentResponseDto>> CreateOrUpdatePaymentIntentAsync(int AppointmentId);
+        Task UpdateAppointmentPaymentStatus(string request, string stripeSignature);
     }
 }
