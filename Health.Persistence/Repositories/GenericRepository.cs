@@ -53,6 +53,17 @@ namespace Health.Persistence.Repositories
             
         }
 
+        public IQueryable<TEntity> GetAllQuerable()
+        {
+            return _healthCareDbContext.Set<TEntity>();
+        }
+
+        public  IQueryable<TEntity> GetAverageReview(ISpecifications<TEntity, Tkey> spec)
+        {
+            return SpecificationEvaluator.CreateQuery(_healthCareDbContext.Set<TEntity>(), spec);
+          
+        }
+
         public async Task<TEntity?> GetByIdAsync(Tkey id)
         {
             return await _healthCareDbContext.Set<TEntity>().FindAsync(id);

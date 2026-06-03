@@ -10,15 +10,13 @@ namespace Health.Shared
         {
             PageIndex = pageIndex;
             PageSize = pageSize;
-            CountOfAllResult = countOfAllResult;
+            CountOfAllData = countOfAllResult;
             Data = data;
         }
 
         public int PageIndex { get; set; }
         public int PageSize { get; set; }
-
-        public int CountOfAllResult { get; set; }
-
+        public int CountOfAllData { get; set; }
         public IEnumerable<T> Data { get; set; }
     }
 }
