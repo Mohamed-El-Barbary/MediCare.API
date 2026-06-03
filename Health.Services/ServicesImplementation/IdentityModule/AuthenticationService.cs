@@ -387,7 +387,9 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             doctorProfile.Bio = dto.Bio ?? doctorProfile.Bio;
             doctorProfile.ClinicLocation = dto.ClinicLocation ?? doctorProfile.ClinicLocation;
             doctorProfile.PhoneClinc = dto.PhoneClinic ?? doctorProfile.PhoneClinc;
-            doctorProfile.YearsOfExperience = dto.YearsOfExperience ?? doctorProfile.YearsOfExperience;
+
+            if (dto.YearsOfExperience.HasValue)
+                doctorProfile.YearsOfExperience = dto.YearsOfExperience.Value;
 
             if (dto.Address is not null)
                 doctorProfile.Address = _mapper.Map<Address>(dto.Address);
