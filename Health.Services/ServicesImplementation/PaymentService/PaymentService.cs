@@ -46,12 +46,14 @@ namespace Health.Services.ServicesImplementation.PaymentService
             if (appointment.PaymentStatus == PaymentStatus.PaymentRecieved)
                 return Error.Validation("Payment has already been received for this appointment.");
 
-            if (
-                appointment.Status == AppointmentStatus.AppointmentCancelled ||
-                appointment.Status == AppointmentStatus.AppointmentCompleted ||
-                appointment.Status == AppointmentStatus.AppointmentConfirmed
-               )
-                return Error.Validation("Cannot pay for cancelled Or Completed Or Confirmed appointment");
+            if (appointment.Status == AppointmentStatus.AppointmentCancelled)
+                return Error.Validation("Cannot pay for cancelled  appointment");
+
+            if (appointment.Status == AppointmentStatus.AppointmentConfirmed)
+                return Error.Validation("Cannot pay for confirmed  appointment");
+
+            if (appointment.Status == AppointmentStatus.AppointmentCompleted)
+                return Error.Validation("Cannot pay for Completed  appointment");
 
             // Get Price Consultation From DoctorProfile
             long amount = (long) appointment.DoctorProfile.PriceConsultation * 100;
