@@ -8,6 +8,7 @@ using Health.Persistence.IdentityData.DbContexts;
 using Health.Persistence.Repositories;
 using Health.Persistence.Repositories.DoctorRepos;
 using Health.Presentation.Controllers;
+using Health.Services.Abstraction;
 using Health.Services.Abstraction.AppointmentInterface;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Services.Abstraction.IdentityModule;
@@ -102,6 +103,8 @@ namespace Health.Web
             builder.Services.AddScoped<IDoctorGenerateSlotsRepository , SlotRepository>();
             builder.Services.AddScoped<IReview , ReviewService>();
             builder.Services.AddScoped<IPaymentService , PaymentService>();
+            builder.Services.AddScoped<ICacheRepository , CacheRepository>();
+            builder.Services.AddScoped<ICachService , CacheService>();
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

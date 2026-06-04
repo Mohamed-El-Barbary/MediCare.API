@@ -9,7 +9,7 @@ namespace Health.Shared.DTOs.DoctorDTOs
         public int Id { get; set; }
         public string DisplayName { get; set; } = default!;
         public string Specialization { get; init; } = default!;
-        public string YearsOfExperience { get; init; } = default!;
+        public int YearsOfExperience { get; init; } = default!;
         public string? Bio { get; init; }
         public string? DoctorPictureUrl { get; init; }
         public decimal PriceConsultation { get; set; }
