@@ -29,7 +29,7 @@ namespace Health.Services.ServicesImplementation.BackgroundJops
             {
                 appointment.Status = AppointmentStatus.AppointmentCancelled;
                 DateTime SlotDatTime = appointment.DoctorGeneratedSlots.SlotDate + appointment.DoctorGeneratedSlots.StartTime;
-                if (SlotDatTime > DateTime.Now)
+                if (SlotDatTime < DateTime.Now)
                 {
                     appointment.DoctorGeneratedSlots.Status = SlotStatus.Available;
                 }
