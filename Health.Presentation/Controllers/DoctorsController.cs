@@ -23,7 +23,7 @@ namespace Health.Presentation.Controllers
         }
 
         [HttpGet]
-        [RedisCache]
+        [RedisCache(5)]
         public async Task<ActionResult<PaginatedResult<DoctorDTO>>> GetAllDoctors([FromQuery] DoctorSpecParams specParams)
         {
             var result = await _doctorService.GetAllDoctorsAsync(specParams);
@@ -87,6 +87,7 @@ namespace Health.Presentation.Controllers
 
         [Authorize(Roles = "Patient,Doctor")]
         [HttpGet("generate-slots")]
+        [RedisCache(5)]
         public async Task<ActionResult<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(DateTime? Date)
         {
             string userDoctorId = GetUserId();

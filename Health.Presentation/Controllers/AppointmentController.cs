@@ -1,4 +1,5 @@
-﻿using Health.Services.Abstraction.AppointmentInterface;
+﻿using Health.Presentation.Attributes;
+using Health.Services.Abstraction.AppointmentInterface;
 using Health.Shared;
 using Health.Shared.DTOs.AppointmentDTOs;
 using Health.Shared.ParamsForFilterationPatientAppointment;
@@ -31,6 +32,7 @@ namespace Health.Presentation.Controllers
 
         [Authorize(Roles = "Patient")]
         [HttpGet]
+        [RedisCache(5)]
         public async Task<ActionResult<PaginatedResult<PatientAppointmentDTO>>> GetAllPatientAppointments([FromQuery] AppointmentSpecParams specParams)
         {
             string patientUserId = GetUserId();
@@ -40,6 +42,7 @@ namespace Health.Presentation.Controllers
 
         [Authorize(Roles = "Doctor")]
         [HttpGet("Doctor")]
+        [RedisCache(5)]
         public async Task<ActionResult<PaginatedResult<DoctorAppointmentDTO>>> GetAllDoctorAppointment([FromQuery] AppointmentSpecParams specParams)
         {
             string DoctorUserId = GetUserId();
