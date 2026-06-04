@@ -146,7 +146,7 @@ namespace Health.Web
             app.UseHangfireDashboard();
 
             RecurringJob.AddOrUpdate<IAppointmentMaintenanceService>("expire-slots", service => service.ExpireSlotsAsync(), "*/2 * * * *");
-            RecurringJob.AddOrUpdate<IAppointmentMaintenanceService>("cancel-expired-appointments", service => service.CancelUnpaidAppointmentsAsync(), Cron.Daily);
+            RecurringJob.AddOrUpdate<IAppointmentMaintenanceService>("cancel-expired-appointments", service => service.CancelUnpaidAppointmentsAsync(), Cron.Minutely);
 
             #region DataSeeding 
 
