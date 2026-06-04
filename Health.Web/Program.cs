@@ -1,4 +1,5 @@
 ﻿
+using Hangfire;
 using Health.Domain.Contracts;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.IdentityModule;
@@ -10,6 +11,7 @@ using Health.Persistence.Repositories.DoctorRepos;
 using Health.Presentation.Controllers;
 using Health.Services.Abstraction;
 using Health.Services.Abstraction.AppointmentInterface;
+using Health.Services.Abstraction.BackgroundJop;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Services.Abstraction.IdentityModule;
 using Health.Services.Abstraction.IdentityModuleAbstraction;
@@ -19,6 +21,7 @@ using Health.Services.MappingProfiles;
 using Health.Services.MappingProfiles.DoctorMapping;
 using Health.Services.ServicesImplementation;
 using Health.Services.ServicesImplementation.AppointmentService;
+using Health.Services.ServicesImplementation.BackgroundJops;
 using Health.Services.ServicesImplementation.DoctorModuleServices;
 using Health.Services.ServicesImplementation.IdentityModule;
 using Health.Services.ServicesImplementation.PaymentService;
@@ -105,6 +108,7 @@ namespace Health.Web
             builder.Services.AddScoped<IPaymentService , PaymentService>();
             builder.Services.AddScoped<ICacheRepository , CacheRepository>();
             builder.Services.AddScoped<ICachService , CacheService>();
+            builder.Services.AddScoped<IAppointmentMaintenanceService , AppointmentMaintenanceService>();
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -126,10 +130,23 @@ namespace Health.Web
                 };
             });
 
+
+            builder.Services.AddHangfire(config =>
+            {
+                config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnextion"));
+            });
+
+            builder.Services.AddHangfireServer();
+
             #endregion
 
 
             var app = builder.Build();
+
+            app.UseHangfireDashboard();
+
+            RecurringJob.AddOrUpdate<IAppointmentMaintenanceService>("expire-slots", service => service.ExpireSlotsAsync(), "*/2 * * * *");
+            RecurringJob.AddOrUpdate<IAppointmentMaintenanceService>("cancel-expired-appointments", service => service.CancelUnpaidAppointmentsAsync(), Cron.Daily);
 
             #region DataSeeding 
 
