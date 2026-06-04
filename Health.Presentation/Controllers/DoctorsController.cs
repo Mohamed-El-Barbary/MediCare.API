@@ -1,4 +1,5 @@
-﻿using Health.Services.Abstraction.DoctorModulesAbstractions;
+﻿using Health.Presentation.Attributes;
+using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Shared;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.DoctorDTOs;
@@ -22,6 +23,7 @@ namespace Health.Presentation.Controllers
         }
 
         [HttpGet]
+        [RedisCache]
         public async Task<ActionResult<PaginatedResult<DoctorDTO>>> GetAllDoctors([FromQuery] DoctorSpecParams specParams)
         {
             var result = await _doctorService.GetAllDoctorsAsync(specParams);
