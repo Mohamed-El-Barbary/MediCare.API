@@ -22,11 +22,11 @@ namespace Health.Presentation.Controllers
 
         [Authorize(Roles = "Patient")]
         [HttpPost()] 
-        public async Task<IActionResult> Book([FromBody] CreateAppointmentDTO dto)
+        public async Task<ActionResult<DoctorAppointmentDTO>> Book([FromBody] CreateAppointmentDTO dto)
         {
             string patientUserId = GetUserId();
             var result = await _appointmentService.BookAppointmentAsync(dto, patientUserId);
-            return HandleResult(result , "Patient Appointment has been established successfully.");
+            return HandleResult(result);
         }
 
         [Authorize(Roles = "Patient")]
