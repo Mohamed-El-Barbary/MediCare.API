@@ -28,28 +28,28 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<Result> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, string userPatientId)
+        public async Task<Result<DoctorAppointmentDTO>> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, string userPatientId)
         {
             // Get PatientId [Identity]
             var spec = new PatientByIdWithoutIncludes(userPatientId);
             var patient = await _unitOfWork.GetRepository<PatientProfile, int>().GetByIdAsync(spec);
             if (patient is null)
-                return Result.Fail(Error.NotFound("Patient.NotFound", "Patient Not Found"));
+                return Result<DoctorAppointmentDTO>.Fail(Error.NotFound("Patient.NotFound", "Patient Not Found"));
             int patientId = patient.Id;
 
             // Slots Exist
             var slot = await _unitOfWork.GetRepository<DoctorGeneratedSlots , int>().GetByIdAsync(createAppointmentDTO.DoctorGeneratedSlotsId);
             if (slot is null)
-                return Result.Fail(Error.NotFound("Slot.NotFound", $"Slot With {createAppointmentDTO.DoctorGeneratedSlotsId} Is Not Found"));
+                return Result<DoctorAppointmentDTO>.Fail(Error.NotFound("Slot.NotFound", $"Slot With {createAppointmentDTO.DoctorGeneratedSlotsId} Is Not Found"));
 
             // Slot Availaable
             if(slot.Status != SlotStatus.Available)
-                return Result.Fail(Error.NotFound("Slot.NotAvailable", $"Slot With {createAppointmentDTO.DoctorGeneratedSlotsId} Is Not Available"));
+                return Result<DoctorAppointmentDTO>.Fail(Error.NotFound("Slot.NotAvailable", $"Slot With {createAppointmentDTO.DoctorGeneratedSlotsId} Is Not Available"));
 
             // Doctor Exist
             var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(createAppointmentDTO.DoctorProfileId);
             if (doctor is null)
-                return Result.Fail(Error.NotFound("Doctor.NotFound", $"Doctor Is Not Found"));
+                return Result<DoctorAppointmentDTO>.Fail(Error.NotFound("Doctor.NotFound", $"Doctor Is Not Found"));
 
             // Create Appointment
             var appointment = _mapper.Map<Appointment>(createAppointmentDTO);
@@ -65,9 +65,10 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             bool result = await _unitOfWork.SaveChanges() > 0;
 
             if (!result)
-                return Result.Fail(Error.Failure("Something Wrong Happen When Adding Appointment"));
+                return Result<DoctorAppointmentDTO>.Fail(Error.Failure("Something Wrong Happen When Adding Appointment"));
 
-            return Result.Ok();
+            var appointmentDto = _mapper.Map<DoctorAppointmentDTO>(appointment);
+            return Result<DoctorAppointmentDTO>.Ok(appointmentDto);
         }
         public async Task<PaginatedResult<PatientAppointmentDTO>> GetPatientAppointment(string PatientUserId , AppointmentSpecParams specParams)
         {
