@@ -50,7 +50,7 @@ namespace Health.Services.ServicesImplementation.BackgroundJops
             foreach (var slot in AvailableSlots)
             {
                 DateTime SlotDatTime = slot.SlotDate + slot.StartTime;
-                if (SlotDatTime > DateTime.Now)
+                if (SlotDatTime < DateTime.Now)
                 {
                   slot.Status = SlotStatus.Expired;
                 }
