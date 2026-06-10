@@ -5,6 +5,7 @@ using Health.Domain.Entities.IdentityModule.Enums;
 using Health.Domain.Entities.PatientModule;
 using Health.Shared.DTOs.Enums;
 using Health.Shared.DTOs.IdentityDTOs;
+using Health.Shared.DTOs.IdentityDTOs.Requests;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,20 +17,20 @@ namespace Health.Services.MappingProfiles.IdentityMapping
 
         public IdentityMappingProfile()
         {
-            CreateMap<RegisterDoctorDTO, ApplicationUser>()
+            CreateMap<RegisterDoctorRequest, ApplicationUser>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
 
-            CreateMap<RegisterDoctorDTO, DoctorProfile>()
+            CreateMap<RegisterDoctorRequest, DoctorProfile>()
                 .ForMember(dest => dest.DoctorPictureUrl, opt => opt.Ignore())
                 .ForMember(dest => dest.SyndicateCardUrl, opt => opt.Ignore())
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.JoinDate, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
 
-            CreateMap<RegisterPatientDTO, ApplicationUser>()
+            CreateMap<RegisterPatientRequest, ApplicationUser>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email));
 
-            CreateMap<RegisterPatientDTO, PatientProfile>()
+            CreateMap<RegisterPatientRequest, PatientProfile>()
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.JoinDate, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
