@@ -9,7 +9,8 @@ namespace Health.Domain.Contracts
     public interface ISpecifications<TEntity , Tkey> where TEntity : BaseEntity<Tkey>
     {
         ICollection<Expression<Func<TEntity , object>>> IncludesExpressions { get; }
-     
+        ICollection<string> IncludeStrings { get; }
+
         Expression<Func<TEntity , bool>> Criteria {  get; }
 
         Expression<Func<TEntity , object>> OrderBy { get; }

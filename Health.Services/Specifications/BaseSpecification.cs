@@ -39,10 +39,16 @@ namespace Health.Services.Specifications
 
         #region Includes
         public ICollection<Expression<Func<TEntity, object>>> IncludesExpressions { get; } = [];
+        public ICollection<string> IncludeStrings { get; } = [];
+
 
         protected void AddInclude(Expression<Func<TEntity, object>> IncludeExp)
         {
             IncludesExpressions.Add(IncludeExp);
+        }
+        protected virtual void AddInclude(string includeString)
+        {
+            IncludeStrings.Add(includeString);
         }
         #endregion
 
