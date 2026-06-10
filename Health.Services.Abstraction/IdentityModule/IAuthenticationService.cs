@@ -1,5 +1,7 @@
 ﻿using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.IdentityDTOs;
+using Health.Shared.DTOs.IdentityDTOs.Requests;
+using Health.Shared.DTOs.IdentityDTOs.Responses;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,16 +10,16 @@ namespace Health.Services.Abstraction.IdentityModuleAbstraction
 {
     public interface IAuthenticationService
     {
-        Task<Result<UserDTO>> RegisterDoctorAsync(RegisterDoctorDTO registerDTO);
-        Task<Result<UserDTO>> RegisterPatientAsync(RegisterPatientDTO patientDTO);
-        Task<Result<UserDTO>> LoginAsync(LoginDTO loginDTO);
-        Task<Result<UserDTO>> RefreshTokenAsync(string refreshToken);
-        Task<Result> ForgetPasswordAsync(ForgotPasswordDTO forgotPasswordDTO);
-        Task<Result> VerifyOtpAsync(VerifyOtpDTO verifyOtpDTO);
-        Task<Result> ResendOtpAsync(ResendOtpDTO resendOtpDTO);
-        Task<Result> ResetPasswordAsync(ResetPasswordOtpDTO resetPasswordOtpDTO);
-        Task<Result> ChangePasswordAsync(string userId, ChangePasswordDTO changePasswordDTO);
-        Task<Result> UpdateDoctorProfileAsync(string userId, UpdateDoctorProfileDTO request);
-        Task<Result> UpdatePatientProfileAsync(string userId, UpdatePatientProfileDTO request);
+        Task<Result<RegisterResponse>> RegisterDoctorAsync(RegisterDoctorRequest request);
+        Task<Result<RegisterResponse>> RegisterPatientAsync(RegisterPatientRequest request);
+        Task<Result<LoginResponse>> LoginAsync(LoginRequest request);
+        Task<Result<TokenResponse>> RefreshTokenAsync(string refreshToken);
+        Task<Result<CommandResponse>> ForgetPasswordAsync(ForgotPasswordRequest request);
+        Task<Result<CommandResponse>> VerifyOtpAsync(VerifyOtpRequest request);
+        Task<Result<CommandResponse>> ResendOtpAsync(ResendOtpRequest request);
+        Task<Result<CommandResponse>> ResetPasswordAsync(ResetPasswordRequest request);
+        Task<Result<CommandResponse>> ChangePasswordAsync(string userId, ChangePasswordRequest request);
+        Task<Result<DoctorProfileResponse>> UpdateDoctorProfileAsync(string userId, UpdateDoctorProfileRequest request);
+        Task<Result<CommandResponse>> UpdatePatientProfileAsync(string userId, UpdatePatientProfileRequest request);
     }
 }
