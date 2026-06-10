@@ -1,6 +1,7 @@
 ﻿using Health.Domain.Entities.AppointmentModule;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.PatientModule.enums;
+using Health.Domain.Entities.ReviewModule;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,6 +20,6 @@ namespace Health.Domain.Entities.PatientModule
         public ICollection<PatientChronicDisease> PatientChronicDiseases { get; set; } = new List<PatientChronicDisease>();
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
         public EmergencyContact? EmergencyContact { get; set; }
-
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }

@@ -83,7 +83,7 @@ namespace Health.Presentation.Controllers
             return HandleResult(result, "Doctor Slots has been established successfully.");
         }
 
-        [Authorize(Roles = "Doctor")]
+        [Authorize(Roles = "Patient,Doctor")]
         [HttpGet("generate-slots")]
         public async Task<ActionResult<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(DateTime? Date)
         {
