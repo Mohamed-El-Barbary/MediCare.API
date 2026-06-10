@@ -9,6 +9,9 @@ using Health.Persistence.IdentityData.DbContexts;
 using Health.Persistence.Repositories;
 using Health.Persistence.Repositories.DoctorRepos;
 using Health.Presentation.Controllers;
+using Health.Presentation.Hubs;
+using Health.Services.Abstraction.AppointmentInterface;
+using Health.Services.Abstraction.ConsultationModule;
 using Health.Services.Abstraction;
 using Health.Services.Abstraction.AppointmentInterface;
 using Health.Services.Abstraction.BackgroundJop;
@@ -21,6 +24,7 @@ using Health.Services.MappingProfiles;
 using Health.Services.MappingProfiles.DoctorMapping;
 using Health.Services.ServicesImplementation;
 using Health.Services.ServicesImplementation.AppointmentService;
+using Health.Services.ServicesImplementation.ConsultationModule;
 using Health.Services.ServicesImplementation.BackgroundJops;
 using Health.Services.ServicesImplementation.DoctorModuleServices;
 using Health.Services.ServicesImplementation.IdentityModule;
@@ -53,6 +57,7 @@ namespace Health.Web
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+            builder.Services.AddSignalR();
             builder.Services.AddOpenApi();
             builder.Services.AddCors(opt =>
             {
@@ -105,6 +110,11 @@ namespace Health.Web
             builder.Services.AddTransient<IEmailService, EmailService>();
             builder.Services.AddScoped<IDoctorGenerateSlotsRepository , SlotRepository>();
             builder.Services.AddScoped<IReview , ReviewService>();
+
+            builder.Services.AddScoped<IDoctorGenerateSlotsRepository, SlotRepository>();
+            builder.Services.AddScoped<IConsultationService, ConsultationService>();
+            builder.Services.AddScoped<IConsultationSessionService, ConsultationSessionService>();
+
             builder.Services.AddScoped<IPaymentService , PaymentService>();
             builder.Services.AddScoped<ICacheRepository , CacheRepository>();
             builder.Services.AddScoped<ICachService , CacheService>();
@@ -128,6 +138,25 @@ namespace Health.Web
                     RoleClaimType = ClaimTypes.Role,
                     NameClaimType = ClaimTypes.Name
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        var path = context.HttpContext.Request.Path;
+
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            path.StartsWithSegments("/hubs/video-call"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
+
             });
 
 
@@ -177,8 +206,8 @@ namespace Health.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
-
             app.MapControllers();
+            app.MapHub<VideoCallHub>("/hubs/video-call");
 
             app.Run();
         }
