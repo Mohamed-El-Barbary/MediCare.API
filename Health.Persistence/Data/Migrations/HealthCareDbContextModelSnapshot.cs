@@ -744,7 +744,7 @@ namespace Health.Persistence.Data.Migrations
             modelBuilder.Entity("Health.Domain.Entities.AppointmentModule.Appointment", b =>
                 {
                     b.Navigation("Review");
-
+                });
             modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.Consultation", b =>
                 {
                     b.Navigation("Connections");
@@ -786,6 +786,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.Navigation("Reviews");
                 });
+
 #pragma warning restore 612, 618
         }
     }
