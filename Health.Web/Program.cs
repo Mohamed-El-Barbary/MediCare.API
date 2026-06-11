@@ -110,11 +110,10 @@ namespace Health.Web
             builder.Services.AddTransient<IEmailService, EmailService>();
             builder.Services.AddScoped<IDoctorGenerateSlotsRepository , SlotRepository>();
             builder.Services.AddScoped<IReview , ReviewService>();
-
             builder.Services.AddScoped<IDoctorGenerateSlotsRepository, SlotRepository>();
             builder.Services.AddScoped<IConsultationService, ConsultationService>();
             builder.Services.AddScoped<IConsultationSessionService, ConsultationSessionService>();
-
+            builder.Services.AddScoped<IProfileCompletionService, ProfileCompletionService>();
             builder.Services.AddScoped<IPaymentService , PaymentService>();
             builder.Services.AddScoped<ICacheRepository , CacheRepository>();
             builder.Services.AddScoped<ICachService , CacheService>();
