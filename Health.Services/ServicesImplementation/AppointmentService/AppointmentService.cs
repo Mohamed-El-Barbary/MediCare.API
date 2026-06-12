@@ -190,7 +190,7 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             if (appointmentTime < DateTime.UtcNow)
                 return Result.Fail(Error.Failure("AppointmentTime.Failure" , "Cannot confirm past appointment"));
 
-            appointment.Status = AppointmentStatus.Confirmed; 
+            appointment.Status = AppointmentStatus.AppointmentConfirmed; 
 
             _unitOfWork.GetRepository<Appointment , int>().Update(appointment);
 
@@ -217,7 +217,7 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             if (appointment.DoctorProfileId != doctorId)
                 return Result.Fail(Error.Unauthorized("Doctor.UnAuthorize", "You are not allowed"));
 
-            if (appointment.Status != AppointmentStatus.Confirmed)
+            if (appointment.Status != AppointmentStatus.AppointmentConfirmed)
                 return Result.Fail(Error.Failure("Status.Failure", "Only pending appointments can be confirmed"));
 
             var slot = appointment.DoctorGeneratedSlots;
@@ -226,7 +226,7 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             if (appointmentTime > DateTime.UtcNow)
                 return Result.Fail(Error.Failure("Appointment time has not finished yet"));
 
-            appointment.Status = AppointmentStatus.Completed;
+            appointment.Status = AppointmentStatus.AppointmentCompleted;
 
             _unitOfWork.GetRepository<Appointment, int>().Update(appointment);
 
@@ -273,8 +273,8 @@ namespace Health.Services.ServicesImplementation.AppointmentService
         }
         private Result ValidateStatus(Appointment appointment)
         {
-            if (appointment.Status == AppointmentStatus.Completed ||
-                appointment.Status == AppointmentStatus.Cancelled)
+            if (appointment.Status == AppointmentStatus.AppointmentCompleted ||
+                appointment.Status == AppointmentStatus.AppointmentCancelled)
             {
                 return Result.Fail(Error.Failure("Canced.Failuer", "Cannot cancel this appointment"));
             }
@@ -293,7 +293,7 @@ namespace Health.Services.ServicesImplementation.AppointmentService
         }
         private void ApplyCancellation(Appointment appointment)
         {
-            appointment.Status = AppointmentStatus.Cancelled;
+            appointment.Status = AppointmentStatus.AppointmentCancelled;
             var slot = appointment.DoctorGeneratedSlots;
             slot.Status = SlotStatus.Available;
         }

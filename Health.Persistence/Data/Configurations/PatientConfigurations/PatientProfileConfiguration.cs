@@ -40,6 +40,9 @@ namespace Health.Persistence.Data.Configurations.PatientConfigurations
             builder.HasMany(p => p.PatientChronicDiseases)
                    .WithOne(pc => pc.Patient)
                    .HasForeignKey(pc => pc.PatientId);
+
+            // Owned Entity : EmergencyContact
+            builder.OwnsOne(p => p.EmergencyContact);
         }
     }
 }

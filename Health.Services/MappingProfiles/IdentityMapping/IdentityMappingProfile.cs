@@ -37,7 +37,18 @@ namespace Health.Services.MappingProfiles.IdentityMapping
                            opt => opt.MapFrom(src => src.ChronicDiseaseIds.Select(id => new PatientChronicDisease
                            {
                                ChronicDiseaseId = id
-                           })));
+                           })))
+                .AfterMap((src, dest) =>
+                {
+                    if (src.EmergencyContactName != null || src.EmergencyPhoneNumber != null)
+                    {
+                        dest.EmergencyContact ??= new EmergencyContact
+                        {
+                            ContactName = src.EmergencyContactName,
+                            PhoneNumber = src.EmergencyPhoneNumber
+                        };
+                    }
+                }); ;
             CreateMap<AddressDTO, Address>();
 
             CreateMap<OtpPurpose, OtpPurposeDTO>().ReverseMap();

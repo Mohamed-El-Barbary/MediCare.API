@@ -63,26 +63,26 @@ namespace Health.Services.ServicesImplementation.IdentityModule
 
             await _userManager.AddToRoleAsync(user, "Doctor");
 
-            var doctorPicResult = await UploadImageMandatoryAsync(registerDTO.DoctorPictureFile, "doctors");
-            if (!doctorPicResult.IsSuccess)
-            {
-                await _userManager.DeleteAsync(user);
-                return doctorPicResult.Errors.ToList();
-            }
-            var doctorPicUrl = doctorPicResult.Value;
+            //var doctorPicResult = await UploadImageMandatoryAsync(registerDTO.DoctorPictureFile, "doctors");
+            //if (!doctorPicResult.IsSuccess)
+            //{
+            //    await _userManager.DeleteAsync(user);
+            //    return doctorPicResult.Errors.ToList();
+            //}
+            //var doctorPicUrl = doctorPicResult.Value;
 
-            var syndicateResult = await UploadImageMandatoryAsync(registerDTO.SyndicateCardFile, "doctors");
-            if (!syndicateResult.IsSuccess)
-            {
-                await _userManager.DeleteAsync(user);
-                return syndicateResult.Errors.ToList();
-            }
-            var syndicateUrl = syndicateResult.Value;
+            //var syndicateResult = await UploadImageMandatoryAsync(registerDTO.SyndicateCardFile, "doctors");
+            //if (!syndicateResult.IsSuccess)
+            //{
+            //    await _userManager.DeleteAsync(user);
+            //    return syndicateResult.Errors.ToList();
+            //}
+            //var syndicateUrl = syndicateResult.Value;
 
             var doctorProfile = _mapper.Map<DoctorProfile>(registerDTO);
             doctorProfile.UserId = user.Id;
-            doctorProfile.DoctorPictureUrl = doctorPicUrl!;
-            doctorProfile.SyndicateCardUrl = syndicateUrl!;
+            //doctorProfile.DoctorPictureUrl = doctorPicUrl!;
+            //doctorProfile.SyndicateCardUrl = syndicateUrl!;
 
             try
             {
@@ -211,21 +211,41 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             return Result.Ok();
         }
 
+        public async Task<Result> ResendOtpAsync(ResendOtpDTO resendOtpDTO)
+        {
+            var user = await _userManager.FindByEmailAsync(resendOtpDTO.Email);
+            if (user is null)
+                return Result.Fail(Error.Unauthorized("Auth.UserNotFound", "No account found with this email."));
+
+            var deleteResult = await _otpService.DeleteOtpAsync(resendOtpDTO.Email, OtpPurposeDTO.ForgotPassword);
+            if (deleteResult is null)
+                return Result.Fail(Error.Failure("Failed.ResendOtp", "Error In Resending Otp Try Again"));
+
+            var sendResult = await _otpService.SendOtpAsync(resendOtpDTO.Email, OtpPurposeDTO.ForgotPassword);
+            if (sendResult is null)
+                return Result.Fail(Error.Failure("Failed.ResendOtp", "Error In Resending Otp Try Again"));
+
+            return Result.Ok();
+        }
+
         public async Task<Result> ResetPasswordAsync(ResetPasswordOtpDTO resetPasswordOtpDTO)
         {
+            if (resetPasswordOtpDTO.Password != resetPasswordOtpDTO.ConfirmPassword)
+            {
+                return Result.Fail(Error.Validation("Auth.PasswordMismatch", "Passwords do not match."));
+            }
+
+            var isVerifiedResult = await _otpService.IsOtpVerifiedAsync(resetPasswordOtpDTO.Email, OtpPurposeDTO.ForgotPassword);
+            if (isVerifiedResult.IsFailure || !isVerifiedResult.Value)
+                return Result.Fail(Error.Failure("Auth.OtpNotVerified", "OTP not verified."));
+
             var user = await _userManager.FindByEmailAsync(resetPasswordOtpDTO.Email);
             if (user is null)
                 return Result.Fail(Error.Unauthorized("Auth.UserNotFound", "No account found with this email."));
 
-            var isVerifiedResult = await _otpService.IsOtpVerifiedAsync(resetPasswordOtpDTO.Email, OtpPurposeDTO.ForgotPassword);
-
-            if (isVerifiedResult.IsFailure || !isVerifiedResult.Value)
-                return Result.Fail(Error.Failure("Auth.OtpNotVerified", "OTP not verified."));
-
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             var result = await _userManager.ResetPasswordAsync(user, resetToken, resetPasswordOtpDTO.Password);
-
             if (!result.Succeeded)
                 return Result.Fail(Error.Failure("Auth.PasswordResetFailed", "Password reset failed."));
 
@@ -353,9 +373,7 @@ namespace Health.Services.ServicesImplementation.IdentityModule
             doctorProfile.Bio = dto.Bio ?? doctorProfile.Bio;
             doctorProfile.ClinicLocation = dto.ClinicLocation ?? doctorProfile.ClinicLocation;
             doctorProfile.PhoneClinc = dto.PhoneClinic ?? doctorProfile.PhoneClinc;
-
-            if (dto.YearsOfExperience.HasValue)
-                doctorProfile.YearsOfExperience = dto.YearsOfExperience.Value;
+            doctorProfile.YearsOfExperience = dto.YearsOfExperience ?? doctorProfile.YearsOfExperience;
 
             if (dto.Address is not null)
                 doctorProfile.Address = _mapper.Map<Address>(dto.Address);

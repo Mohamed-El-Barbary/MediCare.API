@@ -8,5 +8,6 @@ namespace Health.Shared.DTOs.IdentityDTOs
     {
         public string Email { get; init; } = default!;
         public string Password { get; init; } = default!;
+        public string ConfirmPassword { get; init; } = default!;
     }
 }

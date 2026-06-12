@@ -26,7 +26,9 @@ namespace Health.Domain.Contracts
 
         Task<int> CountAsync(ISpecifications<TEntity, Tkey> specifications);
 
+        IQueryable<TEntity> GetAllQuerable();
 
+        IQueryable<TEntity> GetAverageReview(ISpecifications<TEntity , Tkey> spec);
 
     }
 }

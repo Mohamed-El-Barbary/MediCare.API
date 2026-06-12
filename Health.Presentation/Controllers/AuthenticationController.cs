@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static System.Net.WebRequestMethods;
 
 namespace Health.Presentation.Controllers
 {
@@ -19,7 +20,7 @@ namespace Health.Presentation.Controllers
         }
 
         [HttpPost("register-doctor")]
-        public async Task<ActionResult<UserDTO>> RegisterDoctor([FromForm] RegisterDoctorDTO registerDto)
+        public async Task<ActionResult<UserDTO>> RegisterDoctor(RegisterDoctorDTO registerDto)
         {
             var result = await _authenticationService.RegisterDoctorAsync(registerDto);
 
@@ -70,7 +71,7 @@ namespace Health.Presentation.Controllers
             return Ok(result.Value);
         }
 
-        [HttpPost("foregt-password")]
+        [HttpPost("forget-password")]
         public async Task<ActionResult> ForgetPassord(ForgotPasswordDTO forgotPasswordDTO)
         {
             var result = await _authenticationService.ForgetPasswordAsync(forgotPasswordDTO);
@@ -82,6 +83,13 @@ namespace Health.Presentation.Controllers
         {
             var result = await _authenticationService.VerifyOtpAsync(verifyOtpDTO);
             return HandleResult(result, "OTP verified successfully.");
+        }
+
+        [HttpPost("resend-otp")]
+        public async Task<ActionResult> ResendOtp(ResendOtpDTO resendOtpDTO)
+        {
+            var result = await _authenticationService.ResendOtpAsync(resendOtpDTO);
+            return HandleResult(result, "A new code has been sent to your email.");
         }
 
         [HttpPost("reset-password")]

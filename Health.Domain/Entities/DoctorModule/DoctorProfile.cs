@@ -1,5 +1,6 @@
 ﻿using Health.Domain.Entities.AppointmentModule;
 using Health.Domain.Entities.IdentityModule;
+using Health.Domain.Entities.ReviewModule;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,7 +20,7 @@ namespace Health.Domain.Entities.DoctorModule
         public string? Bio { get; set; }
         public string ClinicLocation { get; set; } = default!;
         public string? SyndicateCardUrl { get; set; }
-        public int YearsOfExperience { get; set; }
+        public string YearsOfExperience { get; set; } = default!;
         public VerificationStatus VerificationStatus { get; set; } = VerificationStatus.Pending;
         public string? DoctorPictureUrl { get; set; }
         public string? MedicalLicenseNumber { get; set; }
@@ -29,5 +30,6 @@ namespace Health.Domain.Entities.DoctorModule
         public ICollection<DoctorSchedule> DoctorSchedule { get; set; } = new List<DoctorSchedule>();
         public ICollection<DoctorGeneratedSlots> DoctorGeneratedSlots { get; set; } = new List<DoctorGeneratedSlots>();
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
