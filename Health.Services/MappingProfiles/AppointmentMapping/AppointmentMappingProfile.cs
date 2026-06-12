@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Health.Domain.Entities.AppointmentModule;
 using Health.Shared.DTOs.AppointmentDTOs;
+using Health.Shared.DTOs.DoctorDTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -33,6 +34,23 @@ namespace Health.Services.MappingProfiles.AppointmentMapping
                 .ForMember(desc => desc.EndTime, op => op.MapFrom(src => src.DoctorGeneratedSlots.EndTime))
                 .ForMember(desc => desc.Status, op => op.MapFrom(src => src.Status.ToString()))
                 .ForMember(desc => desc.Type, op => op.MapFrom(src => src.AppointmentType.ToString()));
+
+            CreateMap<Appointment, TodayAppointmentItemResponse>()
+    .ForCtorParam("AppointmentId", op => op.MapFrom(src => src.Id))
+    .ForCtorParam("PatientName", op => op.MapFrom(src => src.PatientProfile.DisplayName))
+    .ForCtorParam("Time", op => op.MapFrom(src => TimeOnly.FromTimeSpan(src.DoctorGeneratedSlots.StartTime)))
+    .ForCtorParam("Status", op => op.MapFrom(src => src.Status.ToString()))
+    .ForCtorParam("Type", op => op.MapFrom(src => src.AppointmentType.ToString()));
+            CreateMap<Appointment, NewRequestItemResponse>()
+    .ForCtorParam("AppointmentId", op => op.MapFrom(src => src.Id))
+    .ForCtorParam("PatientName", op => op.MapFrom(src => src.PatientProfile.DisplayName))
+    .ForCtorParam("Type", op => op.MapFrom(src => src.AppointmentType.ToString()))
+    .ForCtorParam("RequestedAt", op => op.MapFrom(src => src.CreatedAt))
+    .ForCtorParam("Status", op => op.MapFrom(src => src.Status.ToString()));
+            CreateMap<Appointment, RecentPatientItemResponse>()
+    .ForCtorParam("PatientId", op => op.MapFrom(src => src.PatientProfileId))
+    .ForCtorParam("PatientName", op => op.MapFrom(src => src.PatientProfile.DisplayName))
+    .ForCtorParam("LastAppointmentDate", op => op.MapFrom(src => src.DoctorGeneratedSlots.SlotDate));
         }
     }
 }

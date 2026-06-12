@@ -22,6 +22,15 @@ namespace Health.Presentation.Controllers
             _doctorService = doctorService;
         }
 
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("Dashboard")]
+        public async Task<ActionResult<DoctorDashboardResponse>> GetDashboard()
+        {
+            var id = GetUserId();
+            var result = await _doctorService.GetDashboardAsync(id);
+            return HandleResult(result);
+        }
+
         [HttpGet]
         [RedisCache(5)]
         public async Task<ActionResult<PaginatedResult<DoctorDTO>>> GetAllDoctors([FromQuery] DoctorSpecParams specParams)
