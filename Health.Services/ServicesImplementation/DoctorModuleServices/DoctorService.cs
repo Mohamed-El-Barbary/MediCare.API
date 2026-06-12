@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using AutoMapper.Execution;
 using Health.Domain.Contracts;
+using Health.Domain.Entities.AppointmentModule;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.IdentityModule;
+using Health.Services.Abstraction.AppointmentInterface;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Services.Aggregates;
+using Health.Services.Specifications.AppointmentSpecification;
 using Health.Services.Specifications.DoctorGeneratedSlotsSpecification;
 using Health.Services.Specifications.DoctorSceduleSpecification;
 using Health.Services.Specifications.DoctorSpecification;
@@ -28,11 +31,13 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         private readonly IMapper _mapper;
         private readonly IDoctorScheduleRepository _doctorScheduleRepository;
         private readonly IDoctorGenerateSlotsRepository _slotRepo;
+        private readonly IAppointmentService _appointmentService;
 
         public DoctorService(IUnitOfWork unitOfWork, 
                              IMapper mapper , 
                              IDoctorScheduleRepository doctorScheduleRepository , 
-                             IDoctorGenerateSlotsRepository SlotRepo
+                             IDoctorGenerateSlotsRepository SlotRepo,
+                             IAppointmentService appointmentService
                            
             )
         {
@@ -40,6 +45,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             _mapper = mapper;
             _doctorScheduleRepository = doctorScheduleRepository;
             _slotRepo = SlotRepo;
+            _appointmentService = appointmentService;
         }
 
 
@@ -307,6 +313,57 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                 Status = (EnumSlotStatusDTO)s.Status
             }).ToList();
         }
-    
+
+        public async Task<Result<DoctorDashboardResponse>> GetDashboardAsync(string id)
+        {
+            var profileId = await GetDoctorProfileId(id);
+            var appointmentSpec = new TodayAppointmentsSpecification(profileId.Value);
+            var appointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync(appointmentSpec);
+
+            var pendingSpec = new LatestPendingAppointmentSpecification(profileId.Value);
+            var pendingAppointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync(pendingSpec);
+
+            var recentSpec = new CompletedAppointmentsSpecification(profileId.Value);
+            var completedAppointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync(recentSpec);
+
+            var recentPatients = completedAppointments
+            .DistinctBy(a => a.PatientProfileId)
+            .Take(5)
+            .ToList();
+
+            var todayAppointmentsDto =
+    _mapper.Map<IReadOnlyList<TodayAppointmentItemResponse>>(appointments);
+
+            var pendingAppointmentsDto =
+                _mapper.Map<IReadOnlyList<NewRequestItemResponse>>(pendingAppointments);
+
+            var recentPatientsDto =
+                _mapper.Map<IReadOnlyList<RecentPatientItemResponse>>(recentPatients);
+
+            var dashboardRes = new DoctorDashboardResponse(
+                null,
+                null,
+                new DashboardTablesResponse(
+                    todayAppointmentsDto,
+                    pendingAppointmentsDto,
+                    recentPatientsDto
+                    )
+                );
+
+            return dashboardRes;
+        }
+
+        private async Task<Result<int>> GetDoctorProfileId(string id)
+        {
+            var spec = new DoctorByUserIdSpec(id);
+
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+
+            if (doctor is null)
+                return Result<int>.Fail(Error.NotFound("Doctor.NotFound",$"Doctor with id:{id} not found"));
+
+            return Result<int>.Ok(doctor.Id);
+        }
+
     }
 }

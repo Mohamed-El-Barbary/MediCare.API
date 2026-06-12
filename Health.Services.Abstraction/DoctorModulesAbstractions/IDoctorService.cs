@@ -12,7 +12,7 @@ namespace Health.Services.Abstraction.DoctorModulesAbstractions
 {
     public interface IDoctorService
     {
-
+        Task<Result<DoctorDashboardResponse>> GetDashboardAsync(string id);
         Task<Result> AddScheduleAsync(string doctorId , DoctorScheduleDTO DoctorScheduleDTOs);
         Task<PaginatedResult<DoctorDTO>> GetAllDoctorsAsync(DoctorSpecParams QueryParams);
         Task<Result<DoctorDTO>> GetDoctorByIdAsync(int id);
