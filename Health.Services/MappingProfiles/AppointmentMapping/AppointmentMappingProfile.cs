@@ -57,22 +57,6 @@ namespace Health.Services.MappingProfiles.AppointmentMapping
                                                                             : string.Empty))
                 .ForCtorParam("Condition",op => op.MapFrom(s => (string?)null))
                 .ForCtorParam("LastAppointmentDate",op => op.MapFrom(s => s.DoctorGeneratedSlots.SlotDate));
-
-    .ForCtorParam("AppointmentId", op => op.MapFrom(src => src.Id))
-    .ForCtorParam("PatientName", op => op.MapFrom(src => src.PatientProfile.DisplayName))
-    .ForCtorParam("Time", op => op.MapFrom(src => TimeOnly.FromTimeSpan(src.DoctorGeneratedSlots.StartTime)))
-    .ForCtorParam("Status", op => op.MapFrom(src => src.Status.ToString()))
-    .ForCtorParam("Type", op => op.MapFrom(src => src.AppointmentType.ToString()));
-            CreateMap<Appointment, NewRequestItemResponse>()
-    .ForCtorParam("AppointmentId", op => op.MapFrom(src => src.Id))
-    .ForCtorParam("PatientName", op => op.MapFrom(src => src.PatientProfile.DisplayName))
-    .ForCtorParam("Type", op => op.MapFrom(src => src.AppointmentType.ToString()))
-    .ForCtorParam("RequestedAt", op => op.MapFrom(src => src.CreatedAt))
-    .ForCtorParam("Status", op => op.MapFrom(src => src.Status.ToString()));
-            CreateMap<Appointment, RecentPatientItemResponse>()
-    .ForCtorParam("PatientId", op => op.MapFrom(src => src.PatientProfileId))
-    .ForCtorParam("PatientName", op => op.MapFrom(src => src.PatientProfile.DisplayName))
-    .ForCtorParam("LastAppointmentDate", op => op.MapFrom(src => src.DoctorGeneratedSlots.SlotDate));
         }
     }
 }

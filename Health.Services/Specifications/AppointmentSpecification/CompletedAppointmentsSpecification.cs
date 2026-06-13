@@ -16,10 +16,6 @@ namespace Health.Services.Specifications.AppointmentSpecification
             AddInclude(a => a.DoctorGeneratedSlots);
 
             AddOrderByDesc(a => a.DoctorGeneratedSlots.StartTime);
-            : base(a => a.DoctorProfileId == doctorId && a.Status == AppointmentStatus.AppointmentCompleted)
-        {
-            AddOrderByDesc(a => a.DoctorGeneratedSlots.StartTime);
-            AddInclude(a => a.PatientProfile);
         }
     }
 }
