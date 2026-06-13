@@ -23,6 +23,7 @@ namespace Health.Presentation.Controllers
         }
 
         [Authorize(Roles = "Doctor")]
+        [HttpGet("dashboard")]
         [HttpGet("Dashboard")]
         public async Task<ActionResult<DoctorDashboardResponse>> GetDashboard()
         {
