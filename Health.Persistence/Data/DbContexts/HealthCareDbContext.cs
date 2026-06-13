@@ -1,4 +1,5 @@
 ﻿using Health.Domain.Entities.AppointmentModule;
+using Health.Domain.Entities.ConsultationModule;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.PatientModule;
 using Microsoft.EntityFrameworkCore;
@@ -27,5 +28,6 @@ namespace Health.Persistence.Data.DbContexts
         public DbSet<DoctorGeneratedSlots> DoctorGeneratedSlots { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<PatientProfile> PatientProfiles { get; set; }
+        public DbSet<Consultation> Consultations { get; set; }
     }
 }

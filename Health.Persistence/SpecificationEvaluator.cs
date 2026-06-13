@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Health.Persistence
 {
@@ -32,6 +33,14 @@ namespace Health.Persistence
                                                Query, (currentQuery, includeExp)
                                                => currentQuery.Include(includeExp)
                                            );
+                }
+                if (
+                    specifications.IncludeStrings is not null
+                    && specifications.IncludeStrings.Any()
+                )
+                {
+                    Query = specifications.IncludeStrings
+                                          .Aggregate(Query,(current, include) => current.Include(include));
                 }
                 
                 if(specifications.OrderBy is not null)
