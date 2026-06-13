@@ -23,7 +23,7 @@ namespace Health.Presentation.Controllers
         }
 
         [Authorize(Roles = "Doctor")]
-        [HttpGet("Dashboard")]
+        [HttpGet("dashboard")]
         public async Task<ActionResult<DoctorDashboardResponse>> GetDashboard()
         {
             var id = GetUserId();
