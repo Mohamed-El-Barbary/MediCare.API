@@ -33,7 +33,6 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         private readonly IMapper _mapper;
         private readonly IDoctorScheduleRepository _doctorScheduleRepository;
         private readonly IDoctorGenerateSlotsRepository _slotRepo;
-        private readonly IAppointmentService _appointmentService;
         private readonly IProfileCompletionService _profileCompletionService;
 
         public DoctorService(IUnitOfWork unitOfWork,
@@ -41,22 +40,13 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                              IDoctorScheduleRepository doctorScheduleRepository,
                              IDoctorGenerateSlotsRepository SlotRepo,
                              IAppointmentService appointmentService,
-                             IProfileCompletionService profileCompletionService
-
-
-        public DoctorService(IUnitOfWork unitOfWork, 
-                             IMapper mapper , 
-                             IDoctorScheduleRepository doctorScheduleRepository , 
-                             IDoctorGenerateSlotsRepository SlotRepo,
-                             IAppointmentService appointmentService
-                           
+                             IProfileCompletionService profileCompletionService          
             )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _doctorScheduleRepository = doctorScheduleRepository;
             _slotRepo = SlotRepo;
-            _appointmentService = appointmentService;
             _profileCompletionService = profileCompletionService;
         }
 
