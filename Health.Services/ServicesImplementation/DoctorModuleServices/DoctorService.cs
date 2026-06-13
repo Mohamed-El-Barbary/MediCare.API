@@ -43,6 +43,13 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                              IAppointmentService appointmentService,
                              IProfileCompletionService profileCompletionService
 
+
+        public DoctorService(IUnitOfWork unitOfWork, 
+                             IMapper mapper , 
+                             IDoctorScheduleRepository doctorScheduleRepository , 
+                             IDoctorGenerateSlotsRepository SlotRepo,
+                             IAppointmentService appointmentService
+                           
             )
         {
             _unitOfWork = unitOfWork;
