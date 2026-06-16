@@ -8,6 +8,7 @@ namespace Health.Shared.DTOs.DoctorDTOs
         string FullName,
         string Specialization,
         int CompletionPercentage,
+        int YearsOfExperience,
         string Status,
         decimal Rating
     );

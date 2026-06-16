@@ -363,6 +363,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                 profile.DisplayName,
                 profile.Specialization,
                 completion,
+                profile.YearsOfExperience,
                 profile.VerificationStatus.ToString(),
                 profile.Rating
             );
