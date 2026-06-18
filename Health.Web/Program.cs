@@ -13,7 +13,6 @@ using Health.Presentation.Hubs;
 using Health.Services.Abstraction.AppointmentInterface;
 using Health.Services.Abstraction.ConsultationModule;
 using Health.Services.Abstraction;
-using Health.Services.Abstraction.AppointmentInterface;
 using Health.Services.Abstraction.BackgroundJop;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Services.Abstraction.IdentityModule;
@@ -43,6 +42,8 @@ using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Health.Services.Abstraction.PatientServiceAbstraction;
+using Health.Services.ServicesImplementation.PatientService;
 
 namespace Health.Web
 {
@@ -115,6 +116,7 @@ namespace Health.Web
             builder.Services.AddScoped<IConsultationSessionService, ConsultationSessionService>();
             builder.Services.AddScoped<IProfileCompletionService, ProfileCompletionService>();
             builder.Services.AddScoped<IPaymentService , PaymentService>();
+            builder.Services.AddScoped<IPatientService , PatientService>();
             builder.Services.AddScoped<ICacheRepository , CacheRepository>();
             builder.Services.AddScoped<ICachService , CacheService>();
             builder.Services.AddScoped<IAppointmentMaintenanceService , AppointmentMaintenanceService>();
