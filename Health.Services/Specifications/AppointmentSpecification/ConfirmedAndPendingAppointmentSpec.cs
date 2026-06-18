@@ -10,14 +10,13 @@ namespace Health.Services.Specifications.AppointmentSpecification
             public ConfirmedAndPendingAppointmentSpec(int PatientId)
              : base(
                  a =>
-                 a.PatientProfileId == PatientId &&
-                 a.Status == AppointmentStatus.AppointmentCompleted &&
-                 a.Status == AppointmentStatus.Pending
+                 a.PatientProfileId == PatientId && (
+                 a.Status == AppointmentStatus.AppointmentConfirmed ||
+                 a.Status == AppointmentStatus.Pending)
              )
             {
                 AddInclude(a => a.PatientProfile);
                 AddInclude(a => a.DoctorGeneratedSlots);
-
                 AddOrderByDesc(a => a.DoctorGeneratedSlots.StartTime);
             }
         
