@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Health.Shared.DTOs.ConsultationDTOs;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,6 +9,6 @@ namespace Health.Shared.DTOs.PatientDashboardDTOs
     (
         PatientProfileResponce profileData,
         UpcomingAppointments UpcomingAppointments,
-        RecentPrescriptions RecentPrescriptions
+        IEnumerable<PrescriptionDTO> recentPrescriptions
     );
 }

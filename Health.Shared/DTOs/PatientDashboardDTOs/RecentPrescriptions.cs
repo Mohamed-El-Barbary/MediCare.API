@@ -4,6 +4,6 @@ namespace Health.Shared.DTOs.PatientDashboardDTOs
 {
     public sealed record RecentPrescriptions
     (
-        IEnumerable<ConsultationDTO> ConsultationWithPrescriptionInfoResponce
+        IEnumerable<PrescriptionDTO> recentPrescriptions
     );
 }

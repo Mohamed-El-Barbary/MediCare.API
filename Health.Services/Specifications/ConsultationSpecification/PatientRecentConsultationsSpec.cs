@@ -11,6 +11,7 @@ namespace Health.Services.Specifications.ConsultationSpecification
         : base(c => c.PatientId == patientId)
         {
             AddInclude(c => c.Prescriptions);
+            AddInclude("Prescriptions.Items");
             AddOrderByDesc(c => c.ScheduledAt);
             ApplyPagination(5,1);
         }

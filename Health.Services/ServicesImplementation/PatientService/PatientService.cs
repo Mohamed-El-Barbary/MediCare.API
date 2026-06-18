@@ -46,13 +46,15 @@ namespace Health.Services.ServicesImplementation.PatientService
             var Appointments = await GetUpCommingAppointment(profileId);
             var UpcommingAppointments = Appointments.Value;
             var UpcommingMapping = _mapper.Map<IEnumerable<UpcommingPatientAppointments>>(UpcommingAppointments);
-            var consultationsWithPrescriptions = await GetPatientConsultationWithRecentPrescription(profileId);
-            var consultationsWithPrescriptionsResponce = _mapper.Map<IEnumerable<ConsultationDTO>>(consultationsWithPrescriptions.Value);
+            var consultationsWithPrescriptions = await GetPatientRecentPrescription(profileId);
+            var recentPrescriptions = consultationsWithPrescriptions.Value;
+            var prescriptions = recentPrescriptions.SelectMany(c => c.Prescriptions);
+            var PrescriptionsResponce = _mapper.Map<IEnumerable<PrescriptionDTO>>(prescriptions);
             var PatientDashboard = BuildDashboard
             (
                 patientProfileResponce,
                 UpcommingMapping,
-                consultationsWithPrescriptionsResponce
+                PrescriptionsResponce
             );
 
             return PatientDashboard;
@@ -87,7 +89,7 @@ namespace Health.Services.ServicesImplementation.PatientService
 
             return Result<IEnumerable<Appointment>>.Ok(appointments);
         }
-        private async Task<Result<IEnumerable<Consultation>>> GetPatientConsultationWithRecentPrescription(int patientId)
+        private async Task<Result<IEnumerable<Consultation>>> GetPatientRecentPrescription(int patientId)
         {
             var spec = new PatientRecentConsultationsSpec(patientId);
             var consultations = await _unitOfWork.GetRepository<Consultation , int>().GetAllAsync(spec);
@@ -103,13 +105,13 @@ namespace Health.Services.ServicesImplementation.PatientService
         (
             PatientProfileResponce patientProfileResponce,
             IEnumerable<UpcommingPatientAppointments>? upcommingPatientAppointments,
-            IEnumerable<ConsultationDTO> ConsultationsWithRecentPrescriptions
+            IEnumerable<PrescriptionDTO> RecentPrescriptions
         )
         {
             return new PatientDashboardResponce(
                     patientProfileResponce,
                     new UpcomingAppointments(upcommingPatientAppointments!),
-                    new RecentPrescriptions(ConsultationsWithRecentPrescriptions)
+                    RecentPrescriptions
             );
         }
 
