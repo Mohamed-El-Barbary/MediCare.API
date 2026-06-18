@@ -22,6 +22,10 @@ namespace Health.Domain.Entities.AppointmentModule
         public AppointmentStatus Status { get; set; }
         public AppointmentType AppointmentType { get; set; }
         public DateTime CreatedAt { get; set; }
-
+        // Payment Propery
+        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
+        public string? PaymentIntentID { get; set; }
+        public decimal? Amount { get; set; }
+        public DateTime? PaidAt { get; set; }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Health.Services.Abstraction.IdentityModuleAbstraction;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.IdentityDTOs;
+using Health.Shared.DTOs.IdentityDTOs.Requests;
+using Health.Shared.DTOs.IdentityDTOs.Responses;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -20,104 +22,107 @@ namespace Health.Presentation.Controllers
         }
 
         [HttpPost("register-doctor")]
-        public async Task<ActionResult<UserDTO>> RegisterDoctor(RegisterDoctorDTO registerDto)
+        public async Task<ActionResult<RegisterResponse>> RegisterDoctor(RegisterDoctorRequest request)
         {
-            var result = await _authenticationService.RegisterDoctorAsync(registerDto);
+            var result = await _authenticationService.RegisterDoctorAsync(request);
 
             if (!result.IsSuccess)
                 return HandleResult(result);
 
-            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.RefreshTokenExpiresOn);
+            SetRefreshTokenCookie(result.Value.Token.RefreshToken, result.Value.Token.ExpiresAt);
 
             return Ok(result.Value);
         }
 
         [HttpPost("register-patient")]
-        public async Task<ActionResult<UserDTO>> RegisterPatient(RegisterPatientDTO registerPatient)
+        public async Task<ActionResult<RegisterResponse>> RegisterPatient(RegisterPatientRequest request)
         {
-            var result = await _authenticationService.RegisterPatientAsync(registerPatient);
+            var result = await _authenticationService.RegisterPatientAsync(request);
 
             if (!result.IsSuccess)
                 return HandleResult(result);
 
-            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.RefreshTokenExpiresOn);
+            SetRefreshTokenCookie(result.Value.Token.RefreshToken, result.Value.Token.ExpiresAt);
 
             return Ok(result.Value);
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDTO)
+        public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
         {
-            var result = await _authenticationService.LoginAsync(loginDTO);
+            var result = await _authenticationService.LoginAsync(request);
 
             if (!result.IsSuccess)
                 return HandleResult(result);
 
-            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.RefreshTokenExpiresOn);
+            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.ExpiresAt);
 
             return Ok(result.Value);
         }
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<UserDTO>> RefreshToken()
+        public async Task<ActionResult<TokenResponse>> RefreshToken()
         {
             var oldToken = Request.Cookies["refreshToken"];
             var result = await _authenticationService.RefreshTokenAsync(oldToken!);
 
             if (!result.IsSuccess) return HandleResult(result);
 
-            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.RefreshTokenExpiresOn);
+            SetRefreshTokenCookie(result.Value.RefreshToken, result.Value.ExpiresAt);
 
             return Ok(result.Value);
         }
 
         [HttpPost("forget-password")]
-        public async Task<ActionResult> ForgetPassord(ForgotPasswordDTO forgotPasswordDTO)
+        public async Task<ActionResult<CommandResponse>> ForgetPassord(ForgotPasswordRequest request)
         {
-            var result = await _authenticationService.ForgetPasswordAsync(forgotPasswordDTO);
-            return HandleResult(result, "If this email exists, an OTP has been sent.");
+            var result = await _authenticationService.ForgetPasswordAsync(request);
+            return HandleResult(result);
         }
 
         [HttpPost("verfiy-otp")]
-        public async Task<ActionResult> VerifyOtp(VerifyOtpDTO verifyOtpDTO)
+        public async Task<ActionResult<CommandResponse>> VerifyOtp(VerifyOtpRequest request)
         {
-            var result = await _authenticationService.VerifyOtpAsync(verifyOtpDTO);
-            return HandleResult(result, "OTP verified successfully.");
+            var result = await _authenticationService.VerifyOtpAsync(request);
+            return HandleResult(result);
         }
 
         [HttpPost("resend-otp")]
-        public async Task<ActionResult> ResendOtp(ResendOtpDTO resendOtpDTO)
+        public async Task<ActionResult<CommandResponse>> ResendOtp(ResendOtpRequest request)
         {
-            var result = await _authenticationService.ResendOtpAsync(resendOtpDTO);
-            return HandleResult(result, "A new code has been sent to your email.");
+            var result = await _authenticationService.ResendOtpAsync(request);
+            return HandleResult(result);
         }
 
         [HttpPost("reset-password")]
-        public async Task<ActionResult> ResetPassword(ResetPasswordOtpDTO resetPasswordOtpDTO)
+        public async Task<ActionResult<CommandResponse>> ResetPassword(ResetPasswordRequest request)
         {
-            var result = await _authenticationService.ResetPasswordAsync(resetPasswordOtpDTO);
-            return HandleResult(result, "Password has been reset successfully.");
+            var result = await _authenticationService.ResetPasswordAsync(request);
+            return HandleResult(result);
         }
 
         [HttpPost("change-password")]
-        public async Task<ActionResult<string>> ChangePassword(string userId, ChangePasswordDTO changePasswordDTO)
+        public async Task<ActionResult<CommandResponse>> ChangePassword(ChangePasswordRequest request)
         {
-            var result = await _authenticationService.ChangePasswordAsync(userId, changePasswordDTO);
-            return HandleResult(result, "Password changed successfully.");
+            var userId = GetUserId();
+            var result = await _authenticationService.ChangePasswordAsync(userId, request);
+            return HandleResult(result);
         }
 
-        [HttpPost("update-doctor")]
-        public async Task<ActionResult> UpdateDoctorProfile(string userId, UpdateDoctorProfileDTO updateDoctor)
+        [HttpPut("doctor")]
+        public async Task<ActionResult<DoctorProfileResponse>> UpdateDoctorProfile(UpdateDoctorProfileRequest updateDoctor)
         {
+            var userId = GetUserId();
             var result = await _authenticationService.UpdateDoctorProfileAsync(userId, updateDoctor);
-            return HandleResult(result, "Profile updated successfully.");
+            return HandleResult(result);
         }
 
-        [HttpPost("update-patient")]
-        public async Task<ActionResult> UpdatePatientProfile(string userId, UpdatePatientProfileDTO updatePatient)
+        [HttpPut("patient")]
+        public async Task<ActionResult<CommandResponse>> UpdatePatientProfile(UpdatePatientProfileRequest request)
         {
-            var result = await _authenticationService.UpdatePatientProfileAsync(userId, updatePatient);
-            return HandleResult(result, "Profile updated successfully.");
+            var userId = GetUserId();
+            var result = await _authenticationService.UpdatePatientProfileAsync(userId, request);
+            return HandleResult(result);
         }
 
     }

@@ -6,9 +6,10 @@ namespace Health.Domain.Entities.DoctorModule
 {
     public enum VerificationStatus
     {
-        Pending = 0,    
-        Approved = 1,     
-        Rejected = 2,     
-        Suspended = 3     
+        PendingProfileCompletion = 0,
+        PendingApproval = 1,
+        Approved = 2,
+        Rejected = 3,
+        Suspended = 4
     }
 }

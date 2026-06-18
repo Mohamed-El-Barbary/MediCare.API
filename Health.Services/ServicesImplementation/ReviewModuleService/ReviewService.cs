@@ -47,7 +47,7 @@ namespace Health.Services.ServicesImplementation.ReviewModuleService
                     "The patient is not allowed to rate this doctor because they did not book appointment with him."
                 ));
 
-            if(Appointment.Status != AppointmentStatus.Completed)
+            if(Appointment.Status != AppointmentStatus.AppointmentCompleted)
                 return Result<ReviewResposeForPatinetDTO>.Fail(
                     Error.InvalidCredentials(
                         "Patient.NotAllow",

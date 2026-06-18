@@ -30,6 +30,9 @@ namespace Health.Persistence.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal?>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("AppointmentType")
                         .HasColumnType("int");
 
@@ -42,7 +45,16 @@ namespace Health.Persistence.Data.Migrations
                     b.Property<int>("DoctorProfileId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("PatientProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PaymentIntentID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -775,6 +787,7 @@ namespace Health.Persistence.Data.Migrations
 
                     b.Navigation("Reviews");
                 });
+
 #pragma warning restore 612, 618
         }
     }

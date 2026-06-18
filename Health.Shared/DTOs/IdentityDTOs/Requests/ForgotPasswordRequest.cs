@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Health.Shared.DTOs.IdentityDTOs
+namespace Health.Shared.DTOs.IdentityDTOs.Requests
 {
-    public class ForgotPasswordDTO
-    {
+    public sealed record ForgotPasswordRequest(
         [Required]
         [EmailAddress]
-        public string Email { get; set; } = default!;
-    }
+        string Email
+    );
 }

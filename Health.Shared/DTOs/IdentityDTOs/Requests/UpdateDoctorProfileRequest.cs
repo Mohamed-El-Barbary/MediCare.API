@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Health.Shared.DTOs.IdentityDTOs.Enums;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Health.Shared.DTOs.IdentityDTOs
+namespace Health.Shared.DTOs.IdentityDTOs.Requests
 {
-    public class UpdateDoctorProfileDTO
+    public sealed class UpdateDoctorProfileRequest
     {
         public string? FirstName { get; init; }
         public string? LastName { get; init; }
