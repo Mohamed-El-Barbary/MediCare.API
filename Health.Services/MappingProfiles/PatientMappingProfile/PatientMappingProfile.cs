@@ -20,7 +20,16 @@ namespace Health.Services.MappingProfiles.PatientMappingProfile
         {
             CreateMap<PatientProfile, PatientProfileResponce>();
 
-            CreateMap<Appointment, UpcommingPatientAppointments>();
+            CreateMap<Appointment, UpcommingPatientAppointments>()
+                .ForCtorParam("Id", opt => opt.MapFrom(src => src.Id))
+                .ForCtorParam("DoctorName", opt => opt.MapFrom(src => src.DoctorProfile.DisplayName))
+                .ForCtorParam("DoctorSpecialization", opt => opt.MapFrom(src => src.DoctorProfile.Specialization))
+                .ForCtorParam("AppointmentDate", opt => opt.MapFrom(src => src.CreatedAt))
+                .ForCtorParam("StartTime", opt => opt.MapFrom(src => src.DoctorGeneratedSlots.StartTime))
+                .ForCtorParam("EndTime", opt => opt.MapFrom(src => src.DoctorGeneratedSlots.EndTime))
+                .ForCtorParam("Status", opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForCtorParam("Type", opt => opt.MapFrom(src => src.AppointmentType.ToString()));
+
 
             CreateMap<Consultation, ConsultationDTO>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConsultationStatus.Scheduled.ToString()))
