@@ -9,6 +9,6 @@ namespace Health.Shared.DTOs.PatientDashboardDTOs
     (
         PatientProfileResponce profileData,
         UpcomingAppointments UpcomingAppointments,
-        IEnumerable<PrescriptionDTO> recentPrescriptions
+        RecentPrescriptions recentPrescriptions
     );
 }

@@ -111,7 +111,7 @@ namespace Health.Services.ServicesImplementation.PatientService
             return new PatientDashboardResponce(
                     patientProfileResponce,
                     new UpcomingAppointments(upcommingPatientAppointments!),
-                    RecentPrescriptions
+                    new RecentPrescriptions(RecentPrescriptions)
             );
         }
 
