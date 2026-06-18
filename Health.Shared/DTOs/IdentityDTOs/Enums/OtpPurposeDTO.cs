@@ -9,6 +9,5 @@ namespace Health.Shared.DTOs.Enums
         ForgotPassword = 1,
         ResetPassword,
         EmailVerification
-
     }
 }

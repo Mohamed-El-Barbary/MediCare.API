@@ -1,4 +1,4 @@
-﻿namespace Health.Shared.DTOs.IdentityDTOs
+﻿namespace Health.Shared.DTOs.IdentityDTOs.Enums
 {
     public enum Gender
     {

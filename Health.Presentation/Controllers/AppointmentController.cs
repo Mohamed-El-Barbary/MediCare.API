@@ -1,4 +1,5 @@
-﻿using Health.Services.Abstraction.AppointmentInterface;
+﻿using Health.Presentation.Attributes;
+using Health.Services.Abstraction.AppointmentInterface;
 using Health.Shared;
 using Health.Shared.DTOs.AppointmentDTOs;
 using Health.Shared.ParamsForFilterationPatientAppointment;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
 
 namespace Health.Presentation.Controllers
@@ -19,31 +21,42 @@ namespace Health.Presentation.Controllers
             _appointmentService = appointmentService;
         }
 
-
-        [Authorize(Roles = "Patient")]
-        [HttpPost()] 
-        public async Task<IActionResult> Book([FromBody] CreateAppointmentDTO dto)
+        [HttpGet("statistics")]
+        [Authorize]
+        public async Task<ActionResult<AppointmentStatisticsResponse>> GetStatistics()
         {
-            string patientUserId = GetUserId();
-            var result = await _appointmentService.BookAppointmentAsync(dto, patientUserId);
-            return HandleResult(result , "Patient Appointment has been established successfully.");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var result = await _appointmentService.GetAppointmentStatisticsAsync(userId!);
+            return HandleResult(result);
         }
 
         [Authorize(Roles = "Patient")]
-        [HttpGet]
+        [HttpPost()]
+        public async Task<ActionResult<DoctorAppointmentDTO>> Book([FromBody] CreateAppointmentDTO dto)
+        {
+            string patientUserId = GetUserId();
+            var result = await _appointmentService.BookAppointmentAsync(dto, patientUserId);
+            return HandleResult(result);
+        }
+
+        [Authorize(Roles = "Patient")]
+        [HttpGet("Patient")]
+        [RedisCache(5)]
         public async Task<ActionResult<PaginatedResult<PatientAppointmentDTO>>> GetAllPatientAppointments([FromQuery] AppointmentSpecParams specParams)
         {
             string patientUserId = GetUserId();
-            var result = await _appointmentService.GetPatientAppointment(patientUserId , specParams);
+            var result = await _appointmentService.GetPatientAppointment(patientUserId, specParams);
             return Ok(result);
         }
 
         [Authorize(Roles = "Doctor")]
         [HttpGet("Doctor")]
+        [RedisCache(5)]
         public async Task<ActionResult<PaginatedResult<DoctorAppointmentDTO>>> GetAllDoctorAppointment([FromQuery] AppointmentSpecParams specParams)
         {
             string DoctorUserId = GetUserId();
-            var result = await _appointmentService.GetDoctorAppointment(DoctorUserId , specParams);
+            var result = await _appointmentService.GetDoctorAppointment(DoctorUserId, specParams);
             return Ok(result);
         }
 
@@ -70,7 +83,7 @@ namespace Health.Presentation.Controllers
             string userId = GetUserId();
             string role = GetUserRole();
             var result = await _appointmentService.CancelAppointmentAsync(appointmentId, userId, role);
-            return HandleResult(result , "Appointment cancelled successfully");
+            return HandleResult(result, "Appointment cancelled successfully");
         }
 
         [HttpPut("{appointmentId}/Confirmed")]
@@ -78,7 +91,7 @@ namespace Health.Presentation.Controllers
         public async Task<IActionResult> ConfirmeAppointment(int appointmentId)
         {
             string userId = GetUserId();
-            var result = await _appointmentService.ConfirmAppointment(appointmentId , userId);
+            var result = await _appointmentService.ConfirmAppointment(appointmentId, userId);
             return HandleResult(result, "Appointment Confirmed successfully");
         }
         [HttpPut("{appointmentId}/Complete")]
@@ -86,7 +99,7 @@ namespace Health.Presentation.Controllers
         public async Task<IActionResult> CompleteAppointment(int appointmentId)
         {
             string userId = GetUserId();
-            var result = await _appointmentService.CompleteAppointment(appointmentId , userId);
+            var result = await _appointmentService.CompleteAppointment(appointmentId, userId);
             return HandleResult(result, "Appointment Complete successfully");
         }
 

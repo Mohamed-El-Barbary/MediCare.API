@@ -1,0 +1,11 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Health.Shared.DTOs.IdentityDTOs.Requests
+{
+    public sealed record LoginRequest(
+        string Email,
+        string Password
+    );
+}

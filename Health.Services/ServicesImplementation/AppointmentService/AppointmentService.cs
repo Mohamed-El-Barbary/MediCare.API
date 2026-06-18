@@ -23,33 +23,59 @@ namespace Health.Services.ServicesImplementation.AppointmentService
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public AppointmentService(IUnitOfWork unitOfWork , IMapper mapper)
+        public AppointmentService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<Result> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, string userPatientId)
+
+        public async Task<Result<AppointmentStatisticsResponse>> GetAppointmentStatisticsAsync(string userId)
+        {
+            var spec = new DoctorByIdSpecification(userId);
+
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+
+            if (doctor is null)
+                return Error.NotFound("Doctor.NotFound", "Doctor Not Found");
+
+            var doctorId = doctor.Id;
+
+            var appointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync();
+
+            appointments = appointments.Where(a => a.DoctorProfileId == doctorId);
+
+            var appointmentStatisticsRes = new AppointmentStatisticsResponse(
+                appointments.Count(),
+                appointments.Count(a => a.Status == AppointmentStatus.Pending),
+                appointments.Count(a => a.Status == AppointmentStatus.AppointmentConfirmed),
+                appointments.Count(a => a.Status == AppointmentStatus.AppointmentCompleted),
+                appointments.Count(a => a.Status == AppointmentStatus.AppointmentCancelled)
+            );
+
+            return Result<AppointmentStatisticsResponse>.Ok(appointmentStatisticsRes);
+        }
+        public async Task<Result<DoctorAppointmentDTO>> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, string userPatientId)
         {
             // Get PatientId [Identity]
             var spec = new PatientByIdWithoutIncludes(userPatientId);
             var patient = await _unitOfWork.GetRepository<PatientProfile, int>().GetByIdAsync(spec);
             if (patient is null)
-                return Result.Fail(Error.NotFound("Patient.NotFound", "Patient Not Found"));
+                return Result<DoctorAppointmentDTO>.Fail(Error.NotFound("Patient.NotFound", "Patient Not Found"));
             int patientId = patient.Id;
 
             // Slots Exist
-            var slot = await _unitOfWork.GetRepository<DoctorGeneratedSlots , int>().GetByIdAsync(createAppointmentDTO.DoctorGeneratedSlotsId);
+            var slot = await _unitOfWork.GetRepository<DoctorGeneratedSlots, int>().GetByIdAsync(createAppointmentDTO.DoctorGeneratedSlotsId);
             if (slot is null)
-                return Result.Fail(Error.NotFound("Slot.NotFound", $"Slot With {createAppointmentDTO.DoctorGeneratedSlotsId} Is Not Found"));
+                return Result<DoctorAppointmentDTO>.Fail(Error.NotFound("Slot.NotFound", $"Slot With {createAppointmentDTO.DoctorGeneratedSlotsId} Is Not Found"));
 
             // Slot Availaable
-            if(slot.Status != SlotStatus.Available)
-                return Result.Fail(Error.NotFound("Slot.NotAvailable", $"Slot With {createAppointmentDTO.DoctorGeneratedSlotsId} Is Not Available"));
+            if (slot.Status != SlotStatus.Available)
+                return Result<DoctorAppointmentDTO>.Fail(Error.NotFound("Slot.NotAvailable", $"Slot With {createAppointmentDTO.DoctorGeneratedSlotsId} Is Not Available"));
 
             // Doctor Exist
             var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(createAppointmentDTO.DoctorProfileId);
             if (doctor is null)
-                return Result.Fail(Error.NotFound("Doctor.NotFound", $"Doctor Is Not Found"));
+                return Result<DoctorAppointmentDTO>.Fail(Error.NotFound("Doctor.NotFound", $"Doctor Is Not Found"));
 
             // Create Appointment
             var appointment = _mapper.Map<Appointment>(createAppointmentDTO);
@@ -59,33 +85,34 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             slot.Status = SlotStatus.Booked;
 
             // hit Datebase
-            await _unitOfWork.GetRepository<Appointment , int>().AddAsync(appointment);
+            await _unitOfWork.GetRepository<Appointment, int>().AddAsync(appointment);
 
             // Save Changes
             bool result = await _unitOfWork.SaveChanges() > 0;
 
             if (!result)
-                return Result.Fail(Error.Failure("Something Wrong Happen When Adding Appointment"));
+                return Result<DoctorAppointmentDTO>.Fail(Error.Failure("Something Wrong Happen When Adding Appointment"));
 
-            return Result.Ok();
+            var appointmentDto = _mapper.Map<DoctorAppointmentDTO>(appointment);
+            return Result<DoctorAppointmentDTO>.Ok(appointmentDto);
         }
-        public async Task<PaginatedResult<PatientAppointmentDTO>> GetPatientAppointment(string PatientUserId , AppointmentSpecParams specParams)
+        public async Task<PaginatedResult<PatientAppointmentDTO>> GetPatientAppointment(string PatientUserId, AppointmentSpecParams specParams)
         {
             // Get PatientId
             var spec = new PatientByIdWithoutIncludes(PatientUserId);
             var patient = await _unitOfWork.GetRepository<PatientProfile, int>().GetByIdAsync(spec);
 
-            if(patient is null)
+            if (patient is null)
                 throw new Exception("Patient not found");
 
             var patientId = patient.Id;
 
             // CountOfResult
             var countSpec = new PatientAppointmentsCountSpec(patientId, specParams);
-            var totalCount = await _unitOfWork .GetRepository<Appointment, int>().CountAsync(countSpec);
+            var totalCount = await _unitOfWork.GetRepository<Appointment, int>().CountAsync(countSpec);
 
             // Data
-            var FilterAppointment = new PatientFilteration(patientId , specParams);
+            var FilterAppointment = new PatientFilteration(patientId, specParams);
             var PatientAppointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync(FilterAppointment);
 
             if (PatientAppointments is null)
@@ -152,7 +179,7 @@ namespace Health.Services.ServicesImplementation.AppointmentService
                 return validationResult;
 
             var statusResult = ValidateStatus(appointment);
-            if(!statusResult.IsSuccess)
+            if (!statusResult.IsSuccess)
                 return statusResult;
 
             var timeResult = ValidateTime(appointment);
@@ -178,25 +205,25 @@ namespace Health.Services.ServicesImplementation.AppointmentService
                 return Result.Fail(Error.NotFound("Doctor.NotFound", "Doctor Is Not Found"));
             var doctorId = doctor.Id;
 
-            if(appointment.DoctorProfileId != doctorId)
-                return Result.Fail(Error.Unauthorized( "Doctor.UnAuthorize" , "You are not allowed"));
+            if (appointment.DoctorProfileId != doctorId)
+                return Result.Fail(Error.Unauthorized("Doctor.UnAuthorize", "You are not allowed"));
 
             if (appointment.Status != AppointmentStatus.Pending)
-                return Result.Fail(Error.Failure("Status.Failure" , "Only pending appointments can be confirmed"));
+                return Result.Fail(Error.Failure("Status.Failure", "Only pending appointments can be confirmed"));
 
             var slot = appointment.DoctorGeneratedSlots;
             var appointmentTime = slot.SlotDate.Date + slot.StartTime;
             if (appointmentTime < DateTime.UtcNow)
-                return Result.Fail(Error.Failure("AppointmentTime.Failure" , "Cannot confirm past appointment"));
+                return Result.Fail(Error.Failure("AppointmentTime.Failure", "Cannot confirm past appointment"));
 
-            appointment.Status = AppointmentStatus.Confirmed; 
+            appointment.Status = AppointmentStatus.AppointmentConfirmed;
 
-            _unitOfWork.GetRepository<Appointment , int>().Update(appointment);
+            _unitOfWork.GetRepository<Appointment, int>().Update(appointment);
 
             var result = await _unitOfWork.SaveChanges();
 
             if (result <= 0)
-                return Result.Fail(Error.Failure("confirmed.Failure" , "Failed to confirm appointment"));
+                return Result.Fail(Error.Failure("confirmed.Failure", "Failed to confirm appointment"));
 
             return Result.Ok();
         }
@@ -216,7 +243,7 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             if (appointment.DoctorProfileId != doctorId)
                 return Result.Fail(Error.Unauthorized("Doctor.UnAuthorize", "You are not allowed"));
 
-            if (appointment.Status != AppointmentStatus.Confirmed)
+            if (appointment.Status != AppointmentStatus.AppointmentConfirmed)
                 return Result.Fail(Error.Failure("Status.Failure", "Only pending appointments can be confirmed"));
 
             var slot = appointment.DoctorGeneratedSlots;
@@ -225,7 +252,7 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             if (appointmentTime > DateTime.UtcNow)
                 return Result.Fail(Error.Failure("Appointment time has not finished yet"));
 
-            appointment.Status = AppointmentStatus.Completed;
+            appointment.Status = AppointmentStatus.AppointmentCompleted;
 
             _unitOfWork.GetRepository<Appointment, int>().Update(appointment);
 
@@ -272,8 +299,8 @@ namespace Health.Services.ServicesImplementation.AppointmentService
         }
         private Result ValidateStatus(Appointment appointment)
         {
-            if (appointment.Status == AppointmentStatus.Completed ||
-                appointment.Status == AppointmentStatus.Cancelled)
+            if (appointment.Status == AppointmentStatus.AppointmentCompleted ||
+                appointment.Status == AppointmentStatus.AppointmentCancelled)
             {
                 return Result.Fail(Error.Failure("Canced.Failuer", "Cannot cancel this appointment"));
             }
@@ -292,7 +319,7 @@ namespace Health.Services.ServicesImplementation.AppointmentService
         }
         private void ApplyCancellation(Appointment appointment)
         {
-            appointment.Status = AppointmentStatus.Cancelled;
+            appointment.Status = AppointmentStatus.AppointmentCancelled;
             var slot = appointment.DoctorGeneratedSlots;
             slot.Status = SlotStatus.Available;
         }

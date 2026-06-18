@@ -1,4 +1,5 @@
-﻿using Health.Services.Abstraction.DoctorModulesAbstractions;
+﻿using Health.Presentation.Attributes;
+using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Shared;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.DoctorDTOs;
@@ -21,7 +22,17 @@ namespace Health.Presentation.Controllers
             _doctorService = doctorService;
         }
 
+        [Authorize(Roles = "Doctor")]
+        [HttpGet("dashboard")]
+        public async Task<ActionResult<DoctorDashboardResponse>> GetDashboard()
+        {
+            var id = GetUserId();
+            var result = await _doctorService.GetDashboardAsync(id);
+            return HandleResult(result);
+        }
+
         [HttpGet]
+        [RedisCache(5)]
         public async Task<ActionResult<PaginatedResult<DoctorDTO>>> GetAllDoctors([FromQuery] DoctorSpecParams specParams)
         {
             var result = await _doctorService.GetAllDoctorsAsync(specParams);
@@ -85,6 +96,7 @@ namespace Health.Presentation.Controllers
 
         [Authorize(Roles = "Patient,Doctor")]
         [HttpGet("generate-slots")]
+        [RedisCache(5)]
         public async Task<ActionResult<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(DateTime? Date)
         {
             string userDoctorId = GetUserId();

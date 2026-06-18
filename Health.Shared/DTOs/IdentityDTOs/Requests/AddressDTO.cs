@@ -1,6 +1,6 @@
-﻿namespace Health.Shared.DTOs.IdentityDTOs
+﻿namespace Health.Shared.DTOs.IdentityDTOs.Requests
 {
-    public class AddressDTO
+    public sealed class AddressDTO
     {
         public string City { get; init; } = default!;
         public string Country { get; init; } = default!;

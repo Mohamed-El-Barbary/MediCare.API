@@ -1,4 +1,5 @@
-﻿using Health.Services.Abstraction.ReviewModule;
+﻿using Health.Presentation.Attributes;
+using Health.Services.Abstraction.ReviewModule;
 using Health.Shared;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.ReviewDTOs;
@@ -52,6 +53,7 @@ namespace Health.Presentation.Controllers
 
         [Authorize(Roles = "Doctor")]
         [HttpGet("AvgRating")]
+        [RedisCache(5)]
         public async Task<ActionResult<DoctorRatingDTO>> AvgRatingAndReviewsCount()
         {
             string DoctorId = GetUserId();
@@ -61,6 +63,7 @@ namespace Health.Presentation.Controllers
 
         [Authorize(Roles = "Patient")]
         [HttpGet("Patient")]
+        [RedisCache (5)]
         public async Task<ActionResult<PaginatedResult<ReviewResposeForPatinetDTO>>> PatientReviews([FromQuery] ReviewSpecParam reviewSpec)
         {
             var patientId = GetUserId();
@@ -69,6 +72,7 @@ namespace Health.Presentation.Controllers
         }
         [Authorize(Roles = "Doctor")]
         [HttpGet("Doctor")]
+        [RedisCache(5)]
         public async Task<ActionResult<PaginatedResult<ReviewResposeForPatinetDTO>>> DoctorReviews([FromQuery] ReviewSpecParam reviewSpec)
         {
             var doctorId = GetUserId();

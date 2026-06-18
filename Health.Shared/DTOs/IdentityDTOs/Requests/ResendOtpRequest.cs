@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Health.Shared.DTOs.IdentityDTOs
+namespace Health.Shared.DTOs.IdentityDTOs.Requests
 {
-    public class ResendOtpDTO
-    {
+    public sealed record ResendOtpRequest(
         [Required]
         [EmailAddress]
-        public string Email { get; set; } = default!;
-    }
+        string Email 
+    );
 }

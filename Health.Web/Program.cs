@@ -1,4 +1,5 @@
 ﻿
+using Hangfire;
 using Health.Domain.Contracts;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.IdentityModule;
@@ -11,17 +12,23 @@ using Health.Presentation.Controllers;
 using Health.Presentation.Hubs;
 using Health.Services.Abstraction.AppointmentInterface;
 using Health.Services.Abstraction.ConsultationModule;
+using Health.Services.Abstraction;
+using Health.Services.Abstraction.AppointmentInterface;
+using Health.Services.Abstraction.BackgroundJop;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Services.Abstraction.IdentityModule;
 using Health.Services.Abstraction.IdentityModuleAbstraction;
+using Health.Services.Abstraction.PaymentServiceAbstraction;
 using Health.Services.Abstraction.ReviewModule;
 using Health.Services.MappingProfiles;
 using Health.Services.MappingProfiles.DoctorMapping;
 using Health.Services.ServicesImplementation;
 using Health.Services.ServicesImplementation.AppointmentService;
 using Health.Services.ServicesImplementation.ConsultationModule;
+using Health.Services.ServicesImplementation.BackgroundJops;
 using Health.Services.ServicesImplementation.DoctorModuleServices;
 using Health.Services.ServicesImplementation.IdentityModule;
+using Health.Services.ServicesImplementation.PaymentService;
 using Health.Services.ServicesImplementation.ReviewModuleService;
 using Health.Web.CustomMiddlewares;
 using Health.Web.Extensions;
@@ -103,11 +110,14 @@ namespace Health.Web
             builder.Services.AddTransient<IEmailService, EmailService>();
             builder.Services.AddScoped<IDoctorGenerateSlotsRepository , SlotRepository>();
             builder.Services.AddScoped<IReview , ReviewService>();
-
             builder.Services.AddScoped<IDoctorGenerateSlotsRepository, SlotRepository>();
             builder.Services.AddScoped<IConsultationService, ConsultationService>();
             builder.Services.AddScoped<IConsultationSessionService, ConsultationSessionService>();
-
+            builder.Services.AddScoped<IProfileCompletionService, ProfileCompletionService>();
+            builder.Services.AddScoped<IPaymentService , PaymentService>();
+            builder.Services.AddScoped<ICacheRepository , CacheRepository>();
+            builder.Services.AddScoped<ICachService , CacheService>();
+            builder.Services.AddScoped<IAppointmentMaintenanceService , AppointmentMaintenanceService>();
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -148,10 +158,23 @@ namespace Health.Web
 
             });
 
+
+            builder.Services.AddHangfire(config =>
+            {
+                config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnextion"));
+            });
+
+            builder.Services.AddHangfireServer();
+
             #endregion
 
 
             var app = builder.Build();
+
+            app.UseHangfireDashboard();
+
+            RecurringJob.AddOrUpdate<IAppointmentMaintenanceService>("expire-slots", service => service.ExpireSlotsAsync(), "*/2 * * * *");
+            RecurringJob.AddOrUpdate<IAppointmentMaintenanceService>("cancel-expired-appointments", service => service.CancelUnpaidAppointmentsAsync(), Cron.Daily);
 
             #region DataSeeding 
 
