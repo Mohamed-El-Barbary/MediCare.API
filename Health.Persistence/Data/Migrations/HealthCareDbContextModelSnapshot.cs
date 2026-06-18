@@ -732,6 +732,7 @@ namespace Health.Persistence.Data.Migrations
             modelBuilder.Entity("Health.Domain.Entities.AppointmentModule.Appointment", b =>
                 {
                     b.Navigation("Review");
+                });
 
             modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.Consultation", b =>
                 {
