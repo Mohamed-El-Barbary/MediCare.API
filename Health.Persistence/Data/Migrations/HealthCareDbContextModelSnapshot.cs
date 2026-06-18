@@ -30,6 +30,9 @@ namespace Health.Persistence.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal?>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("AppointmentType")
                         .HasColumnType("int");
 
@@ -42,7 +45,16 @@ namespace Health.Persistence.Data.Migrations
                     b.Property<int>("DoctorProfileId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("PatientProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PaymentIntentID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -58,6 +70,162 @@ namespace Health.Persistence.Data.Migrations
                     b.HasIndex("PatientProfileId");
 
                     b.ToTable("Appointments");
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.Consultation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Diagnosis")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoomId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("ScheduledAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Symptoms")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("RoomId")
+                        .IsUnique();
+
+                    b.ToTable("Consultations", (string)null);
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.Prescription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdditionalNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("ConsultationId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConsultationId");
+
+                    b.ToTable("Prescriptions", (string)null);
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.PrescriptionItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Dosage")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("DurationInDays")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Frequency")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Instructions")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("MedicineName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("PrescriptionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrescriptionId");
+
+                    b.ToTable("PrescriptionItems", (string)null);
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.SessionConnection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ConnectedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ConnectionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ConsultationId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConsultationId");
+
+                    b.ToTable("SessionConnection");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorGeneratedSlots", b =>
@@ -110,7 +278,6 @@ namespace Health.Persistence.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Bio")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -124,7 +291,6 @@ namespace Health.Persistence.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DoctorPictureUrl")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -134,8 +300,10 @@ namespace Health.Persistence.Data.Migrations
                     b.Property<DateTime>("JoinDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("MedicalLicenseNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PhoneClinc")
-                        .IsRequired()
                         .HasMaxLength(11)
                         .HasColumnType("nvarchar(11)");
 
@@ -151,7 +319,6 @@ namespace Health.Persistence.Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("SyndicateCardUrl")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -278,6 +445,48 @@ namespace Health.Persistence.Data.Migrations
                     b.ToTable("PatientProfiles");
                 });
 
+            modelBuilder.Entity("Health.Domain.Entities.ReviewModule.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("doctorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("doctorId");
+
+                    b.ToTable("Review");
+
+                });
+
             modelBuilder.Entity("Health.Domain.Entities.AppointmentModule.Appointment", b =>
                 {
                     b.HasOne("Health.Domain.Entities.DoctorModule.DoctorGeneratedSlots", "DoctorGeneratedSlots")
@@ -303,6 +512,66 @@ namespace Health.Persistence.Data.Migrations
                     b.Navigation("DoctorProfile");
 
                     b.Navigation("PatientProfile");
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.Consultation", b =>
+                {
+                    b.HasOne("Health.Domain.Entities.AppointmentModule.Appointment", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Health.Domain.Entities.DoctorModule.DoctorProfile", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Health.Domain.Entities.PatientModule.PatientProfile", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.Prescription", b =>
+                {
+                    b.HasOne("Health.Domain.Entities.ConsultationModule.Consultation", "Consultation")
+                        .WithMany("Prescriptions")
+                        .HasForeignKey("ConsultationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Consultation");
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.PrescriptionItem", b =>
+                {
+                    b.HasOne("Health.Domain.Entities.ConsultationModule.Prescription", "Prescription")
+                        .WithMany("Items")
+                        .HasForeignKey("PrescriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Prescription");
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.SessionConnection", b =>
+                {
+                    b.HasOne("Health.Domain.Entities.ConsultationModule.Consultation", "Consultation")
+                        .WithMany("Connections")
+                        .HasForeignKey("ConsultationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Consultation");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorGeneratedSlots", b =>
@@ -445,6 +714,49 @@ namespace Health.Persistence.Data.Migrations
                     b.Navigation("EmergencyContact");
                 });
 
+            modelBuilder.Entity("Health.Domain.Entities.ReviewModule.Review", b =>
+                {
+                    b.HasOne("Health.Domain.Entities.AppointmentModule.Appointment", "Appointment")
+                        .WithOne("Review")
+                        .HasForeignKey("Health.Domain.Entities.ReviewModule.Review", "AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Health.Domain.Entities.PatientModule.PatientProfile", "Patient")
+                        .WithMany("Reviews")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Health.Domain.Entities.DoctorModule.DoctorProfile", "doctor")
+                        .WithMany("Reviews")
+                        .HasForeignKey("doctorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("doctor");
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.AppointmentModule.Appointment", b =>
+                {
+                    b.Navigation("Review");
+                });
+            modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.Consultation", b =>
+                {
+                    b.Navigation("Connections");
+
+                    b.Navigation("Prescriptions");
+                });
+
+            modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.Prescription", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorProfile", b =>
                 {
                     b.Navigation("Appointments");
@@ -452,6 +764,8 @@ namespace Health.Persistence.Data.Migrations
                     b.Navigation("DoctorGeneratedSlots");
 
                     b.Navigation("DoctorSchedule");
+
+                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("Health.Domain.Entities.DoctorModule.DoctorSchedule", b =>
@@ -469,7 +783,10 @@ namespace Health.Persistence.Data.Migrations
                     b.Navigation("Appointments");
 
                     b.Navigation("PatientChronicDiseases");
+
+                    b.Navigation("Reviews");
                 });
+
 #pragma warning restore 612, 618
         }
     }

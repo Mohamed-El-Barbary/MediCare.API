@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
 using AutoMapper.Execution;
 using Health.Domain.Contracts;
+using Health.Domain.Entities.AppointmentModule;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.IdentityModule;
+using Health.Services.Abstraction.AppointmentInterface;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
+using Health.Services.Abstraction.IdentityModule;
 using Health.Services.Aggregates;
+using Health.Services.Specifications.AppointmentSpecification;
 using Health.Services.Specifications.DoctorGeneratedSlotsSpecification;
 using Health.Services.Specifications.DoctorSceduleSpecification;
 using Health.Services.Specifications.DoctorSpecification;
@@ -15,6 +19,7 @@ using Health.Shared.DTOs.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Mail;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,13 +33,21 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         private readonly IMapper _mapper;
         private readonly IDoctorScheduleRepository _doctorScheduleRepository;
         private readonly IDoctorGenerateSlotsRepository _slotRepo;
+        private readonly IProfileCompletionService _profileCompletionService;
 
-        public DoctorService(IUnitOfWork unitOfWork, IMapper mapper , IDoctorScheduleRepository doctorScheduleRepository , IDoctorGenerateSlotsRepository SlotRepo)
+        public DoctorService(IUnitOfWork unitOfWork,
+                             IMapper mapper,
+                             IDoctorScheduleRepository doctorScheduleRepository,
+                             IDoctorGenerateSlotsRepository SlotRepo,
+                             IAppointmentService appointmentService,
+                             IProfileCompletionService profileCompletionService          
+            )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _doctorScheduleRepository = doctorScheduleRepository;
             _slotRepo = SlotRepo;
+            _profileCompletionService = profileCompletionService;
         }
 
 
@@ -56,20 +69,20 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
         public async Task<Result<DoctorDTO>> GetDoctorByIdAsync(int id)
         {
             var spec = new DoctorWithScheduleAndGeneratedSlots(id);
-            var doctor = await _unitOfWork.GetRepository<DoctorProfile , int>().GetByIdAsync(spec);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
             if (doctor is null)
             {
                 return Error.NotFound("Doctor.NotFound", $"Doctor With Id:{id} Is Not Found");
             }
 
-            return _mapper.Map<DoctorProfile ,DoctorDTO>(doctor);
+            return _mapper.Map<DoctorDTO>(doctor);
         }
 
-
-        public async Task<Result> AddScheduleAsync(int doctorId, DoctorScheduleDTO dto)
+        public async Task<Result> AddScheduleAsync(string userDoctorId, DoctorScheduleDTO dto)
         {
+            var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
             // 1 Check doctor exists
-            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorSpec);
 
             if (doctor == null)
                 return Result.Fail(Error.NotFound("Doctor Is Not Found"));
@@ -79,7 +92,9 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                 return Result.Fail(Error.Validation("StartTime must be less than EndTime"));
 
             if (dto.SlotDurationMinutes <= 0)
-                return  Result.Fail(Error.InvalidCredentials("Invalid slot duration"));
+                return Result.Fail(Error.InvalidCredentials("Invalid slot duration"));
+
+            var doctorId = doctor.Id;
 
             // Check dublicate Day
             var exists = await _doctorScheduleRepository
@@ -94,7 +109,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             var schedule = _mapper.Map<DoctorSchedule>(dto);
             schedule.DoctorProfileId = doctorId;
 
-            await _unitOfWork.GetRepository<DoctorSchedule , int>().AddAsync(schedule);
+            await _unitOfWork.GetRepository<DoctorSchedule, int>().AddAsync(schedule);
 
             bool result = await _unitOfWork.SaveChanges() > 0;
 
@@ -104,9 +119,17 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result.Ok();
         }
 
-
-        public async Task<Result<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScheduleAsync(int doctorId)
+        public async Task<Result<IEnumerable<DoctorSceduleToReturn>>> GetAllDoctorScheduleAsync(string userDoctorId)
         {
+            // Get Doctor ID
+            var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorSpec);
+
+            if (doctor == null)
+                return Result<IEnumerable<DoctorSceduleToReturn>>.Fail(Error.NotFound("Doctor Is Not Found"));
+
+            int doctorId = doctor.Id;
+
             var DoctorScudleElement = _unitOfWork.GetRepository<DoctorSchedule, int>();
             var spec = new DoctorSceduleByDoctorProfileIdSpec(doctorId);
             var schedules = await DoctorScudleElement.GetAllAsync(spec);
@@ -121,8 +144,17 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result<IEnumerable<DoctorSceduleToReturn>>.Ok(schedulesDTO);
         }
 
-        public async Task<Result> DeleteScheduleAsync(int scheduleId, int doctorProfileId)
+        public async Task<Result> DeleteScheduleAsync(int scheduleId, string userDoctorId)
         {
+            // Get Doctor Id [identity]
+            var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorSpec);
+
+            if (doctor == null)
+                return Result.Fail(Error.NotFound("Doctor Is Not Found"));
+
+            int doctorProfileId = doctor.Id;
+
             var scheduleRepo = _unitOfWork.GetRepository<DoctorSchedule, int>();
 
             var schedule = await scheduleRepo.GetByIdAsync(scheduleId);
@@ -131,7 +163,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                 return Result.Fail(Error.NotFound("Schedule.NotFound", "Schedule not found"));
 
             if (schedule.DoctorProfileId != doctorProfileId)
-                return Result.Fail(Error.Failure("Scedule.NotAllowed" , "You are not allowed to delete this schedule"));
+                return Result.Fail(Error.Failure("Scedule.NotAllowed", "You are not allowed to delete this schedule"));
 
 
             scheduleRepo.Delete(schedule);
@@ -141,27 +173,34 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result.Ok();
         }
 
-
-        public async Task<Result> UpdateScheduleAsync(int doctorProfileId, int scheduleId, DoctorScheduleDTO dto)
+        public async Task<Result> UpdateScheduleAsync(string userDoctorId, int scheduleId, DoctorScheduleDTO dto)
         {
+            // Get doctorProfileId
+            var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorSpec);
+
+            if (doctor == null)
+                return Result.Fail(Error.NotFound("Doctor Is Not Found"));
+
+            int doctorProfileId = doctor.Id;
+
             var scheduleRepo = _unitOfWork.GetRepository<DoctorSchedule, int>();
 
-           
             var scheduleToUpdate = await scheduleRepo.GetByIdAsync(scheduleId);
 
             if (scheduleToUpdate == null || scheduleToUpdate.DoctorProfileId != doctorProfileId)
                 return Result.Fail(Error.NotFound("Schedule not found or does not belong to this doctor"));
 
-            
+
             var spec = new DoctorSceduleByDoctorProfileIdSpec(doctorProfileId, scheduleId);
             var schedules = await scheduleRepo.GetAllAsync(spec);
 
-            
+
             var exists = schedules.Any(s => s.DayOfWeek == dto.DayOfWeek);
             if (exists)
                 return Result.Fail(Error.Failure("This doctor already has a schedule for this day"));
 
-            
+
             scheduleToUpdate.DayOfWeek = dto.DayOfWeek;
             scheduleToUpdate.StartTime = dto.StartTime;
             scheduleToUpdate.EndTime = dto.EndTime;
@@ -173,7 +212,6 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             return Result.Ok();
         }
 
-
         public async Task<Result> GenerateSlotsBySchedule(int scheduleId, GeneratedSlotsRequestDto generatedSlotsRequestDto)
         {
 
@@ -181,7 +219,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                 return Result.Fail(Error.InvalidCredentials("Result.InvalidCredential", "StartDate must be <= EndDate"));
 
             // Get Scheule
-            var schedule = await _unitOfWork.GetRepository<DoctorSchedule , int>().GetByIdAsync(scheduleId);
+            var schedule = await _unitOfWork.GetRepository<DoctorSchedule, int>().GetByIdAsync(scheduleId);
             if (schedule is null)
                 return Result.Fail(Error.NotFound("Schedule.Notfound", $"Schedule With {scheduleId} Is Not Found For This Doctor"));
 
@@ -189,7 +227,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             if (schedule.StartTime >= schedule.EndTime)
                 return Result.Fail(Error.Failure("Generate Is Failure", "Invalid Schedule Time"));
 
-            if(schedule.SlotDurationMinutes <= 0)
+            if (schedule.SlotDurationMinutes <= 0)
                 return Result.Fail(Error.Failure("Generate Is Failure", "Invalid Slot Duration"));
 
             // doctorId From Doctor Schedule
@@ -200,8 +238,8 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             var existingSlots = await _slotRepo
                                     .GetByDoctorAndDateRange
                                     (
-                                      doctorId, 
-                                      generatedSlotsRequestDto.StartDate, 
+                                      doctorId,
+                                      generatedSlotsRequestDto.StartDate,
                                       generatedSlotsRequestDto.EndDate
                                     );
 
@@ -215,7 +253,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
             for (var date = generatedSlotsRequestDto.StartDate.Date; date <= generatedSlotsRequestDto.EndDate.Date; date = date.AddDays(1))
             {
                 // check day Match
-                if(date.DayOfWeek != schedule.DayOfWeek)
+                if (date.DayOfWeek != schedule.DayOfWeek)
                     continue;
 
                 var current = schedule.StartTime;
@@ -226,7 +264,7 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                     {
                         newSlots.Add(new DoctorGeneratedSlots
                         {
-                            DoctorProfileId = doctorId,       
+                            DoctorProfileId = doctorId,
                             DoctorScheduleId = schedule.Id,
                             SlotDate = date,
                             StartTime = current,
@@ -239,25 +277,34 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                 }
 
             }
-          
+
             if (newSlots.Any())
             {
-                await _unitOfWork.GetRepository<DoctorGeneratedSlots , int>().AddRangeAsync(newSlots);
+                await _unitOfWork.GetRepository<DoctorGeneratedSlots, int>().AddRangeAsync(newSlots);
             }
 
             bool result = await _unitOfWork.SaveChanges() > 0;
 
-            if(!result)
-                return Result.Fail(Error.Failure("Something Wrong Happen When Adding Slots")); 
-            
-            
+            if (!result)
+                return Result.Fail(Error.Failure("Something Wrong Happen When Adding Slots"));
+
+
             return Result.Ok();
         }
 
-        public async Task<Result<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(int doctorId, DateTime? date)
+        public async Task<Result<IEnumerable<GeneratedSlotsDTO>>> GetDoctorSlots(string userDoctorId, DateTime? date)
         {
+            // Get Doctor ID
+            var doctorSpec = new DoctorByUserIdSpec(userDoctorId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(doctorSpec);
+
+            if (doctor == null)
+                return Result<IEnumerable<GeneratedSlotsDTO>>.Fail(Error.NotFound("Doctor Is Not Found"));
+
+            int doctorId = doctor.Id;
+
             var spec = new DoctorSlotsSpec(doctorId, date);
-            var Slots = await _unitOfWork.GetRepository<DoctorGeneratedSlots , int>().GetAllAsync(spec);
+            var Slots = await _unitOfWork.GetRepository<DoctorGeneratedSlots, int>().GetAllAsync(spec);
 
             return Slots.Select(s => new GeneratedSlotsDTO
             {
@@ -268,5 +315,96 @@ namespace Health.Services.ServicesImplementation.DoctorModuleServices
                 Status = (EnumSlotStatusDTO)s.Status
             }).ToList();
         }
+
+        public async Task<Result<DoctorDashboardResponse>> GetDashboardAsync(string doctorId)
+        {
+            var profileResult = await GetDoctorProfileAsync(doctorId);
+
+            if (profileResult.IsFailure)
+                return profileResult.Errors.First();
+
+            var profile = profileResult.Value;
+            var profileId = profile.Id;
+
+            var completion = await _profileCompletionService.CalculateAndUpdateDoctorStatusAsync(doctorId);
+
+            var appointmentsRepo = _unitOfWork.GetRepository<Appointment, int>();
+
+            var todayAppointments = await appointmentsRepo.GetAllAsync(new TodayAppointmentsSpecification(profileId));
+            var pendingAppointments = await appointmentsRepo.GetAllAsync(new LatestPendingAppointmentSpecification(profileId));
+            var completedAppointments = await appointmentsRepo.GetAllAsync(new CompletedAppointmentsSpecification(profileId));
+            var todayCount = await appointmentsRepo.CountAsync(new TodayAppointmentsCountSpecification(profileId));
+            var incomeAppointments = await appointmentsRepo.GetAllAsync(new DoctorIncomeSpecification(profileId));
+
+            var profileData = BuildProfile(profile, completion.Value);
+            var tables = BuildTables(todayAppointments.ToList(), pendingAppointments.ToList(), completedAppointments.ToList());
+            var cards = BuildCards(profile, todayCount, completedAppointments.ToList(), incomeAppointments.ToList());
+
+            return new DoctorDashboardResponse(profileData, cards, tables);
+        }
+
+        #region Helper Method
+        private async Task<Result<DoctorProfile>> GetDoctorProfileAsync(string userId)
+        {
+            var spec = new DoctorByUserIdSpec(userId);
+
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+
+            if (doctor is null)
+                return Result<DoctorProfile>.Fail(
+                    Error.NotFound("Doctor.NotFound", $"Doctor with user id:{userId} not found")
+                );
+
+            return Result<DoctorProfile>.Ok(doctor);
+        }
+        private DoctorProfileSummaryResponse BuildProfile(DoctorProfile profile, int completion)
+        {
+            return new DoctorProfileSummaryResponse(
+                profile.DisplayName,
+                profile.Specialization,
+                completion,
+                profile.YearsOfExperience,
+                profile.VerificationStatus.ToString(),
+                profile.Rating
+            );
+        }
+        private DashboardTablesResponse BuildTables(
+            IReadOnlyList<Appointment> today,
+            IReadOnlyList<Appointment> pending,
+            IReadOnlyList<Appointment> completed)
+        {
+            var todayDto = _mapper.Map<IReadOnlyList<TodayAppointmentItemResponse>>(today);
+
+            var pendingDto = _mapper.Map<IReadOnlyList<NewRequestItemResponse>>(pending);
+
+            var recentPatients = completed
+                .DistinctBy(a => a.PatientProfileId)
+                .Take(5)
+                .ToList();
+
+            var recentDto = _mapper.Map<IReadOnlyList<RecentPatientItemResponse>>(recentPatients);
+
+            return new DashboardTablesResponse(todayDto, pendingDto, recentDto);
+        }
+        private DashboardCardsResponse BuildCards(
+            DoctorProfile profile,
+            int todayCount,
+            IReadOnlyList<Appointment> completed,
+            IReadOnlyList<Appointment> incomeAppointments)
+        {
+            var relatedPatients = completed
+                .DistinctBy(a => a.PatientProfileId)
+                .Count();
+
+            var totalIncome = incomeAppointments.Sum(a => a.Amount ?? 0) / 100m;
+
+            return new DashboardCardsResponse(
+                todayCount,
+                relatedPatients,
+                profile.Rating,
+                totalIncome
+            );
+        }
+        #endregion
     }
 }

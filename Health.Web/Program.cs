@@ -1,4 +1,5 @@
 ﻿
+using Hangfire;
 using Health.Domain.Contracts;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.IdentityModule;
@@ -8,14 +9,27 @@ using Health.Persistence.IdentityData.DbContexts;
 using Health.Persistence.Repositories;
 using Health.Persistence.Repositories.DoctorRepos;
 using Health.Presentation.Controllers;
+using Health.Presentation.Hubs;
+using Health.Services.Abstraction.AppointmentInterface;
+using Health.Services.Abstraction.ConsultationModule;
+using Health.Services.Abstraction;
+using Health.Services.Abstraction.AppointmentInterface;
+using Health.Services.Abstraction.BackgroundJop;
 using Health.Services.Abstraction.DoctorModulesAbstractions;
 using Health.Services.Abstraction.IdentityModule;
 using Health.Services.Abstraction.IdentityModuleAbstraction;
+using Health.Services.Abstraction.PaymentServiceAbstraction;
+using Health.Services.Abstraction.ReviewModule;
 using Health.Services.MappingProfiles;
 using Health.Services.MappingProfiles.DoctorMapping;
 using Health.Services.ServicesImplementation;
+using Health.Services.ServicesImplementation.AppointmentService;
+using Health.Services.ServicesImplementation.ConsultationModule;
+using Health.Services.ServicesImplementation.BackgroundJops;
 using Health.Services.ServicesImplementation.DoctorModuleServices;
 using Health.Services.ServicesImplementation.IdentityModule;
+using Health.Services.ServicesImplementation.PaymentService;
+using Health.Services.ServicesImplementation.ReviewModuleService;
 using Health.Web.CustomMiddlewares;
 using Health.Web.Extensions;
 using Health.Web.Factories;
@@ -27,6 +41,7 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace Health.Web
@@ -42,7 +57,21 @@ namespace Health.Web
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+            builder.Services.AddSignalR();
             builder.Services.AddOpenApi();
+            builder.Services.AddCors(opt =>
+            {
+                opt.AddPolicy(
+                    "DevelopmentPolicy",
+                    builder =>
+                    {
+                        builder.WithOrigins("https://localhost:4200")
+                               .AllowAnyHeader()
+                               .AllowAnyMethod()
+                               .AllowCredentials()
+                               .SetIsOriginAllowed(_ => true);
+                    });
+            });
             builder.Services.AddDbContext<HealthCareDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnextion"));
@@ -77,9 +106,18 @@ namespace Health.Web
             builder.Services.AddScoped<IAttachmentService, AttachmentService>();
             builder.Services.AddScoped<IOtpRepository, OtpRepository>();
             builder.Services.AddScoped<IOtpService, OtpService>();
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
             builder.Services.AddTransient<IEmailService, EmailService>();
             builder.Services.AddScoped<IDoctorGenerateSlotsRepository , SlotRepository>();
-
+            builder.Services.AddScoped<IReview , ReviewService>();
+            builder.Services.AddScoped<IDoctorGenerateSlotsRepository, SlotRepository>();
+            builder.Services.AddScoped<IConsultationService, ConsultationService>();
+            builder.Services.AddScoped<IConsultationSessionService, ConsultationSessionService>();
+            builder.Services.AddScoped<IProfileCompletionService, ProfileCompletionService>();
+            builder.Services.AddScoped<IPaymentService , PaymentService>();
+            builder.Services.AddScoped<ICacheRepository , CacheRepository>();
+            builder.Services.AddScoped<ICachService , CacheService>();
+            builder.Services.AddScoped<IAppointmentMaintenanceService , AppointmentMaintenanceService>();
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -96,15 +134,47 @@ namespace Health.Web
                     ValidAudience = builder.Configuration["JWTOptions:Audience"],
                     IssuerSigningKey =
                         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTOptions:SecretKey"]!)),
-                    RoleClaimType = "role",
-                    NameClaimType = JwtRegisteredClaimNames.Name
+                    RoleClaimType = ClaimTypes.Role,
+                    NameClaimType = ClaimTypes.Name
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        var path = context.HttpContext.Request.Path;
+
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            path.StartsWithSegments("/hubs/video-call"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
+
             });
+
+
+            builder.Services.AddHangfire(config =>
+            {
+                config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnextion"));
+            });
+
+            builder.Services.AddHangfireServer();
 
             #endregion
 
 
             var app = builder.Build();
+
+            app.UseHangfireDashboard();
+
+            RecurringJob.AddOrUpdate<IAppointmentMaintenanceService>("expire-slots", service => service.ExpireSlotsAsync(), "*/2 * * * *");
+            RecurringJob.AddOrUpdate<IAppointmentMaintenanceService>("cancel-expired-appointments", service => service.CancelUnpaidAppointmentsAsync(), Cron.Daily);
 
             #region DataSeeding 
 
@@ -130,11 +200,13 @@ namespace Health.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            app.UseCors("DevelopmentPolicy");
+
             app.UseAuthentication();
             app.UseAuthorization();
 
-
             app.MapControllers();
+            app.MapHub<VideoCallHub>("/hubs/video-call");
 
             app.Run();
         }

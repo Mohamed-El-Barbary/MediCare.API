@@ -1,0 +1,62 @@
+﻿using AutoMapper;
+using Health.Domain.Entities.AppointmentModule;
+using Health.Shared.DTOs.AppointmentDTOs;
+using Health.Shared.DTOs.DoctorDTOs;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Health.Services.MappingProfiles.AppointmentMapping
+{
+    public class AppointmentMappingProfile : Profile
+    {
+        public AppointmentMappingProfile()
+        {
+            CreateMap<CreateAppointmentDTO, Appointment>()
+                .ForMember(desc => desc.PatientProfileId, opt => opt.Ignore())
+                .ForMember(desc => desc.Status, opt => opt.MapFrom(src => AppointmentStatus.Pending))
+                .ForMember(desc => desc.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.AppointmentType, opt => opt.MapFrom(src => (AppointmentType)src.AppointmentType));
+
+            CreateMap<Appointment, PatientAppointmentDTO>()
+                .ForMember(desc => desc.DoctorName, op => op.MapFrom(src => src.DoctorProfile.DisplayName))
+                .ForMember(desc => desc.DoctorSpecialization, op => op.MapFrom(src => src.DoctorProfile.Specialization))
+                .ForMember(desc => desc.AppointmentDate, op => op.MapFrom(src => src.DoctorGeneratedSlots.SlotDate.ToString("yyyy-MM-dd")))
+                .ForMember(desc => desc.StartTime, op => op.MapFrom(src => src.DoctorGeneratedSlots.StartTime))
+                .ForMember(desc => desc.EndTime, op => op.MapFrom(src => src.DoctorGeneratedSlots.EndTime))
+                .ForMember(desc => desc.Status, op => op.MapFrom(src => src.Status.ToString()))
+                .ForMember(desc => desc.Type, op => op.MapFrom(src => src.AppointmentType.ToString()));
+
+            CreateMap<Appointment, DoctorAppointmentDTO>()
+                .ForMember(desc => desc.PatientName, op => op.MapFrom(src => src.PatientProfile.DisplayName))
+                .ForMember(desc => desc.AppointmentDate, op => op.MapFrom(src => src.DoctorGeneratedSlots.SlotDate.ToString("yyy-MM-dd")))
+                .ForMember(desc => desc.StartTime, op => op.MapFrom(src => src.DoctorGeneratedSlots.StartTime))
+                .ForMember(desc => desc.EndTime, op => op.MapFrom(src => src.DoctorGeneratedSlots.EndTime))
+                .ForMember(desc => desc.Status, op => op.MapFrom(src => src.Status.ToString()))
+                .ForMember(desc => desc.Type, op => op.MapFrom(src => src.AppointmentType.ToString()));
+
+            CreateMap<Appointment, TodayAppointmentItemResponse>()
+                .ForCtorParam("AppointmentId", op => op.MapFrom(s => s.Id))
+                .ForCtorParam("PatientName", op => op.MapFrom(s => s.PatientProfile.DisplayName))
+                .ForCtorParam("Time", op => op.MapFrom(s => TimeOnly.FromTimeSpan(s.DoctorGeneratedSlots.StartTime)))
+                .ForCtorParam("Status", op => op.MapFrom(s => s.Status.ToString()))
+                .ForCtorParam("Type", op => op.MapFrom(s => s.AppointmentType.ToString()));
+
+            CreateMap<Appointment, NewRequestItemResponse>()
+                .ForCtorParam("AppointmentId", op => op.MapFrom(s => s.Id))
+                .ForCtorParam("PatientName", op => op.MapFrom(s => s.PatientProfile.DisplayName))
+                .ForCtorParam("Type", op => op.MapFrom(s => s.AppointmentType.ToString()))
+                .ForCtorParam("RequestedAt", op => op.MapFrom(s => s.CreatedAt))
+                .ForCtorParam("Status", op => op.MapFrom(s => s.Status.ToString()));
+
+
+            CreateMap<Appointment, RecentPatientItemResponse>()
+                .ForCtorParam("PatientId",op => op.MapFrom(s => s.PatientProfileId))
+                .ForCtorParam("PatientName",op => op.MapFrom(s =>s.PatientProfile != null
+                                                                            ? s.PatientProfile.DisplayName
+                                                                            : string.Empty))
+                .ForCtorParam("Condition",op => op.MapFrom(s => (string?)null))
+                .ForCtorParam("LastAppointmentDate",op => op.MapFrom(s => s.DoctorGeneratedSlots.SlotDate));
+        }
+    }
+}
