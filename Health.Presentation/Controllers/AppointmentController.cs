@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
 
 namespace Health.Presentation.Controllers
@@ -20,6 +21,15 @@ namespace Health.Presentation.Controllers
             _appointmentService = appointmentService;
         }
 
+        [HttpGet("statistics")]
+        [Authorize]
+        public async Task<ActionResult<AppointmentStatisticsResponse>> GetStatistics()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var result = await _appointmentService.GetAppointmentStatisticsAsync(userId!);
+            return HandleResult(result);
+        }
 
         [Authorize(Roles = "Patient")]
         [HttpPost()]
