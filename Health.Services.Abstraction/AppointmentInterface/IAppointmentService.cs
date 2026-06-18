@@ -10,6 +10,7 @@ namespace Health.Services.Abstraction.AppointmentInterface
 {
     public interface IAppointmentService
     {
+        Task<Result<AppointmentStatisticsResponse>> GetAppointmentStatisticsAsync(string userId);
         Task<Result<DoctorAppointmentDTO>> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, string patientUserId);
         Task<PaginatedResult<PatientAppointmentDTO>> GetPatientAppointment(string PatientUserId, AppointmentSpecParams specParams);
         Task<PaginatedResult<DoctorAppointmentDTO>> GetDoctorAppointment(string DoctorUserId, AppointmentSpecParams specParams);
