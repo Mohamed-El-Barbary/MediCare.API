@@ -40,19 +40,19 @@ namespace Health.Presentation.Controllers
 
         [Authorize]
         [HttpGet("doctor")]
-        public async Task<ActionResult<PaginatedResult<ConsultationSummaryDTO>>> GetByDoctorId([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PaginatedResult<ConsultationSummaryDTO>>> GetByDoctorId([FromQuery]ConsultationSpecParams specParams)
         {
             var doctorId = GetUserId();
-            var result = await _consultationService.GetByDoctorIdAsync(doctorId, pageIndex, pageSize);
+            var result = await _consultationService.GetByDoctorIdAsync(doctorId, specParams);
             return HandleResult(result);
         }
 
         [Authorize]
         [HttpGet("patient")]
-        public async Task<ActionResult<PaginatedResult<ConsultationSummaryDTO>>> GetByPatientId([FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PaginatedResult<ConsultationSummaryDTO>>> GetByPatientId([FromQuery] ConsultationSpecParams specParams)
         {
             var patientId = GetUserId();
-            var result = await _consultationService.GetByPatientIdAsync(patientId, pageIndex, pageSize);
+            var result = await _consultationService.GetByPatientIdAsync(patientId, specParams);
             return HandleResult(result);
         }
 

@@ -64,32 +64,32 @@ namespace Health.Services.ServicesImplementation.ConsultationModule
             return await MapConsultationDtoAsync(consultation);
         }
 
-        public async Task<Result<PaginatedResult<ConsultationSummaryDTO>>> GetByDoctorIdAsync(string doctorId, int pageIndex, int pageSize)
+        public async Task<Result<PaginatedResult<ConsultationSummaryDTO>>> GetByDoctorIdAsync(string doctorId, ConsultationSpecParams specParams)
         {
             var id = await GetDoctorIdAsync(doctorId);
-            var spec = new ConsultationByDoctorIdSpecification(id.Value, pageIndex, pageSize);
+            var spec = new ConsultationByDoctorIdSpecification(id.Value, specParams);
             var countSpec = new ConsultationByDoctorIdCountSpecification(id.Value);
 
             var consultations = await _unitOfWork.GetRepository<Consultation, int>().GetAllAsync(spec);
             var totalCount = await _unitOfWork.GetRepository<Consultation, int>().CountAsync(countSpec);
             var consultationDtos = _mapper.Map<IEnumerable<ConsultationSummaryDTO>>(consultations);
 
-            var paginatedResult = new PaginatedResult<ConsultationSummaryDTO>(pageIndex, pageSize, totalCount, consultationDtos);
+            var paginatedResult = new PaginatedResult<ConsultationSummaryDTO>(specParams.PageIndex, specParams.PageSize, totalCount, consultationDtos);
 
             return Result<PaginatedResult<ConsultationSummaryDTO>>.Ok(paginatedResult);
         }
 
-        public async Task<Result<PaginatedResult<ConsultationSummaryDTO>>> GetByPatientIdAsync(string patientId, int pageIndex, int pageSize)
+        public async Task<Result<PaginatedResult<ConsultationSummaryDTO>>> GetByPatientIdAsync(string patientId, ConsultationSpecParams specParams)
         {
             var id = await GetPatientIdAsync(patientId);
-            var spec = new ConsultationByPatientIdSpecification(id.Value, pageIndex, pageSize);
+            var spec = new ConsultationByPatientIdSpecification(id.Value,specParams);
             var countSpec = new ConsultationByPatientIdCountSpecification(id.Value);
 
             var consultations = await _unitOfWork.GetRepository<Consultation, int>().GetAllAsync(spec);
             var totalCount = await _unitOfWork.GetRepository<Consultation, int>().CountAsync(countSpec);
             var consultationDtos = _mapper.Map<IEnumerable<ConsultationSummaryDTO>>(consultations);
 
-            var paginatedResult = new PaginatedResult<ConsultationSummaryDTO>(pageIndex, pageSize, totalCount, consultationDtos);
+            var paginatedResult = new PaginatedResult<ConsultationSummaryDTO>(specParams.PageIndex, specParams.PageSize, totalCount, consultationDtos);
 
             return Result<PaginatedResult<ConsultationSummaryDTO>>.Ok(paginatedResult);
         }
@@ -252,34 +252,34 @@ namespace Health.Services.ServicesImplementation.ConsultationModule
             return await MapConsultationDtoAsync(consultation!);
         }
 
-        public async Task<Result<bool>> DeletePrescriptionItemAsync(int consultationId,int prescriptionId,int itemId)
+        public async Task<Result<bool>> DeletePrescriptionItemAsync(int consultationId, int prescriptionId, int itemId)
         {
             // 1. Get item directly
             var item = await _unitOfWork.GetRepository<PrescriptionItem, int>().GetByIdAsync(itemId);
 
             if (item is null)
-                return Error.NotFound("PrescriptionItem.NotFound",$"PrescriptionItem with id:{itemId} not found");
+                return Error.NotFound("PrescriptionItem.NotFound", $"PrescriptionItem with id:{itemId} not found");
 
             // 2. Get prescription for ownership validation
             var prescription = await _unitOfWork.GetRepository<Prescription, int>().GetByIdAsync(prescriptionId);
 
             if (prescription is null)
-                return Error.NotFound("Prescription.NotFound",$"Prescription with id:{prescriptionId} not found");
+                return Error.NotFound("Prescription.NotFound", $"Prescription with id:{prescriptionId} not found");
 
             // 3. Validate relation: prescription belongs to consultation
             if (prescription.ConsultationId != consultationId)
-                return Error.Validation("Prescription.InvalidRelation","This prescription does not belong to this consultation");
+                return Error.Validation("Prescription.InvalidRelation", "This prescription does not belong to this consultation");
 
             // 4. Validate item belongs to prescription
             if (item.PrescriptionId != prescriptionId)
-                return Error.Validation("PrescriptionItem.InvalidRelation","This item does not belong to this prescription");
+                return Error.Validation("PrescriptionItem.InvalidRelation", "This item does not belong to this prescription");
 
             // 5. Delete
             _unitOfWork.GetRepository<PrescriptionItem, int>().Delete(item);
 
             var result = await _unitOfWork.SaveChanges() > 0;
             if (!result)
-                return Error.Validation("PrescriptionItem.DeleteFailed","Failed to delete prescription item");
+                return Error.Validation("PrescriptionItem.DeleteFailed", "Failed to delete prescription item");
 
             return true;
         }

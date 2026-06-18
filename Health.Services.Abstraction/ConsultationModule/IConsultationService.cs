@@ -3,6 +3,7 @@ using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.ConsultationDTOs;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace Health.Services.Abstraction.ConsultationModule
@@ -11,8 +12,8 @@ namespace Health.Services.Abstraction.ConsultationModule
     {
         Task<Result<ConsultationDTO>> CreateAsync(CreateConsultationDTO request);
         Task<Result<ConsultationDTO>> GetByIdAsync(int id);
-        Task<Result<PaginatedResult<ConsultationSummaryDTO>>> GetByDoctorIdAsync(string doctorId, int pageIndex, int pageSize);
-        Task<Result<PaginatedResult<ConsultationSummaryDTO>>> GetByPatientIdAsync(string patientId, int pageIndex, int pageSize);
+        Task<Result<PaginatedResult<ConsultationSummaryDTO>>> GetByDoctorIdAsync(string doctorId, ConsultationSpecParams specParams);
+        Task<Result<PaginatedResult<ConsultationSummaryDTO>>> GetByPatientIdAsync(string patientId, ConsultationSpecParams specParams);
 
         // Medical Data
         Task<Result<ConsultationDTO>> UpdateMedicalDataAsync(int consultationId, UpdateMedicalDataDTO request);
