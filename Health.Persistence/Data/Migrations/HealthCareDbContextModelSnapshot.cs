@@ -745,6 +745,7 @@ namespace Health.Persistence.Data.Migrations
                 {
                     b.Navigation("Review");
                 });
+
             modelBuilder.Entity("Health.Domain.Entities.ConsultationModule.Consultation", b =>
                 {
                     b.Navigation("Connections");
