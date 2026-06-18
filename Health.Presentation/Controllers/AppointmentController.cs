@@ -22,7 +22,7 @@ namespace Health.Presentation.Controllers
 
 
         [Authorize(Roles = "Patient")]
-        [HttpPost()] 
+        [HttpPost()]
         public async Task<ActionResult<DoctorAppointmentDTO>> Book([FromBody] CreateAppointmentDTO dto)
         {
             string patientUserId = GetUserId();
@@ -31,12 +31,12 @@ namespace Health.Presentation.Controllers
         }
 
         [Authorize(Roles = "Patient")]
-        [HttpGet]
+        [HttpGet("Patient")]
         [RedisCache(5)]
         public async Task<ActionResult<PaginatedResult<PatientAppointmentDTO>>> GetAllPatientAppointments([FromQuery] AppointmentSpecParams specParams)
         {
             string patientUserId = GetUserId();
-            var result = await _appointmentService.GetPatientAppointment(patientUserId , specParams);
+            var result = await _appointmentService.GetPatientAppointment(patientUserId, specParams);
             return Ok(result);
         }
 
@@ -46,7 +46,7 @@ namespace Health.Presentation.Controllers
         public async Task<ActionResult<PaginatedResult<DoctorAppointmentDTO>>> GetAllDoctorAppointment([FromQuery] AppointmentSpecParams specParams)
         {
             string DoctorUserId = GetUserId();
-            var result = await _appointmentService.GetDoctorAppointment(DoctorUserId , specParams);
+            var result = await _appointmentService.GetDoctorAppointment(DoctorUserId, specParams);
             return Ok(result);
         }
 
@@ -73,7 +73,7 @@ namespace Health.Presentation.Controllers
             string userId = GetUserId();
             string role = GetUserRole();
             var result = await _appointmentService.CancelAppointmentAsync(appointmentId, userId, role);
-            return HandleResult(result , "Appointment cancelled successfully");
+            return HandleResult(result, "Appointment cancelled successfully");
         }
 
         [HttpPut("{appointmentId}/Confirmed")]
@@ -81,7 +81,7 @@ namespace Health.Presentation.Controllers
         public async Task<IActionResult> ConfirmeAppointment(int appointmentId)
         {
             string userId = GetUserId();
-            var result = await _appointmentService.ConfirmAppointment(appointmentId , userId);
+            var result = await _appointmentService.ConfirmAppointment(appointmentId, userId);
             return HandleResult(result, "Appointment Confirmed successfully");
         }
         [HttpPut("{appointmentId}/Complete")]
@@ -89,7 +89,7 @@ namespace Health.Presentation.Controllers
         public async Task<IActionResult> CompleteAppointment(int appointmentId)
         {
             string userId = GetUserId();
-            var result = await _appointmentService.CompleteAppointment(appointmentId , userId);
+            var result = await _appointmentService.CompleteAppointment(appointmentId, userId);
             return HandleResult(result, "Appointment Complete successfully");
         }
 
