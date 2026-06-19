@@ -10,6 +10,7 @@ namespace Health.Services.Abstraction.ConsultationModule
 {
     public interface IConsultationService
     {
+        Task<Result<ConsultationStatisticsDTO>> GetStatisticsAsync(string userId, string role);
         Task<Result<ConsultationDTO>> CreateAsync(CreateConsultationDTO request);
         Task<Result<ConsultationDTO>> GetByIdAsync(int id);
         Task<Result<PaginatedResult<ConsultationSummaryDTO>>> GetByDoctorIdAsync(string doctorId, ConsultationSpecParams specParams);

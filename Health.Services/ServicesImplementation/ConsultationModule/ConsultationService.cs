@@ -2,6 +2,7 @@
 using Health.Domain.Contracts;
 using Health.Domain.Entities.AppointmentModule;
 using Health.Domain.Entities.ConsultationModule;
+using Health.Domain.Entities.ConsultationModule.Enums;
 using Health.Domain.Entities.DoctorModule;
 using Health.Domain.Entities.PatientModule;
 using Health.Services.Abstraction.ConsultationModule;
@@ -14,6 +15,7 @@ using Health.Shared.DTOs.ConsultationDTOs;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Numerics;
 using System.Text;
 
@@ -28,6 +30,36 @@ namespace Health.Services.ServicesImplementation.ConsultationModule
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+        }
+
+        public async Task<Result<ConsultationStatisticsDTO>> GetStatisticsAsync(string userId, string role)
+        {
+            var entityIdResult = await GetEntityIdByRoleAsync(userId, role);
+
+            if (!entityIdResult.IsSuccess)
+                return entityIdResult.Errors.First();
+
+            var entityId = entityIdResult.Value;
+
+            var repo = _unitOfWork.GetRepository<Consultation, int>();
+
+            Expression<Func<Consultation, bool>> baseFilter =
+                role == "Doctor"
+                    ? c => c.DoctorId == entityId
+                    : c => c.PatientId == entityId;
+
+            var consultations = await repo.GetAllAsync(new ConsultationStatisticsSpecification(baseFilter));
+
+            var result = new ConsultationStatisticsDTO(
+                consultations.Count(),
+                consultations.Count(x => x.Status == ConsultationStatus.Scheduled),
+                consultations.Count(x => x.Status == ConsultationStatus.InProgress),
+                consultations.Count(x => x.Status == ConsultationStatus.Completed),
+                consultations.Count(x => x.Status == ConsultationStatus.Cancelled),
+                consultations.Count(x => x.Status == ConsultationStatus.Missed)
+            );
+
+            return Result<ConsultationStatisticsDTO>.Ok(result);
         }
 
         public async Task<Result<ConsultationDTO>> CreateAsync(CreateConsultationDTO request)
@@ -82,7 +114,7 @@ namespace Health.Services.ServicesImplementation.ConsultationModule
         public async Task<Result<PaginatedResult<ConsultationSummaryDTO>>> GetByPatientIdAsync(string patientId, ConsultationSpecParams specParams)
         {
             var id = await GetPatientIdAsync(patientId);
-            var spec = new ConsultationByPatientIdSpecification(id.Value,specParams);
+            var spec = new ConsultationByPatientIdSpecification(id.Value, specParams);
             var countSpec = new ConsultationByPatientIdCountSpecification(id.Value);
 
             var consultations = await _unitOfWork.GetRepository<Consultation, int>().GetAllAsync(spec);
@@ -370,7 +402,30 @@ namespace Health.Services.ServicesImplementation.ConsultationModule
                 return doctor.Id;
         }
 
+        private async Task<Result<int>> GetEntityIdByRoleAsync(string userId, string role)
+        {
+            if (role == "Doctor")
+            {
+                var doctorId = await GetDoctorIdAsync(userId);
 
+                if (doctorId is null)
+                    return Error.NotFound("Doctor.NotFound", "Doctor not found");
+
+                return doctorId.Value;
+            }
+
+            if (role == "Patient")
+            {
+                var patientId = await GetPatientIdAsync(userId);
+
+                if (patientId is null)
+                    return Error.NotFound("Patient.NotFound", "Patient not found");
+
+                return patientId.Value;
+            }
+
+            return Error.Unauthorized("Role.Invalid", "Invalid role");
+        }
 
         #endregion
     }

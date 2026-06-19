@@ -23,6 +23,16 @@ namespace Health.Presentation.Controllers
             _consultationService = consultationService;
         }
 
+        [HttpGet("statistics")]
+        [Authorize(Roles = "Doctor,Patient")]
+        public async Task<ActionResult<ConsultationStatisticsDTO>> GetStatistics()
+        {
+            var userId = GetUserId();
+            var role = GetUserRole();
+            var result = await _consultationService.GetStatisticsAsync(userId!, role!);
+            return HandleResult(result);
+        }
+
         [HttpPost]
         public async Task<ActionResult<ConsultationDTO>> CreateConsultation(CreateConsultationDTO request)
         {
