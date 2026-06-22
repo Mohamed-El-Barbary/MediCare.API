@@ -15,7 +15,9 @@ namespace Health.Services.Specifications.AppointmentSpecification
                  a.Status == AppointmentStatus.Pending)
              )
             {
+
                 AddInclude(a => a.PatientProfile);
+                AddInclude(a => a.DoctorProfile);
                 AddInclude(a => a.DoctorGeneratedSlots);
                 AddOrderByDesc(a => a.DoctorGeneratedSlots.StartTime);
             }
