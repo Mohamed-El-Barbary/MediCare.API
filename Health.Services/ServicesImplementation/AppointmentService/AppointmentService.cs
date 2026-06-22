@@ -14,6 +14,7 @@ using Health.Shared.DTOs.DoctorDTOs;
 using Health.Shared.ParamsForFilterationPatientAppointment;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Health.Services.ServicesImplementation.AppointmentService
@@ -29,22 +30,27 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             _mapper = mapper;
         }
 
-        public async Task<Result<AppointmentStatisticsResponse>> GetAppointmentStatisticsAsync(string userId)
+        public async Task<Result<AppointmentStatisticsResponse>> GetAppointmentStatisticsAsync(string userId, string role)
         {
-            var spec = new DoctorByIdSpecification(userId);
+            var entityIdResult = await GetEntityIdByRoleAsync(userId, role);
 
-            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+            if (!entityIdResult.IsSuccess)
+                return entityIdResult.Errors.First();
 
-            if (doctor is null)
-                return Error.NotFound("Doctor.NotFound", "Doctor Not Found");
+            var entityId = entityIdResult.Value;
 
-            var doctorId = doctor.Id;
+            var repo = _unitOfWork.GetRepository<Appointment, int>();
 
-            var appointments = await _unitOfWork.GetRepository<Appointment, int>().GetAllAsync();
+            Expression<Func<Appointment, bool>> baseFilter =
+                role == "Doctor"
+                    ? a => a.DoctorProfileId == entityId
+                    : a => a.PatientProfileId == entityId;
 
-            appointments = appointments.Where(a => a.DoctorProfileId == doctorId);
+            var appointments = await repo.GetAllAsync(
+                new AppointmentStatisticsSpecification(baseFilter)
+            );
 
-            var appointmentStatisticsRes = new AppointmentStatisticsResponse(
+            var result = new AppointmentStatisticsResponse(
                 appointments.Count(),
                 appointments.Count(a => a.Status == AppointmentStatus.Pending),
                 appointments.Count(a => a.Status == AppointmentStatus.AppointmentConfirmed),
@@ -52,8 +58,9 @@ namespace Health.Services.ServicesImplementation.AppointmentService
                 appointments.Count(a => a.Status == AppointmentStatus.AppointmentCancelled)
             );
 
-            return Result<AppointmentStatisticsResponse>.Ok(appointmentStatisticsRes);
+            return Result<AppointmentStatisticsResponse>.Ok(result);
         }
+
         public async Task<Result<DoctorAppointmentDTO>> BookAppointmentAsync(CreateAppointmentDTO createAppointmentDTO, string userPatientId)
         {
             // Get PatientId [Identity]
@@ -322,6 +329,43 @@ namespace Health.Services.ServicesImplementation.AppointmentService
             appointment.Status = AppointmentStatus.AppointmentCancelled;
             var slot = appointment.DoctorGeneratedSlots;
             slot.Status = SlotStatus.Available;
+        }
+
+        private async Task<int?> GetPatientIdAsync(string PatientUserId)
+        {
+            var spec = new PatientByIdWithoutIncludes(PatientUserId);
+            var patient = await _unitOfWork.GetRepository<PatientProfile, int>().GetByIdAsync(spec);
+            if (patient is null)
+                return null;
+            else
+                return patient.Id;
+        }
+        private async Task<int?> GetDoctorIdAsync(string DoctorUserId)
+        {
+            var spec = new DoctorByIdSpecification(DoctorUserId);
+            var doctor = await _unitOfWork.GetRepository<DoctorProfile, int>().GetByIdAsync(spec);
+            if (doctor is null)
+                return null;
+            else
+                return doctor.Id;
+        }
+
+
+        private async Task<Result<int>> GetEntityIdByRoleAsync(string userId, string role) 
+        { 
+            if (role == "Doctor") 
+            { 
+                var doctorId = await GetDoctorIdAsync(userId); 
+                if (doctorId is null) return Error.NotFound("Doctor.NotFound", "Doctor not found"); 
+                return doctorId.Value; 
+            } 
+            if (role == "Patient") 
+            { 
+                var patientId = await GetPatientIdAsync(userId); 
+                if (patientId is null) return Error.NotFound("Patient.NotFound", "Patient not found"); 
+                return patientId.Value; 
+            } 
+            return Error.Unauthorized("Role.Invalid", "Invalid role"); 
         }
 
         #endregion

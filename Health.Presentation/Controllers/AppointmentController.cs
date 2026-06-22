@@ -25,9 +25,10 @@ namespace Health.Presentation.Controllers
         [Authorize]
         public async Task<ActionResult<AppointmentStatisticsResponse>> GetStatistics()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetUserId();
+            var role = GetUserRole();
 
-            var result = await _appointmentService.GetAppointmentStatisticsAsync(userId!);
+            var result = await _appointmentService.GetAppointmentStatisticsAsync(userId!, role);
             return HandleResult(result);
         }
 
