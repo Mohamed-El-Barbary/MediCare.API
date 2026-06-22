@@ -7,10 +7,10 @@ namespace Health.Shared.DTOs.PatientDashboardDTOs
     public sealed record PatientProfileResponce
     (
          string DisplayName,
-         Gender Gender ,
+         string Gender ,
          DateTime DateOfBirth ,
          DateTime JoinDate,
          AddressResponce Address,
-         BloodTypeDTO? BloodType
+         string? BloodType
     );
 }

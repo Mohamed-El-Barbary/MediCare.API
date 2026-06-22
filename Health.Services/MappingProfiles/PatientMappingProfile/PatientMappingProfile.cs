@@ -18,7 +18,9 @@ namespace Health.Services.MappingProfiles.PatientMappingProfile
     {
         public PatientMappingProfile()
         {
-            CreateMap<PatientProfile, PatientProfileResponce>();
+            CreateMap<PatientProfile, PatientProfileResponce>()
+                .ForCtorParam("Gender", opt => opt.MapFrom(src => src.Gender.ToString()))
+                .ForCtorParam("BloodType", opt => opt.MapFrom(src => src.BloodType != null ? src.BloodType.ToString(): null));
 
             CreateMap<Appointment, UpcommingPatientAppointments>()
                 .ForCtorParam("Id", opt => opt.MapFrom(src => src.Id))
