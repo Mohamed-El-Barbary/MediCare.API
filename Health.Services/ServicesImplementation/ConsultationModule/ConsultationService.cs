@@ -66,7 +66,7 @@ namespace Health.Services.ServicesImplementation.ConsultationModule
         {
             var existing = await GetExistingConsultationAsync(request.AppointmentId);
 
-            if (existing is not null)
+            if (existing.Value is not null)
                 return await MapConsultationDtoAsync(existing.Value!);
 
             var validationResult = await ValidateConsultationDataAsync(request);

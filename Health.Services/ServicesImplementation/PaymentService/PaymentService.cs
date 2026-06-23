@@ -1,10 +1,12 @@
 ﻿using CloudinaryDotNet.Actions;
 using Health.Domain.Contracts;
 using Health.Domain.Entities.AppointmentModule;
+using Health.Services.Abstraction.ConsultationModule;
 using Health.Services.Abstraction.PaymentServiceAbstraction;
 using Health.Services.Specifications.AppointmentSpecification;
 using Health.Shared.CommonResponses;
 using Health.Shared.DTOs.AppointmentDTOs;
+using Health.Shared.DTOs.ConsultationDTOs;
 using Health.Shared.DTOs.PaymentDTOs;
 using Health.Shared.ParamsForFilterationPatientAppointment;
 using Microsoft.Extensions.Configuration;
@@ -21,11 +23,13 @@ namespace Health.Services.ServicesImplementation.PaymentService
     public class PaymentService : IPaymentService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IConsultationService _consultationService;
         private readonly IConfiguration _configuration;
 
-        public PaymentService(IUnitOfWork unitOfWork , IConfiguration configuration)
+        public PaymentService(IUnitOfWork unitOfWork ,IConsultationService consultationService ,IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
+            _consultationService = consultationService;
             _configuration = configuration;
         }
         public async Task<Result<PaymentIntentResponseDto>> CreateOrUpdatePaymentIntentAsync(int AppointmentId)
@@ -113,6 +117,15 @@ namespace Health.Services.ServicesImplementation.PaymentService
             var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
             Console.WriteLine(paymentIntent!.Id);
             var Appointment = await _unitOfWork.GetRepository<Appointment, int>().GetByIdAsync(new AppointmentSpecWithPaymentIntent(paymentIntent!.Id));
+
+            var createConsultationDto = new CreateConsultationDTO()
+            {
+                AppointmentId = Appointment!.Id,
+                DoctorId = Appointment.DoctorProfileId,
+                PatientId = Appointment.PatientProfileId,
+                Type = 0,
+            };
+
             // Handle the event
             if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
             {
@@ -120,6 +133,7 @@ namespace Health.Services.ServicesImplementation.PaymentService
                 Appointment.Status = AppointmentStatus.AppointmentConfirmed;
                 Appointment.PaidAt = DateTime.Now;
                 _unitOfWork.GetRepository<Appointment, int>().Update(Appointment);
+                await _consultationService.CreateAsync(createConsultationDto);
                 await _unitOfWork.SaveChanges();
             }
             else if (stripeEvent.Type == EventTypes.PaymentIntentPaymentFailed)
