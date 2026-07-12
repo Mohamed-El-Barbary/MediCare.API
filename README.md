@@ -368,20 +368,6 @@ Example endpoints:
 
 ---
 
-## 📷 Screenshots
-
-> Add screenshots to `docs/screenshots/` and reference them below.
-
-| Login | Dashboard |
-|---|---|
-| ![Login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
-
-| Consultation | Video Session |
-|---|---|
-| ![Consultation](docs/screenshots/consultation.png) | ![Video Session](docs/screenshots/video-session.png) |
-
----
-
 ## 🔮 Future Improvements
 
 - 💬 In-app chat messaging between doctor & patient
